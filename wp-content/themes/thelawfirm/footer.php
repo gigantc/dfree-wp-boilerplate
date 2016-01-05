@@ -24,5 +24,12 @@
 
 <?php wp_footer(); ?>
 
+<script>
+	console.log('%c                                          ', 'background: #64A6A0; color: #fffef2; padding-bottom: 7px;');
+	console.log('%c         DESIGN & DEVELOPMENT BY          ', 'background: #64A6A0; color: #fffef2; padding-bottom: 7px;');
+	console.log('%c        -     THE LAW FIRM     -          ', 'background: #64A6A0; color: #fffef2; padding-bottom: 7px;');
+	console.log('%c                                          ', 'background: #64A6A0; color: #fffef2');
+</script><!-- Console Credit -->
+
 </body>
 </html>
