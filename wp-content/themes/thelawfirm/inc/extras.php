@@ -32,10 +32,10 @@ add_filter( 'body_class', 'thelawfirm_body_classes' );
 function thelawfirm_console_credits() {
 ?>
 <script>
-	console.log('%c                                          ', 'background: #64A6A0; color: #fffef2; padding-bottom: 7px;');
-	console.log('%c         DESIGN & DEVELOPMENT BY          ', 'background: #64A6A0; color: #fffef2; padding-bottom: 7px;');
-	console.log('%c        -     THE LAW FIRM     -          ', 'background: #64A6A0; color: #fffef2; padding-bottom: 7px;');
-	console.log('%c                                          ', 'background: #64A6A0; color: #fffef2');
+	console.log('%c                                          ', 'background: #666; color: #ddd; padding-bottom: 7px;');
+	console.log('%c         DESIGN & DEVELOPMENT BY          ', 'background: #666; color: #ddd; padding-bottom: 7px;');
+	console.log('%c        -     THE LAW FIRM     -          ', 'background: #666; color: #ddd; padding-bottom: 7px;');
+	console.log('%c                                          ', 'background: #666; color: #ddd');
 </script>
 <?php
 }
