@@ -84,14 +84,10 @@ add_action( 'admin_menu', 'lawfirm_remove_menu', 999 );
 function replace_admin_menu_icons_css() {
 ?>
 <style>
-#adminmenu #toplevel_page_footer-callouts div.wp-menu-image::before {content:'\f175';}
 #adminmenu #toplevel_page_social-accounts div.wp-menu-image::before {content:'\f237';}
 #adminmenu #menu-posts-location div.wp-menu-image::before {content:'\f231';}
 #adminmenu #menu-users div.wp-menu-image::before {content:'\f307';}
-#adminmenu #toplevel_page_ninja-forms div.wp-menu-image::before {content:'\f478';}
-#adminmenu #menu-posts-event div.wp-menu-image::before {content:'\f508';}
 #adminmenu #menu-posts-project div.wp-menu-image::before {content:'\f308';}
-#adminmenu #menu-posts-job-posting div.wp-menu-image::before {content:'\f157';}
 #adminmenu #menu-media div.wp-menu-image::before {content:'\f306';}
 #adminmenu #menu-posts div.wp-menu-image::before {content:'\f488';}
 #adminmenu #toplevel_page_edit-post_type-acf-field-group div.wp-menu-image::before {content:'\f511';}
@@ -103,14 +99,15 @@ function replace_admin_menu_icons_css() {
 }
 add_action( 'admin_head', 'replace_admin_menu_icons_css' );
 
+
 // changes POSTS in admin menu
 function lawfirm_change_post_label() {
     global $menu;
     global $submenu;
-    $menu[5][0] = 'News & Updates';
-    $submenu['edit.php'][5][0] = 'News & Updates';
-    $submenu['edit.php'][10][0] = 'Add New Update';
-    $submenu['edit.php'][16][0] = 'News Tags';
+    $menu[5][0] = 'Deez Posts';
+    $submenu['edit.php'][5][0] = 'Deez Posts';
+    $submenu['edit.php'][10][0] = 'Add Deez Posts';
+    $submenu['edit.php'][16][0] = 'Deez Post Tags';
     echo '';
 }
 add_action( 'admin_menu', 'lawfirm_change_post_label' );
