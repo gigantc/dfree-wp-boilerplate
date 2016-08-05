@@ -1,11 +1,11 @@
 <?php
 /**
- * The template for displaying all single posts.
- *
- * Template name: Blank
- *
- * @package lawfirm
- */
+* The template for displaying all single posts.
+*
+* Template name: Blank
+*
+* @package lawfirm
+*/
 
 get_header(); ?>
 

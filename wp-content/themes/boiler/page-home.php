@@ -1,9 +1,9 @@
 <?php
 /**
- * The Homepage.
- *
- * @package lawfirm
- */
+* The Homepage.
+*
+* @package lawfirm
+*/
 get_header(); ?>
 
 <main>
