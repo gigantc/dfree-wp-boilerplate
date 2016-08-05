@@ -81,13 +81,13 @@ function lawfirm_scripts() {
   wp_register_script('jquery', "http" . ($_SERVER['SERVER_PORT'] == 443 ? "s" : "") . "://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js", false, null);
 
 
-	wp_register_script( 'lawfirm_js', get_template_directory_uri() . '/js/main.min.js', array('jquery'), '1.0.0', true );
+	wp_register_script( 'lawfirm-js', get_template_directory_uri() . '/js/main.min.js', array('jquery'), '1.0.0', true );
   wp_register_script( 'vendor', get_template_directory_uri() . '/js/vendor/vendor.min.js', array('jquery'), '1.0.0', true );
   wp_register_script( 'ajax-posts', get_template_directory_uri() . '/js/ajax.min.js', array('jquery'), '1.0.0', true );
 
   wp_enqueue_script( 'jquery' );
   wp_enqueue_script( 'vendor' );
-  wp_enqueue_script( 'lawfirm_js' );
+  wp_enqueue_script( 'lawfirm-js' );
   wp_enqueue_script('ajax-posts');
 
 
