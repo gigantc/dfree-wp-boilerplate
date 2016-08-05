@@ -33,6 +33,13 @@ gulp.task('vendorjs', function(){
         .pipe(gulp.dest('js/vendor/'));
 });
 
+gulp.task('libsjs', function(){
+  return gulp.src('src/js/libs/*.js')
+        .pipe(concat('libs.min.js'))
+        .pipe(uglify())
+        .pipe(gulp.dest('js/libs/'));
+});
+
 gulp.task('page_scripts', function(){
   return gulp.src('src/js/*.js')
     .pipe(plumber({
@@ -66,4 +73,4 @@ gulp.task('watch', function() {
 });
 
 // Default Task
-gulp.task('default', ['sass', 'vendorjs', 'page_scripts', 'scripts', 'watch']);
+gulp.task('default', ['sass', 'vendorjs', 'libsjs', 'page_scripts', 'scripts', 'watch']);
