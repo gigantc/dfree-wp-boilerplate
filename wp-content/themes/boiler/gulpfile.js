@@ -14,7 +14,7 @@ var sass = require('gulp-sass'),
 
 // Set up compression, prefixing, sourcemaps and destination
 gulp.task('sass', function(){
-  gulp.src(['src/sass/**/*.scss'])
+  gulp.src(['src/scss/**/*.scss'])
     .pipe(plumber({
       errorHandler: function (error) {
         console.log(error.message);
@@ -60,7 +60,7 @@ gulp.task('scripts', function(){
 
 // Watch Files For Changes
 gulp.task('watch', function() {
-    gulp.watch('src/sass/**/*.scss', ['sass']),
+    gulp.watch('src/scss/**/*.scss', ['sass']),
     gulp.watch('src/js/*.js', ['scripts', 'page_scripts']),
     gulp.watch('src/js/vendor/*.js', ['vendorjs']);
 });
