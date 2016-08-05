@@ -1,0 +1,136 @@
+
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Optimize Database after Deleting Revisions v4.1.10 - LOG</title>
+<style type="text/css">
+body, td, th {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+th {
+	border-top:solid 1px #000;
+	border-bottom:solid 1px #000;
+}
+td {
+	padding-bottom:4px;
+	border-bottom:dotted 1px #CCC;
+}
+#header {
+	margin-left:6px;
+	margin-bottom:8px;
+}
+#header a {
+	text-decoration:none;
+	font-weight:bold;
+}
+</style>
+</head>
+<body>
+<div id="header">
+<h2><a href="https://wordpress.org/plugins/rvg-optimize-database/" target="_blank">Optimize Database after Deleting Revisions v4.1.10</a></h2>
+  A WordPress Plugin by <a href="http://cagewebdev.com" target="_blank"><span class="odb-bold">CAGE Web Design</span></a> | <a href="http://rvg.cage.nl" target="_blank"><span class="odb-bold">Rolf van Gelder</span></a>, Eindhoven, The Netherlands</span>
+</div>
+<table width="100%" border="0" cellspacing="6" cellpadding="1">
+  <tr>
+	<th width="8%" align="left" valign="top">time</th>
+	<th width="8%" align="right" valign="top">deleted<br />revisions</th>
+	<th width="8%" align="right" valign="top">deleted<br />trash</th>
+	<th width="8%" align="right" valign="top">deleted<br />spam</th>
+	<th width="8%" align="right" valign="top">deleted<br />tags</th>
+	<th width="8%" align="right" valign="top">deleted<br />transients</th>
+	<th width="8%" align="right" valign="top">deleted<br />pingbacks<br />trackbacks</th>		  
+	<th width="8%" align="right" valign="top">deleted<br />orphans</th>	  
+	<th width="8%" align="right" valign="top">nr of optimized tables</th>
+	<th width="8%" align="right" valign="top">database size BEFORE</th>
+	<th width="8%" align="right" valign="top">database size AFTER</th>
+	<th width="8%" align="right" valign="top">SAVINGS</th>
+  </tr>
+</table>
+				
+<table width="100%" border="0" cellspacing="6" cellpadding="0">  
+  <tr>
+	<td width="8%" valign="top"><span class="odb-bold">08/03/2016<br>20:39:02 (cron)</span></td>
+	<td width="8%" align="right" valign="top">2</td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">1</td>
+	<td width="8%" align="right" valign="top">0</td>	
+	<td width="8%" align="right" valign="top">148</td>	
+	<td width="8%" align="right" valign="top">37</td>
+	<td width="8%" align="right" valign="top">62.802 MB</td>
+	<td width="8%" align="right" valign="top">57.443 MB</td>
+	<td width="8%" align="right" valign="top">5.359 MB</td>
+  </tr>
+</table>
+			
+<table width="100%" border="0" cellspacing="6" cellpadding="0">  
+  <tr>
+	<td width="8%" valign="top"><span class="odb-bold">08/03/2016<br>22:39:03 (cron)</span></td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">1</td>
+	<td width="8%" align="right" valign="top">0</td>	
+	<td width="8%" align="right" valign="top">0</td>	
+	<td width="8%" align="right" valign="top">37</td>
+	<td width="8%" align="right" valign="top">61.912 MB</td>
+	<td width="8%" align="right" valign="top">58.443 MB</td>
+	<td width="8%" align="right" valign="top">3.469 MB</td>
+  </tr>
+</table>
+			
+<table width="100%" border="0" cellspacing="6" cellpadding="0">  
+  <tr>
+	<td width="8%" valign="top"><span class="odb-bold">08/04/2016<br>16:06:21 (cron)</span></td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">2</td>
+	<td width="8%" align="right" valign="top">0</td>	
+	<td width="8%" align="right" valign="top">0</td>	
+	<td width="8%" align="right" valign="top">37</td>
+	<td width="8%" align="right" valign="top">61.927 MB</td>
+	<td width="8%" align="right" valign="top">57.443 MB</td>
+	<td width="8%" align="right" valign="top">4.484 MB</td>
+  </tr>
+</table>
+			
+<table width="100%" border="0" cellspacing="6" cellpadding="0">  
+  <tr>
+	<td width="8%" valign="top"><span class="odb-bold">08/04/2016<br>16:06:30 (cron)</span></td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">0</td>	
+	<td width="8%" align="right" valign="top">0</td>	
+	<td width="8%" align="right" valign="top">37</td>
+	<td width="8%" align="right" valign="top">57.443 MB</td>
+	<td width="8%" align="right" valign="top">57.443 MB</td>
+	<td width="8%" align="right" valign="top">0 KB</td>
+  </tr>
+</table>
+			
+<table width="100%" border="0" cellspacing="6" cellpadding="0">  
+  <tr>
+	<td width="8%" valign="top"><span class="odb-bold">08/04/2016<br>20:39:03 (cron)</span></td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">0</td>
+	<td width="8%" align="right" valign="top">1</td>
+	<td width="8%" align="right" valign="top">0</td>	
+	<td width="8%" align="right" valign="top">0</td>	
+	<td width="8%" align="right" valign="top">37</td>
+	<td width="8%" align="right" valign="top">60.63 MB</td>
+	<td width="8%" align="right" valign="top">57.443 MB</td>
+	<td width="8%" align="right" valign="top">3.188 MB</td>
+  </tr>
+</table>
+			

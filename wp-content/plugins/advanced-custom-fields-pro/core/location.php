@@ -465,7 +465,7 @@ class acf_location {
 	    
 	    
 	    // find post format
-		if( !$post_format ) {	
+		if( !$post_status ) {	
 			
 			// bail early if not a post
 			if( !$options['post_id'] ) return false;
@@ -999,38 +999,24 @@ class acf_location {
 		
 		
 		// validate
-		if( ! $attachment ) {
-			
-			return false;
-			
-		}
+		if( !$attachment ) return false;
 		
 		
-		// compare
-		if( $rule['operator'] == "==" ) {
-			
-        	$match = ( $attachment == $rule['value'] );
-        	
-        	// override for "all"
-	        if( $rule['value'] == "all" ) {
-	        
-				$match = true;
-				
-			}
-			
-        } elseif( $rule['operator'] == "!=" ) {
-        	
-        	$match = ( $attachment != $rule['value'] );
-        		
-        	// override for "all"
-	        if( $rule['value'] == "all" ) {
-	        
-				$match = false;
-				
-			}
-			
-        }
+		// match
+		$match = ( $attachment === $rule['value'] );
+		
+		
+		// override for "all"
+        if( $rule['value'] == "all" ) $match = true;
+		
+		
+		// reverse if 'not equal to'
+        if( $rule['operator'] === '!=' ) {
+	        	
+        	$match = !$match;
         
+        }
+                
         
         // return
         return $match;
@@ -1060,39 +1046,25 @@ class acf_location {
 		
 		
 		// validate
-		if( ! $comment ) {
-			
-			return false;
-			
-		}
+		if( !$comment ) return false;
 		
 		
-		// compare
-		if( $rule['operator'] == "==" ) {
-			
-        	$match = ( $comment == $rule['value'] );
-        	
-        	// override for "all"
-	        if( $rule['value'] == "all" ) {
-	        
-				$match = true;
-				
-			}
-			
-        } elseif( $rule['operator'] == "!=" ) {
-        	
-        	$match = ( $comment != $rule['value'] );
-        		
-        	// override for "all"
-	        if( $rule['value'] == "all" ) {
-	        
-				$match = false;
-				
-			}
-			
+		// match
+		$match = ( $comment === $rule['value'] );
+		
+		
+		// override for "all"
+        if( $rule['value'] == "all" ) $match = true;
+		
+		
+		// reverse if 'not equal to'
+        if( $rule['operator'] === '!=' ) {
+	        	
+        	$match = !$match;
+        
         }
         
-        
+                
         // return
         return $match;
         
@@ -1120,36 +1092,22 @@ class acf_location {
 		
 		
 		// validate
-		if( ! $widget ) {
-			
-			return false;
-			
-		}
+		if( !$widget ) return false;
 		
 		
-		// compare
-		if( $rule['operator'] == "==" ) {
-			
-        	$match = ( $widget == $rule['value'] );
-        	
-        	// override for "all"
-	        if( $rule['value'] == "all" ) {
-	        
-				$match = true;
-				
-			}
-			
-        } elseif( $rule['operator'] == "!=" ) {
-        	
-        	$match = ( $widget != $rule['value'] );
-        		
-        	// override for "all"
-	        if( $rule['value'] == "all" ) {
-	        
-				$match = false;
-				
-			}
-			
+		// match
+		$match = ( $widget === $rule['value'] );
+		
+		
+		// override for "all"
+        if( $rule['value'] == "all" ) $match = true;
+		
+		
+		// reverse if 'not equal to'
+        if( $rule['operator'] === '!=' ) {
+	        	
+        	$match = !$match;
+        
         }
         
                 
@@ -1196,21 +1154,17 @@ function acf_get_field_group_visibility( $field_group, $args = array() ) {
 		'attachment'	=> 0,
 		'comment'		=> 0,
 		'widget'		=> 0,
-		'lang'			=> 0,
+		'lang'			=> acf_get_setting('current_language'),
 		'ajax'			=> false
 	));
 	
 	
+	// filter for 3rd party customization
+	$args = apply_filters('acf/location/screen', $args, $field_group);
+	
+	
 	// bail early if not active
 	if( !$field_group['active'] ) return false;
-	
-	
-	// WPML
-	if( defined('ICL_LANGUAGE_CODE') ) {
-		
-		$args['lang'] = ICL_LANGUAGE_CODE;
-		
-	}
 	
 	
 	// vars
