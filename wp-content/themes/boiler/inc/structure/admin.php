@@ -7,7 +7,7 @@
  *
  * 
  */
- // Remove unnecessary dashboard from from backend
+ // Remove unnecessary dashboard from from backend because its annoying as shit
 function lawfirm_remove_dashboard_meta() {
   remove_meta_box( 'dashboard_plugins', 'dashboard', 'normal' );
   remove_meta_box( 'dashboard_primary', 'dashboard', 'normal' );
@@ -80,7 +80,9 @@ add_action( 'admin_menu', 'lawfirm_remove_menu', 999 );
 // User Level 9 converts to Administrator
 // User Level 10 converts to Administrator 
 
-//admin icons
+
+
+//admin sidebar icons
 function replace_admin_menu_icons_css() {
 ?>
 <style>
