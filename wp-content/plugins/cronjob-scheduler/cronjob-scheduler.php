@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Cronjob Scheduler
  * Description: Plugin to manage, edit and remove WordPress cron job tasks
- * Version: 1.20
+ * Version: 1.21
  * Author: chrispage1
  * Author URI: https://profiles.wordpress.org/chrispage1/
  *
@@ -507,7 +507,7 @@ class ChrisPage1CronjobScheduler extends ChrisPage1Commons {
 
         // loop through all schedules and get the display name
         foreach(wp_get_schedules() as $key => $schedule) {
-            if($item_key == $key) return $schedule['display'];
+            if($item_key === $key) return $schedule['display'];
         }
 
         // we couldnt get it!

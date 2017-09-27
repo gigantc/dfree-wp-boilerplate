@@ -1,8 +1,8 @@
 <?php
 /*
- 	Copyright (C) 2015-16 Gregory Markov, http://wpcerber.com
+	Copyright (C) 2015-17 CERBER TECH INC., Gregory Markov, http://wpcerber.com
 
-    Licenced under the GNU GPL
+    Licenced under the GNU GPL.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,23 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 */
+
+
+/*
+
+*========================================================================*
+|                                                                        |
+|	       ATTENTION!  Do not change or edit this file!                  |
+|                                                                        |
+*========================================================================*
+
+*/
+
+
+
+
+// If this file is called directly, abort executing.
+if ( ! defined( 'WPINC' ) ) { exit; }
 
 /**
  * RIPE REST API
@@ -38,7 +55,8 @@ define('RIPE_HOST','http://rest.db.ripe.net/');
  *
  */
 function ripe_search($ip = ''){
-	if ( !cerber_is_ip_or_net($ip) || !is_user_logged_in() || !is_admin()) return false;
+	//if ( !cerber_is_ip_or_net($ip) || !is_user_logged_in() || !is_admin()) return false;
+	if ( !cerber_is_ip_or_net($ip)) return false;
 	$key = 'ripe-'.cerber_get_id_ip($ip);
 	$ripe = get_transient($key);
 	if (false === $ripe) {
@@ -46,7 +64,7 @@ function ripe_search($ip = ''){
 		$args = array();
 		$args['headers']['Accept'] = 'application/json';
 		$args['headers']['User-Agent'] = 'Cerber Security Plugin for WP';
-		$ripe_response             = wp_remote_get( RIPE_HOST.'search?query-string=' . $ip, $args );
+		$ripe_response = wp_remote_get( RIPE_HOST.'search?query-string=' . $ip, $args );
 		if ( is_wp_error( $ripe_response ) ) {
 			$error = 'WHOIS: '.$ripe_response->get_error_message();
 			return $error;
@@ -92,7 +110,7 @@ function ripe_find_abuse_contact($ripe_body, $ip){
 	if (!$email) { // make an API request
 		$args                      = array();
 		$args['headers']['Accept'] = 'application/json';
-		$ripe_response             = wp_remote_get( RIPE_HOST.'abuse-contact/' . $ip, $args );
+		$ripe_response = wp_remote_get( RIPE_HOST.'abuse-contact/' . $ip, $args );
 		if ( is_wp_error( $ripe_response ) ) {
 			return $ripe_response->get_error_message();
 		}
@@ -109,14 +127,20 @@ function ripe_find_abuse_contact($ripe_body, $ip){
  */
 function ripe_readable_info($ip){
 	$ripe = ripe_search($ip);
-	if (!is_array($ripe)) return array('whois' => $ripe);
+	if (!is_array($ripe)) {
+		if (!$ripe) return array('error' => 'RIPE error');
+		return array('whois' => $ripe);
+	}
 	$ret = array();
+
 	$body = $ripe['body'];
 	if ($body->service->name != 'search') return $ret; // only for RIPE search requests & responses
+
 	$info = '';
 	foreach ($body->objects->object as $object) {
 		$info.='<table class="whois-object otype-'.$object->type.'"><tr><td colspan="2"><b>'.strtoupper($object->type).'</b></td></tr>';
 		foreach ($object->attributes->attribute as $att){
+			$ret['data'][$att->name] = $att->value;
 			if (is_email($att->value)) $value = '<a href="mailto:'.$att->value.'">'.$att->value.'</a>';
 			elseif (strtolower($att->name) == 'country') {
 				$value = '<b><span '.cerber_get_flag_css($att->value).'>'.cerber_country_name($att->value).'</span> ('.$att->value.')</b>';
@@ -127,8 +151,18 @@ function ripe_readable_info($ip){
 		}
 		$info.='</table>';
 	}
-	if ($ripe['abuse-email']) $info = '<p style="font-weight: bold;">'.__('Abuse email:','cerber').' <a href="mailto:'.$ripe['abuse-email'].'">'.$ripe['abuse-email'].'</a></p>'.$info;
+
+	if (!empty($ripe['abuse-email']) && is_email($ripe['abuse-email'])) {
+		$ret['data']['abuse-mailbox'] = $ripe['abuse-email'];
+	}
+
+	// Network
+	if (!empty($ret['data']['inetnum'])) {
+		$ret['data']['network'] = $ret['data']['inetnum'];
+	}
+	
 	$ret['whois'] = $info;
+
 	return $ret;
 }
 

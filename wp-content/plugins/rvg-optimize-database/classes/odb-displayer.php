@@ -1,25 +1,22 @@
 <?php
 /************************************************************************************************
  *
- *	DISPLAYER CLASS: DISPLAY CURRENT SETTINGS, BUTTONS, HEADERS
+ *	DISPLAYER CLASS: DISPLAY HEADERS, CURRENT SETTINGS, BUTTONS
  *
  ************************************************************************************************/
 ?>
 <?php
-class ODB_Displayer
-{
+class ODB_Displayer {
 	/********************************************************************************************
 	 *	CONSTRUCTOR
 	 ********************************************************************************************/	
-    function __construct()
-    {
+    function __construct() {
 	} // __construct()
 
 	/********************************************************************************************
 	 *	DISPLAY THE PAGE HEADER
 	 ********************************************************************************************/	
-	function display_header()
-	{
+	function display_header() {
 		global $odb_class;
 
 		// V4.1.9: RUNNING INDICATOR ADDED				
@@ -35,11 +32,11 @@ class ODB_Displayer
           </p>
 	      <span class="odb-bold">
 		    '.__('Plugin version', $odb_class->odb_txt_domain).': v'.$odb_class->odb_version.' ['.$odb_class->odb_release_date.'] -
-		    <a href="http://cagewebdev.com/index.php/optimize-database-after-deleting-revisions-wordpress-plugin/" target="_blank">'.__('Plugin page', $odb_class->odb_txt_domain).'</a> -
+		    <a href="http://cagewebdev.com/optimize-database-after-deleting-revisions-wordpress-plugin/" target="_blank">'.__('Plugin page', $odb_class->odb_txt_domain).'</a> -
 		    <a href="http://wordpress.org/plugins/rvg-optimize-database/" target="_blank">'.__('Download page', $odb_class->odb_txt_domain).'</a> -
 		    <a href="http://rvg.cage.nl/" target="_blank">'.__('Author', $odb_class->odb_txt_domain).'</a> -
 		    <a href="http://cagewebdev.com/" target="_blank">'.__('Company', $odb_class->odb_txt_domain).'</a> -
-		    <a href="http://cagewebdev.com/index.php/donations-odb/" target="_blank">'.__('Donation page', $odb_class->odb_txt_domain).'</a>
+		    <a href="http://cagewebdev.com/donations-odb/" target="_blank">'.__('Donation page', $odb_class->odb_txt_domain).'</a>
 	      </span>		
         </div><!-- odb-options-opening -->
 	  </div><!-- /odb-header -->
@@ -50,8 +47,7 @@ class ODB_Displayer
 	/********************************************************************************************
 	 *	DISPLAY THE CURRENT SETTINGS
 	 ********************************************************************************************/
-	function display_current_settings()
-	{
+	function display_current_settings() {
 		global $odb_class;
 		
 		$current_hour = Date('H:i');
@@ -59,11 +55,20 @@ class ODB_Displayer
 		$y = __('YES', $odb_class->odb_txt_domain);
 		$n = __('NO',  $odb_class->odb_txt_domain);
 		
-		// CURRENT SETTINGS
+		// CURRENT SETTINGS	
 		$trash  = ($odb_class->odb_rvg_options['clear_trash']      == 'Y') ? $y : $n;
 		$spam   = ($odb_class->odb_rvg_options['clear_spam']       == 'Y') ? $y : $n;
-		$tag    = ($odb_class->odb_rvg_options['clear_tags']       == 'Y') ? $y : $n;	
-		$trans  = ($odb_class->odb_rvg_options['clear_transients'] == 'Y') ? $y : $n;
+		$tag    = ($odb_class->odb_rvg_options['clear_tags']       == 'Y') ? $y : $n;
+		
+		if($odb_class->odb_rvg_options['clear_transients'] == 'Y') {
+			$trans = __('DELETE EXPIRED TRANSIENTS', $odb_class->odb_txt_domain);
+		} else if ($odb_class->odb_rvg_options['clear_transients'] == 'A') {
+			$trans = __('DELETE ALL TRANSIENTS', $odb_class->odb_txt_domain);
+		} else {
+			$trans = $n;
+		}
+		
+		//$trans  = ($odb_class->odb_rvg_options['clear_transients'] == 'Y') ? $y : $n;
 		$ping   = ($odb_class->odb_rvg_options['clear_pingbacks']  == 'Y') ? $y : $n;
 		$log    = ($odb_class->odb_rvg_options['logging_on']       == 'Y') ? $y : $n;
 		$innodb = ($odb_class->odb_rvg_options['optimize_innodb']  == 'Y') ? $y : $n;
@@ -78,6 +83,8 @@ class ODB_Displayer
 			$schedule = __('ONCE DAILY',$odb_class->odb_txt_domain);
 		else if($odb_class->odb_rvg_options['schedule_type'] == 'weekly')
 			$schedule = __('ONCE WEEKLY',$odb_class->odb_txt_domain);
+		else if($odb_class->odb_rvg_options['schedule_type'] == 'monthly')
+			$schedule = __('ONCE MONTHLY',$odb_class->odb_txt_domain);			
 		else $schedule = __('NOT SCHEDULED',$odb_class->odb_txt_domain);
 		
 		echo '
@@ -87,19 +94,34 @@ class ODB_Displayer
           </div>
 		  <br><br>
 		 ';
+
+		// CUSTOM POST TYPES (from v4.4)
+		$rel_posttypes = $odb_class->odb_rvg_options['post_types'];
+		$rpt = '';
+		foreach ($rel_posttypes as $posttype => $value) {
+			if ($value == 'Y') {
+				if ($rpt != '') $rpt .= ', ';
+				$rpt .= strtoupper($posttype);
+			} // if ($value == 'Y')
+		} // foreach($rel_posttypes as $posttypes)
+		
+		if ($rpt == '') $rpt = '(' . __('NONE', $odb_class->odb_txt_domain) . ')';
+			
+		echo '<span class="odb-bold">'.__('Delete revisions of', $odb_class->odb_txt_domain).':</span> <span class="odb-bold odb-blue">'.$rpt.'</span><br />';
 		 
-		 if($odb_class->odb_rvg_options['delete_older'] == 'Y')
-		 {	echo '<span class="odb-bold">'.__('Delete revisions older than', $odb_class->odb_txt_domain).':</span> <span class="odb-bold odb-blue">'.$odb_class->odb_rvg_options['older_than'].' '.__("days", $odb_class->odb_txt_domain).'</span><br />';
+		 if($odb_class->odb_rvg_options['delete_older'] == 'Y') {
+			 echo '<span class="odb-bold">'.__('Delete revisions older than', $odb_class->odb_txt_domain).':</span> <span class="odb-bold odb-blue">'.$odb_class->odb_rvg_options['older_than'].' '.__("days", $odb_class->odb_txt_domain).'</span><br />';
 		 }
-		 if($odb_class->odb_rvg_options['rvg_revisions'] == 'Y')
-		 {	echo '<span class="odb-bold">'.__('Maximum number of - most recent - revisions to keep per post / page', $odb_class->odb_txt_domain).':</span> <span class="odb-bold odb-blue">'.$odb_class->odb_rvg_options['nr_of_revisions'].'</span><br />';
+		 
+		 if($odb_class->odb_rvg_options['rvg_revisions'] == 'Y') {
+			 echo '<span class="odb-bold">'.__('Maximum number of - most recent - revisions to keep per post / page', $odb_class->odb_txt_domain).':</span> <span class="odb-bold odb-blue">'.$odb_class->odb_rvg_options['nr_of_revisions'].'</span><br />';
 		 }
 		 
 		 echo '
 		  <span class="odb-bold">'.__('Delete trashed items', $odb_class->odb_txt_domain).':</span> <span class="odb-bold odb-blue">'.$trash.'</span><br />
 		  <span class="odb-bold">'.__('Delete spammed items', $odb_class->odb_txt_domain).':</span> <span class="odb-bold odb-blue">'.$spam.'</span><br />
 		  <span class="odb-bold">'.__('Delete unused tags', $odb_class->odb_txt_domain).':</span> <span class="odb-bold odb-blue">'.$tag.'</span><br />
-		  <span class="odb-bold">'.__('Delete expired transients', $odb_class->odb_txt_domain).':</span> <span class="odb-bold odb-blue">'.$trans.'</span><br />
+		  <span class="odb-bold">'.__('Delete transients', $odb_class->odb_txt_domain).':</span> <span class="odb-bold odb-blue">'.$trans.'</span><br />
 		  <span class="odb-bold">'.__('Delete pingbacks and trackbacks', $odb_class->odb_txt_domain).':</span> <span class="odb-bold odb-blue">'.$ping.'</span><br />
 		  <span class="odb-bold">'.__('Keep a log', $odb_class->odb_txt_domain).':</span> <span class="odb-bold odb-blue">'.$log.'</span><br />
 		  <span class="odb-bold">'.__('Optimize InnoDB tables', $odb_class->odb_txt_domain).':</span> <span class="odb-bold odb-blue">'.$innodb.'</span><br />
@@ -108,8 +130,8 @@ class ODB_Displayer
 		  <span class="odb-bold">'.__('Scheduler', $odb_class->odb_txt_domain).':</span> <span class="odb-bold odb-blue">'.$schedule.'</span><br />
 		';
 		
-		if($odb_class->odb_rvg_options['schedule_type'] != '')
-		{	$timestamp = wp_next_scheduled('odb_scheduler');
+		if($odb_class->odb_rvg_options['schedule_type'] != '') {
+			$timestamp = wp_next_scheduled('odb_scheduler');
 			$nextrun   = Date('M j, Y @ H:i', $timestamp);
 			echo '
 		  <span class="odb-bold">'.__('Next scheduled run',$odb_class->odb_txt_domain).':</span> <span class="odb-bold odb-blue">'.$nextrun.' '.__('hrs', $odb_class->odb_txt_domain).' ('.__('current server time', $odb_class->odb_txt_domain).': '.$current_hour.' '.__('hrs', $odb_class->odb_txt_domain).')</span><br>
@@ -126,20 +148,18 @@ class ODB_Displayer
 	/********************************************************************************************
 	 *	DISPLAY THE START BUTTONS
 	 ********************************************************************************************/	
-	function display_start_buttons($action)
-	{
+	function display_start_buttons($action) {
 		global $odb_class;
 
-		if(!defined('RUN_OPTIMIZE_DATABASE'))
-		{
+		if(!defined('RUN_OPTIMIZE_DATABASE')) {
 			echo '
 		<div id="odb-start-buttons" class="odb-padding-left">
 		  <p>
 		  <input class="button odb-normal" type="button" name="change_options" value="'.__('Change Settings', $odb_class->odb_txt_domain).'" onclick="self.location=\'options-general.php?page=odb_settings_page\'">
 			';
 	
-			if(file_exists($odb_class->odb_plugin_path.'logs/rvg-optimize-db-log.html'))
-			{	// THERE IS A LOG FILE
+			if(file_exists($odb_class->odb_plugin_path.'logs/rvg-optimize-db-log.html')) {
+				// THERE IS A LOG FILE
 				echo '
 		  &nbsp;
 		  <input class="button odb-normal" type="button" name="view_log" value="'.__('View Log File', $odb_class->odb_txt_domain).'" onclick="window.open(\''.$odb_class->odb_logfile_url.'\')">
@@ -148,8 +168,8 @@ class ODB_Displayer
 				';
 			} // if(file_exists($this->odb_plugin_path.'logs/rvg-optimize-db-log.html'))
 
-			if($action != 'run')
-			{	// NOT RUNNING: SHOW START BUTTON
+			if($action != 'run') {
+				// NOT RUNNING: SHOW START BUTTON
 				echo '
 		  &nbsp;<input class="button-primary button-large" type="button" name="start_optimization" value="'.__('Start Optimization', $odb_class->odb_txt_domain).'" onclick="self.location=\'tools.php?page=rvg-optimize-database&action=run\'" class="odb-bold" />
 				';
@@ -159,8 +179,8 @@ class ODB_Displayer
 		  </p>
 		</div><!-- /odb-start-buttons -->
 			';
-		} else if (RUN_OPTIMIZE_DATABASE)
-		{	echo 'Database optimized!';
+		} else if (RUN_OPTIMIZE_DATABASE) {
+			echo 'Database optimized!';
 		} // if(!defined('RUN_OPTIMIZE_DATABASE'))
 	} // display_start_buttons()
 } // ODB_Displayer

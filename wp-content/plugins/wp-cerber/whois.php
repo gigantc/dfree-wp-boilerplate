@@ -1,9 +1,8 @@
 <?php
 /*
- 	Copyright (C) 2015-16 Gregory Markov, http://wpcerber.com
-	Flag icons - http://www.famfamfam.com
+	Copyright (C) 2015-17 CERBER TECH INC., Gregory Markov, http://wpcerber.com
 
-    Licenced under the GNU GPL
+    Licenced under the GNU GPL.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -21,6 +20,20 @@
 
 */
 
+/*
+
+*========================================================================*
+|                                                                        |
+|	       ATTENTION!  Do not change or edit this file!                  |
+|                                                                        |
+*========================================================================*
+
+*/
+
+
+// If this file is called directly, abort executing.
+if ( ! defined( 'WPINC' ) ) { exit; }
+
 define('WHOIS_ERR_EXPIRE',300);
 define('WHOIS_OK_EXPIRE',24 * 3600);
 define('WHOIS_IO_TIMEOUT', 3);
@@ -32,39 +45,70 @@ require_once(dirname(__FILE__).'/ripe.php');
  * @since 2.7
  *
  */
-function ip_readable_info($ip) {
+function cerber_ip_whois_info($ip) {
 	$ret = array();
 
 	$whois_server = cerber_get_whois_server($ip);
 	if (is_array($whois_server)) return $whois_server;
 
-	if ($whois_server == 'whois.ripe.net') return ripe_readable_info($ip);
+	if ($whois_server == 'whois.ripe.net') {
+		return ripe_readable_info($ip);
+	}
 
 	$whois_info = cerber_get_whois($ip);
 	if (is_array($whois_info)) return $whois_info;
 	$data = cerber_parse_whois_data($whois_info);
 
 	// Special case - network was transfered to RIPE
-	if (isset($data['ReferralServer']) && $data['ReferralServer'] == 'whois://whois.ripe.net') return ripe_readable_info($ip);
+	if (isset($data['ReferralServer']) && $data['ReferralServer'] == 'whois://whois.ripe.net') {
+		return ripe_readable_info($ip);
+	}
 
+	$table1 = '';
 	if (!empty($data)) {
-		$table1 = '<table class="whois-object"><tr><td colspan="2"><b>WHOIS FILTERED</b></td></tr>';
+		$table1 = '<table class="whois-object"><tr><td colspan="2"><b>FILTERED WHOIS INFO</b></td></tr>';
 		foreach ( $data as $key => $value ) {
 			if (is_email($value)) $value = '<a href="mailto:'.$value.'">'.$value.'</a>';
 			elseif (strtolower($key) == 'country') {
 				$value = '<b><span '.cerber_get_flag_css($value).'>'.cerber_country_name($value).'</span> ('.$value.')</b>';
 				$ret['country'] = $value;
 			}
+
 			$table1.='<tr><td>'.$key.'</td><td>'.$value.'</td></tr>';
 		}
 		$table1.='</table>';
 	}
 
-	$table2 ='<table class="whois-object raw"><tr><td><b>RAW WHOIS</b></td></tr>';
-	$table2.='<tr><td><pre>'.$whois_info."\n".$whois_server.'</pre></td></tr>';
+	$table2 ='<table class="whois-object raw"><tr><td><b>RAW WHOIS INFO</b></td></tr>';
+	$table2.='<tr><td><pre>'.$whois_info."\n WHOIS server: ".$whois_server.'</pre></td></tr>';
 	$table2.='</table>';
 
-	$ret['whois'] = $table1.$table2;
+	$info = $table1.$table2;
+
+	// Other possible field with abuse email address
+	if (empty($data['abuse-mailbox']) && !empty($data['OrgAbuseEmail'])){
+		$data['abuse-mailbox'] = $data['OrgAbuseEmail'];
+	}
+	if (empty($data['abuse-mailbox'])){
+		foreach ($data as $field){
+			$maybe_email = trim($field);
+			if (false !== strpos($maybe_email,'abuse') && is_email($maybe_email)){
+				$data['abuse-mailbox'] = $maybe_email;
+				break;
+			}
+		}
+	}
+
+	// Network
+	if (!empty($data['inetnum'])){
+		$data['network'] = $data['inetnum'];
+	}
+	elseif (!empty($data['NetRange'])){
+		$data['network'] = $data['NetRange'];
+	}
+
+	$ret['data'] = $data;
+	$ret['whois'] = $info;
 	return $ret;
 }
 /*
@@ -150,7 +194,7 @@ function make_whois_request($server, $ip) {
  */
 function cerber_get_flag_css($code){
 	$assets_url = plugin_dir_url(CERBER_FILE).'assets';
-	return 'style="padding-left: 22px; background: url(\''.$assets_url.'/flags/'.strtolower($code).'.gif\') no-repeat left;"';
+	return 'style="padding-left: 24px; background: url(\''.$assets_url.'/flags/'.strtolower($code).'.gif\') no-repeat left;"';
 }
 /*
  *
@@ -163,7 +207,7 @@ function cerber_country_name($code) {
 	global $cerber_country_names;
 	$code = strtoupper($code);
 	if (isset($cerber_country_names[$code])) return $cerber_country_names[$code];
-	return '';
+	return __('Unknown','wp-cerber');
 }
 
 $cerber_country_names = array(

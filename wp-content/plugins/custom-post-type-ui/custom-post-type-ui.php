@@ -2,6 +2,8 @@
 /**
  * Custom Post Type UI.
  *
+ * For all your post type and taxonomy needs.
+ *
  * @package CPTUI
  * @subpackage Loader
  * @author WebDevStudios
@@ -13,7 +15,7 @@ Plugin Name: Custom Post Type UI
 Plugin URI: https://github.com/WebDevStudios/custom-post-type-ui/
 Description: Admin panel for creating custom post types and custom taxonomies in WordPress
 Author: WebDevStudios
-Version: 1.3.5
+Version: 1.5.5
 Author URI: https://webdevstudios.com/
 Text Domain: custom-post-type-ui
 Domain Path: /languages
@@ -25,8 +27,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CPT_VERSION', '1.3.5' ); // Left for legacy purposes.
-define( 'CPTUI_VERSION', '1.3.5' );
+define( 'CPT_VERSION', '1.5.5' ); // Left for legacy purposes.
+define( 'CPTUI_VERSION', '1.5.5' );
 define( 'CPTUI_WP_VERSION', get_bloginfo( 'version' ) );
 
 /**
@@ -41,6 +43,54 @@ function cptui_load_ui_class() {
 	require_once( plugin_dir_path( __FILE__ ) . 'classes/class.cptui_debug_info.php' );
 }
 add_action( 'init', 'cptui_load_ui_class' );
+
+/**
+ * Set a transient used for redirection upon activation.
+ *
+ * @since 1.4.0
+ */
+function cptui_activation_redirect() {
+	// Bail if activating from network, or bulk.
+	if ( is_network_admin() ) {
+		return;
+	}
+
+	// Add the transient to redirect.
+	set_transient( 'cptui_activation_redirect', true, 30 );
+}
+add_action( 'activate_' . plugin_basename( __FILE__ ), 'cptui_activation_redirect' );
+
+/**
+ * Redirect user to CPTUI about page upon plugin activation.
+ *
+ * @since 1.4.0
+ */
+function cptui_make_activation_redirect() {
+
+	if ( ! get_transient( 'cptui_activation_redirect' ) ) {
+		return;
+	}
+
+	delete_transient( 'cptui_activation_redirect' );
+
+	// Bail if activating from network, or bulk.
+	if ( is_network_admin() ) {
+		return;
+	}
+
+	if ( ! cptui_is_new_install() ) {
+		return;
+	}
+
+	// Redirect to CPTUI about page.
+	wp_safe_redirect(
+		add_query_arg(
+			array( 'page' => 'cptui_main_menu' ),
+			cptui_admin_url( 'admin.php?page=cptui_main_menu' )
+		)
+	);
+}
+add_action( 'admin_init', 'cptui_make_activation_redirect', 1 );
 
 /**
  * Flush our rewrite rules on deactivation.
@@ -91,7 +141,7 @@ function cptui_plugin_menu() {
 	add_submenu_page( $parent_slug, __( 'Add/Edit Post Types', 'custom-post-type-ui' ), __( 'Add/Edit Post Types', 'custom-post-type-ui' ), $capability, 'cptui_manage_post_types', 'cptui_manage_post_types' );
 	add_submenu_page( $parent_slug, __( 'Add/Edit Taxonomies', 'custom-post-type-ui' ), __( 'Add/Edit Taxonomies', 'custom-post-type-ui' ), $capability, 'cptui_manage_taxonomies', 'cptui_manage_taxonomies' );
 	add_submenu_page( $parent_slug, __( 'Registered Types and Taxes', 'custom-post-type-ui' ), __( 'Registered Types/Taxes', 'custom-post-type-ui' ), $capability, 'cptui_listings', 'cptui_listings' );
-	add_submenu_page( $parent_slug, __( 'Import/Export', 'custom-post-type-ui' ), __( 'Import/Export', 'custom-post-type-ui' ), $capability, 'cptui_importexport', 'cptui_importexport' );
+	add_submenu_page( $parent_slug, __( 'Custom Post Type UI Tools', 'custom-post-type-ui' ), __( 'Tools', 'custom-post-type-ui' ), $capability, 'cptui_tools', 'cptui_tools' );
 	add_submenu_page( $parent_slug, __( 'Help/Support', 'custom-post-type-ui' ), __( 'Help/Support', 'custom-post-type-ui' ), $capability, 'cptui_support', 'cptui_support' );
 
 	/**
@@ -106,7 +156,7 @@ function cptui_plugin_menu() {
 
 	// Remove the default one so we can add our customized version.
 	remove_submenu_page( $parent_slug, 'cptui_main_menu' );
-	add_submenu_page( $parent_slug, __( 'About CPT UI', 'custom-post-type-ui' ), __( 'About CPT UI', 'custom-post-type-ui' ), 'manage_options', 'cptui_main_menu', 'cptui_settings' );
+	add_submenu_page( $parent_slug, __( 'About CPT UI', 'custom-post-type-ui' ), __( 'About CPT UI', 'custom-post-type-ui' ), $capability, 'cptui_main_menu', 'cptui_settings' );
 }
 add_action( 'admin_menu', 'cptui_plugin_menu' );
 
@@ -143,7 +193,7 @@ function cptui_create_submenus() {
 	require_once( plugin_dir_path( __FILE__ ) . 'inc/post-types.php' );
 	require_once( plugin_dir_path( __FILE__ ) . 'inc/taxonomies.php' );
 	require_once( plugin_dir_path( __FILE__ ) . 'inc/listings.php' );
-	require_once( plugin_dir_path( __FILE__ ) . 'inc/import_export.php' );
+	require_once( plugin_dir_path( __FILE__ ) . 'inc/tools.php' );
 	require_once( plugin_dir_path( __FILE__ ) . 'inc/support.php' );
 }
 add_action( 'cptui_loaded', 'cptui_create_submenus' );
@@ -179,7 +229,7 @@ function cptui_add_styles() {
 	}
 
 	$min = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
-	wp_register_script( 'cptui', plugins_url( "js/cptui{$min}.js", __FILE__ ), array( 'jquery' ), CPTUI_VERSION, true );
+	wp_register_script( 'cptui', plugins_url( "js/cptui{$min}.js", __FILE__ ), array( 'jquery', 'postbox' ), CPTUI_VERSION, true );
 	wp_enqueue_style( 'cptui-css', plugins_url( "css/cptui{$min}.css", __FILE__ ), array(), CPTUI_VERSION );
 }
 add_action( 'admin_enqueue_scripts', 'cptui_add_styles' );
@@ -231,7 +281,7 @@ add_action( 'init', 'cptui_create_custom_post_types', 10 ); // Leave on standard
  *
  * @internal
  *
- * @param array $post_type Post type array to register.
+ * @param array $post_type Post type array to register. Optional.
  * @return null Result of register_post_type.
  */
 function cptui_register_single_post_type( $post_type = array() ) {
@@ -292,7 +342,11 @@ function cptui_register_single_post_type( $post_type = array() ) {
 	foreach ( $post_type['labels'] as $key => $label ) {
 
 		if ( ! empty( $label ) ) {
-			$labels[ $key ] = $label;
+			if ( 'parent' === $key ) {
+				$labels['parent_item_colon'] = $label;
+			} else {
+				$labels[ $key ] = $label;
+			}
 		} elseif ( empty( $label ) && in_array( $key, $preserved ) ) {
 			$labels[ $key ] = cptui_get_preserved_label( 'post_types', $key, $post_type['label'], $post_type['singular_label'] );
 		}
@@ -313,7 +367,11 @@ function cptui_register_single_post_type( $post_type = array() ) {
 		// Core converts to an empty array anyway, so safe to leave this instead of passing in boolean true.
 		$rewrite = array();
 		$rewrite['slug'] = ( ! empty( $post_type['rewrite_slug'] ) ) ? $post_type['rewrite_slug'] : $post_type['name'];
-		$rewrite['with_front'] = ( 'false' === disp_boolean( $post_type['rewrite_withfront'] ) ) ? false : true;
+
+		$rewrite['with_front'] = true; // Default value.
+		if ( isset( $post_type['rewrite_withfront'] ) ) {
+			$rewrite['with_front'] = ( 'false' === disp_boolean( $post_type['rewrite_withfront'] ) ) ? false : true;
+		}
 	}
 
 	$menu_icon = ( ! empty( $post_type['menu_icon'] ) ) ? $post_type['menu_icon'] : null;
@@ -337,6 +395,8 @@ function cptui_register_single_post_type( $post_type = array() ) {
 		$exclude_from_search = ( false === $public ) ? true : false;
 	}
 
+	$queryable = ( ! empty( $post_type['publicly_queryable'] ) && isset( $post_type['publicly_queryable'] ) ) ? get_disp_boolean( $post_type['publicly_queryable'] ) : $public;
+
 	if ( empty( $post_type['show_in_nav_menus'] ) ) {
 		// Defaults to value of public.
 		$post_type['show_in_nav_menus'] = $public;
@@ -355,6 +415,7 @@ function cptui_register_single_post_type( $post_type = array() ) {
 		'labels'              => $labels,
 		'description'         => $post_type['description'],
 		'public'              => get_disp_boolean( $post_type['public'] ),
+		'publicly_queryable'  => $queryable,
 		'show_ui'             => get_disp_boolean( $post_type['show_ui'] ),
 		'show_in_nav_menus'   => get_disp_boolean( $post_type['show_in_nav_menus'] ),
 		'has_archive'         => $has_archive,
@@ -439,7 +500,7 @@ add_action( 'init', 'cptui_create_custom_taxonomies', 9 );  // Leave on standard
  *
  * @internal
  *
- * @param array $taxonomy Taxonomy array to register.
+ * @param array $taxonomy Taxonomy array to register. Optional.
  * @return null Result of register_taxonomy.
  */
 function cptui_register_single_taxonomy( $taxonomy = array() ) {
@@ -468,8 +529,14 @@ function cptui_register_single_taxonomy( $taxonomy = array() ) {
 	if ( false !== get_disp_boolean( $taxonomy['rewrite'] ) ) {
 		$rewrite = array();
 		$rewrite['slug'] = ( ! empty( $taxonomy['rewrite_slug'] ) ) ? $taxonomy['rewrite_slug'] : $taxonomy['name'];
-		$rewrite['with_front'] = ( 'false' === disp_boolean( $taxonomy['rewrite_withfront'] ) ) ? false : true;
-		$rewrite['hierarchical'] = ( 'true' === disp_boolean( $taxonomy['rewrite_hierarchical'] ) ) ? true : false;
+		$rewrite['with_front'] = true;
+		if ( isset( $taxonomy['rewrite_withfront'] ) ) {
+			$rewrite['with_front'] = ( 'false' === disp_boolean( $taxonomy['rewrite_withfront'] ) ) ? false : true;
+		}
+		$rewrite['hierarchical'] = false;
+		if ( isset( $taxonomy['rewrite_hierarchical'] ) ) {
+			$rewrite['hierarchical'] = ( 'true' === disp_boolean( $taxonomy['rewrite_hierarchical'] ) ) ? true : false;
+		}
 	}
 
 	if ( in_array( $taxonomy['query_var'], array( 'true', 'false', '0', '1' ) ) ) {
@@ -482,6 +549,17 @@ function cptui_register_single_taxonomy( $taxonomy = array() ) {
 	$public = ( ! empty( $taxonomy['public'] ) && false === get_disp_boolean( $taxonomy['public'] ) ) ? false : true;
 
 	$show_admin_column = ( ! empty( $taxonomy['show_admin_column'] ) && false !== get_disp_boolean( $taxonomy['show_admin_column'] ) ) ? true : false;
+
+	$show_in_menu = ( ! empty( $taxonomy['show_in_menu'] ) && false !== get_disp_boolean( $taxonomy['show_in_menu'] ) ) ? true : false;
+
+	if ( empty( $taxonomy['show_in_menu'] ) ) {
+		$show_in_menu = get_disp_boolean( $taxonomy['show_ui'] );
+	}
+
+	$show_in_nav_menus = ( ! empty( $taxonomy['show_in_nav_menus'] ) && false !== get_disp_boolean( $taxonomy['show_in_nav_menus'] ) ) ? true : false;
+	if ( empty( $taxonomy['show_in_nav_menus'] ) ) {
+		$show_in_nav_menus = $public;
+	}
 
 	$show_in_rest = ( ! empty( $taxonomy['show_in_rest'] ) && false !== get_disp_boolean( $taxonomy['show_in_rest'] ) ) ? true : false;
 
@@ -499,12 +577,14 @@ function cptui_register_single_taxonomy( $taxonomy = array() ) {
 		'public'             => $public,
 		'hierarchical'       => get_disp_boolean( $taxonomy['hierarchical'] ),
 		'show_ui'            => get_disp_boolean( $taxonomy['show_ui'] ),
+		'show_in_menu'       => $show_in_menu,
+		'show_in_nav_menus'  => $show_in_nav_menus,
 		'query_var'          => $taxonomy['query_var'],
 		'rewrite'            => $rewrite,
 		'show_admin_column'  => $show_admin_column,
 		'show_in_rest'       => $show_in_rest,
 		'rest_base'          => $rest_base,
-		'show_in_quick_edit' => $show_in_quick_edit
+		'show_in_quick_edit' => $show_in_quick_edit,
 	);
 
 	$object_type = ( ! empty( $taxonomy['object_types'] ) ) ? $taxonomy['object_types'] : '';
@@ -529,7 +609,7 @@ function cptui_register_single_taxonomy( $taxonomy = array() ) {
  *
  * @since 1.0.0
  *
- * @param string $page Whether it's the CPT or Taxonomy page.
+ * @param string $page Whether it's the CPT or Taxonomy page. Optional. Default "post_types".
  */
 function cptui_settings_tab_menu( $page = 'post_types' ) {
 
@@ -586,10 +666,10 @@ function cptui_convert_settings() {
 
 		$new_post_types = array();
 		foreach ( $post_types as $type ) {
-            $new_post_types[ $type['name'] ]                = $type; // This one assigns the # indexes. Named arrays are our friend.
-            $new_post_types[ $type['name'] ]['supports']    = ( ! empty( $type[0] ) ) ? $type[0] : array(); // Especially for multidimensional arrays.
-            $new_post_types[ $type['name'] ]['taxonomies']  = ( ! empty( $type[1] ) ) ? $type[1] : array();
-            $new_post_types[ $type['name'] ]['labels']      = ( ! empty( $type[2] ) ) ? $type[2] : array();
+			$new_post_types[ $type['name'] ]                = $type; // This one assigns the # indexes. Named arrays are our friend.
+			$new_post_types[ $type['name'] ]['supports']    = ( ! empty( $type[0] ) ) ? $type[0] : array(); // Especially for multidimensional arrays.
+			$new_post_types[ $type['name'] ]['taxonomies']  = ( ! empty( $type[1] ) ) ? $type[1] : array();
+			$new_post_types[ $type['name'] ]['labels']      = ( ! empty( $type[2] ) ) ? $type[2] : array();
 			unset(
 				$new_post_types[ $type['name'] ][0],
 				$new_post_types[ $type['name'] ][1],
@@ -604,9 +684,9 @@ function cptui_convert_settings() {
 
 		$new_taxonomies = array();
 		foreach ( $taxonomies as $tax ) {
-            $new_taxonomies[ $tax['name'] ]                 = $tax;    // Yep, still our friend.
-            $new_taxonomies[ $tax['name'] ]['labels']       = $tax[0]; // Taxonomies are the only thing with
-            $new_taxonomies[ $tax['name'] ]['object_types'] = $tax[1]; // "tax" in the name that I like.
+			$new_taxonomies[ $tax['name'] ]                 = $tax;    // Yep, still our friend.
+			$new_taxonomies[ $tax['name'] ]['labels']       = $tax[0]; // Taxonomies are the only thing with
+			$new_taxonomies[ $tax['name'] ]['object_types'] = $tax[1]; // "tax" in the name that I like.
 			unset(
 				$new_taxonomies[ $tax['name'] ][0],
 				$new_taxonomies[ $tax['name'] ][1]
@@ -629,18 +709,20 @@ add_action( 'admin_init', 'cptui_convert_settings' );
  *
  * @since 1.0.0
  *
- * @param string $action       The type of action that occurred.
- * @param string $object_type  Whether it's from a post type or taxonomy.
- * @param bool   $success      Whether the action succeeded or not.
- * @param string $custom       Custom message if necessary.
+ * @param string $action       The type of action that occurred. Optional. Default empty string.
+ * @param string $object_type  Whether it's from a post type or taxonomy. Optional. Default empty string.
+ * @param bool   $success      Whether the action succeeded or not. Optional. Default true.
+ * @param string $custom       Custom message if necessary. Optional. Default empty string.
  * @return bool|string false on no message, else HTML div with our notice message.
  */
 function cptui_admin_notices( $action = '', $object_type = '', $success = true, $custom = '' ) {
 
-	$class = ( $success ) ? 'updated' : 'error';
+	$class = array();
+	$class[] = ( $success ) ? 'updated' : 'error';
+	$class[] = 'notice is-dismissible';
 	$object_type = esc_attr( $object_type );
 
-	$messagewrapstart = '<div id="message" class="' . $class . '"><p>';
+	$messagewrapstart = '<div id="message" class="' . implode( ' ', $class ) . '"><p>';
 	$message = '';
 
 	$messagewrapend = '</p></div>';
@@ -699,7 +781,7 @@ function cptui_admin_notices( $action = '', $object_type = '', $success = true, 
  *
  * @since 1.0.5
  *
- * @param string $type Type to return. Either 'post_types' or 'taxonomies'.
+ * @param string $type Type to return. Either 'post_types' or 'taxonomies'. Optional. Default empty string.
  * @return array Array of keys needing preservered for the requested type.
  */
 function cptui_get_preserved_keys( $type = '' ) {
@@ -738,10 +820,10 @@ function cptui_get_preserved_keys( $type = '' ) {
  *
  * @since 1.0.5
  *
- * @param string $type Type to return. Either 'post_types' or 'taxonomies'.
- * @param string $key Requested label key.
- * @param string $plural Plural verbiage for the requested label and type.
- * @param string $singular Singular verbiage for the requested label and type.
+ * @param string $type Type to return. Either 'post_types' or 'taxonomies'. Optional. Default empty string.
+ * @param string $key Requested label key. Optional. Default empty string.
+ * @param string $plural Plural verbiage for the requested label and type. Optional. Default empty string.
+ * @param string $singular Singular verbiage for the requested label and type. Optional. Default empty string.
  * @return string Internationalized default label.
  */
 function cptui_get_preserved_label( $type = '', $key = '', $plural = '', $singular = '' ) {

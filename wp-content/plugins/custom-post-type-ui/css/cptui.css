@@ -1,5 +1,35 @@
+.posttypesui, .taxonomiesui {
+  width: calc(100% - 300px);
+}
+
 .posttypesui .cptui-section:first-child, .taxonomiesui .cptui-section:first-child {
   margin-top: 30px;
+}
+
+.posttypesui .postbox-container, .taxonomiesui .postbox-container {
+  width: 100%;
+}
+
+.posttypesui .postbox .toggle-indicator:before, .taxonomiesui .postbox .toggle-indicator:before {
+  content: "\f142";
+  display: inline-block;
+  font: normal 20px/1 dashicons;
+  speak: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-decoration: none !important;
+}
+
+.posttypesui .postbox.closed .handlediv .toggle-indicator::before, .taxonomiesui .postbox.closed .handlediv .toggle-indicator::before {
+  content: "\f140";
+}
+
+.posttypesui .postbox .hndle, .taxonomiesui .postbox .hndle {
+  cursor: pointer;
+}
+
+.posttypesui .required, .taxonomiesui .required {
+  color: red;
 }
 
 .cptui-table #excerpt {
@@ -17,7 +47,7 @@
 .cptui-table input[type="text"],
 .cptui-new .cptui-table textarea,
 .cptui-edit .cptui-table textarea {
-  width: 50%;
+  width: 75%;
 }
 
 .cptui-table .question:hover {
@@ -33,12 +63,21 @@
   margin-top: 15px;
 }
 
-#support .question {
+.cptui-table #slugchanged {
+  color: red;
+  font-weight: bold;
+}
+
+.cptui-table #slugchanged.hidemessage {
+  display: none;
+}
+
+.cptui-support #support .question {
   font-size: 18px;
   font-weight: bold;
 }
 
-#support .question:before {
+.cptui-support #support .question:before {
   content: "\f139";
   display: inline-block;
   font: normal 25px/1 'dashicons';
@@ -47,24 +86,20 @@
   -webkit-font-smoothing: antialiased;
 }
 
-#support .question.active:before {
+.cptui-support #support .question.active:before {
   content: "\f140";
 }
 
-#support .answer {
+.cptui-support #support .answer {
   margin: 10px 0 0 20px;
 }
 
-#support ol li {
+.cptui-support #support ol li {
   list-style: none;
 }
 
-#support li {
+.cptui-support #support li {
   position: relative;
-}
-
-.required {
-  color: red;
 }
 
 .cptui-field-description {
@@ -91,14 +126,6 @@
   width: 100%;
 }
 
-.one-third {
-  width: 33%;
-}
-
-.valign {
-  vertical-align: top;
-}
-
 .about-wrap .cptui-feature {
   overflow: visible !important;
   *zoom: 1;
@@ -115,6 +142,10 @@
 
 .about-wrap h3 + .cptui-feature {
   margin-top: 0;
+}
+
+.about-wrap .changelog h2 {
+  text-align: center;
 }
 
 .about-wrap .feature-rest div {
@@ -164,18 +195,24 @@
   margin: 0 -100px 0 0;
 }
 
-.about-integrations {
+.about-wrap .about-integrations {
   background: #fff;
   margin: 20px 0;
   padding: 1px 20px 10px;
 }
 
-.changelog h4 {
+.about-wrap .changelog h4 {
   line-height: 1.4;
 }
 
-.cptui-about-text {
+.about-wrap .cptui-about-text {
   margin-bottom: 1em !important;
+}
+
+.about-wrap .cptui-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 .js #cptui_select_post_type input[type='submit'],
@@ -242,7 +279,7 @@ fieldset .cptui-help {
 
 .cptui-section legend {
   border: solid #cccccc 1px;
-  border-bottom: 0px;
+  border-bottom: 0;
   font-size: 14px;
   font-weight: bold;
   padding: 5px;
@@ -265,4 +302,115 @@ fieldset .cptui-help {
   border: solid #cccccc 1px;
   clear: left;
   margin-bottom: 10px;
+}
+
+.wdspromos-about {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -ms-flex-line-pack: stretch;
+  align-content: stretch;
+  -ms-flex-align: start;
+  align-items: flex-start;
+  margin: 20px 0;
+}
+
+.wdspromos-about a:nth-child(1) {
+  -ms-flex-order: 0;
+  order: 0;
+  -ms-flex: 0 1 auto;
+  flex: 0 1 auto;
+  -ms-flex-item-align: auto;
+  -ms-grid-row-align: auto;
+      align-self: auto;
+}
+
+.wdspromos-about a:nth-child(2) {
+  -ms-flex-order: 0;
+  order: 0;
+  -ms-flex: 0 1 auto;
+  flex: 0 1 auto;
+  -ms-flex-item-align: auto;
+  -ms-grid-row-align: auto;
+      align-self: auto;
+}
+
+.wdspromos-about a:nth-child(3) {
+  -ms-flex-order: 0;
+  order: 0;
+  -ms-flex: 0 1 auto;
+  flex: 0 1 auto;
+  -ms-flex-item-align: auto;
+  -ms-grid-row-align: auto;
+      align-self: auto;
+}
+
+.wdspromos-about p {
+  padding: 0 5px;
+}
+
+.wdspromos-about p:nth-child(1) {
+  padding-left: 0px;
+}
+
+.wdspromos-about p:nth-child(4) {
+  padding-right: 0px;
+}
+
+.no-js #cptui_choose_icon {
+  display: none;
+}
+
+.cptui-listings th {
+  font-weight: bold;
+}
+
+.cptui-listings .post-type-listing th {
+  width: 16.66667%;
+}
+
+.cptui-listings .taxonomy-listing th {
+  width: 20%;
+}
+
+#poststuff {
+  min-width: 463px;
+}
+
+@media screen and (min-width: 768px) {
+  .cptui-badge {
+    padding-top: 142px;
+    height: 50px;
+    width: 173px;
+    color: #fafafa;
+    font-weight: bold;
+    font-size: 14px;
+    text-align: center;
+    margin: 0 -5px;
+    background: url(../images/cptui-icon-173x173.png) no-repeat;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .cptui-table #description {
+    width: 100%;
+  }
+  .wdspromos-about {
+    -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+  }
+  .wdspromos-about p {
+    margin: 5px auto;
+  }
+  .wdspromos-about p:nth-child(1) {
+    padding-left: 5px;
+  }
+  .wdspromos-about p:nth-child(4) {
+    padding-right: 5px;
+  }
 }

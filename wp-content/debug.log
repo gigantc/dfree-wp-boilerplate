@@ -7,3 +7,4 @@
 [05-Aug-2016 17:55:11 UTC] WordPress database error Table 'wpboiler.cerber_blocks' doesn't exist for query SELECT count(ip) FROM cerber_blocks WHERE ip = '192.168.50.*' made by activate_plugins, activate_plugin, include_once('/plugins/wp-cerber/wp-cerber.php'), WP_Cerber->__construct, cerber_is_allowed, cerber_block_check
 [05-Aug-2016 17:55:11 UTC] PHP Notice:  get_currentuserinfo is <strong>deprecated</strong> since version 4.5! Use wp_get_current_user() instead. in /srv/www/wpboiler/htdocs/wp-includes/functions.php on line 3658
 [05-Aug-2016 17:55:11 UTC] PHP Notice:  Undefined index: loginpath in /srv/www/wpboiler/htdocs/wp-content/plugins/wp-cerber/settings.php on line 421
+[27-Sep-2017 19:21:20 UTC] PHP Notice:  Undefined offset: 1 in /srv/www/wp-boilerplate/htdocs/wp-admin/includes/dashboard.php on line 1214

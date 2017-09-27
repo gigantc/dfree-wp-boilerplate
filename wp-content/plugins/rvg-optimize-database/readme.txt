@@ -1,15 +1,15 @@
 === Optimize Database after Deleting Revisions ===
 Contributors: CAGE Web Design | Rolf van Gelder
-Donate link: http://cagewebdev.com/index.php/donations-odb/
+Donate link: http://cagewebdev.com/donations-odb/
 Plugin Name: Optimize Database after Deleting Revisions
-Plugin URI: http://cagewebdev.com/index.php/optimize-database-after-deleting-revisions-wordpress-plugin
-Tags: database, delete, revisions, optimize, post, posts, page, pages, clean, clean up, trash, spam, trashed, spammed, database size, scheduler, transients, unused tags, pingback, trackback, unix cron tab, crontab
+Plugin URI: http://cagewebdev.com/optimize-database-after-deleting-revisions-wordpress-plugin
+Tags: database, delete, revisions, optimize, post, posts, page, pages, clean, clean up, trash, spam, trashed, spammed, database size, scheduler, transients, unused tags, pingback, trackback, unix cron tab, crontab, multisite, custom post types
 Author URI: http://cagewebdev.com
 Author: CAGE Web Design | Rolf van Gelder, Eindhoven, The Netherlands
 Requires at least: 2.8
-Tested up to: 4.5.3
-Stable tag: 4.1.10
-Version: 4.1.10
+Tested up to: 4.8.1
+Stable tag: 4.4
+Version: 4.4
 License: GPLv2 or later
 
 == Description ==
@@ -17,11 +17,11 @@ License: GPLv2 or later
 This plugin is a 'One Click' WordPress Database Cleaner / Optimizer.
 
 = Main Features =
-* Deletes redundant revisions of posts and pages (you optionally can keep an 'x'-amount of the most recent revisions)
+* Deletes revisions of posts, pages and / or custom post types (you optionally can keep an 'x'-amount of the most recent revisions and you can choose to delete revisions older than...)
 * Deletes trashed posts, pages and comments (optional)
 * Deletes spammed comments (optional)
 * Deletes unused tags (optional)
-* Deletes 'expired transients' (optional)
+* Deletes 'expired or all transients' (optional)
 * Deletes 'pingbacks' and 'trackbacks' (optional)
 * Deletes 'orphan postmeta items'
 * Optimizes the database tables (optionally you can exclude certain tables, or even specific posts/pages, from optimization)
@@ -62,6 +62,7 @@ Then, start the .php file from your crontab!<br>
 * Dutch [nl_NL] - translated by Rolf van Gelder, CAGE Web Design - http://cagewebdev.com
 * English [en_US] - translated by Rolf van Gelder, CAGE Web Design - http://cagewebdev.com
 * German [de_DE] - translated by the.mnbvcx
+* Indonesian [id_ID] - translated by ChameleonJohn.com
 * Italian [it_IT] - translated by Fabio Marzocca
 * Persian [fa_IR] - translated by Milad Mordi, http://seodaramal.ir
 * Portuguese [po_BR] - translated by Rede Sul Mineira de Comunicações
@@ -75,7 +76,7 @@ Then, start the .php file from your crontab!<br>
 CAGE Web Design | Rolf van Gelder, Eindhoven, The Netherlands - http://cagewebdev.com - http://rvg.cage.nl
 
 = Plugin URL =
-http://cagewebdev.com/index.php/optimize-database-after-deleting-revisions-wordpress-plugin
+http://cagewebdev.com/optimize-database-after-deleting-revisions-wordpress-plugin
 
 = Download URL =
 http://wordpress.org/plugins/rvg-optimize-database/
@@ -85,7 +86,7 @@ NO WARRANTY, USE IT AT YOUR OWN RISK!
 
 = Plugins by CAGE Web Design | Rolf van Gelder =
 WordPress plugins created by CAGE Web Design | Rolf van Gelder<br>
-http://cagewebdev.com/index.php/wordpress-plugins/
+http://cagewebdev.com/wordpress-plugins/
 
 == Installation ==
 
@@ -101,6 +102,31 @@ http://cagewebdev.com/index.php/wordpress-plugins/
 * If you run the plugin from any of the sites, it will cleanup ALL the sites in the network!
 
 == Changelog ==
+= 4.4 [08/22/2017] =
+* NEW: New options to delete revisions of posts, pages and / or specific custom post types
+
+= 4.3.2 [08/12/2017] =
+* CHANGE: Fixed some (innocent) PHP warnings
+
+= 4.3.1 [08/10/2017] =
+* NEW: New option for deleting ALL transients (not the expired ones only)
+
+= 4.3 [07/24/2017] =
+* NEW: New setting added: Delete revisions of (POSTS and PAGES, POSTS only or PAGES only)
+* CHANGE: Some code clean-up and minor changes
+
+= 4.2.3 [07/05/2017] =
+* CHANGE: Extra save button added to the settings page
+
+= 4.2.2 [04/06/2017] =
+* NEW: Indonesian (id_ID) translation added
+
+= 4.2.1 [09/23/2016] =
+* CHANGE: Fixed some (innocent) warnings
+
+= 4.2.0 [09/16/2016] =
+* NEW: Added a 'monthly' schedule to the scheduler
+
 = 4.1.10 [07/15/2016] =
 * BUG FIX: Bug fix for 4.1.9
 
@@ -416,5 +442,16 @@ http://cagewebdev.com/index.php/wordpress-plugins/
 * That's because optimizing InnoDB tables is not really efficient, so change the table type to MyISAM to have them being optimized.
 * Update: if you want to optimize your InnoDB tables too, just check the 'Optimize InnoDB tables too' option on the settings page
 
+= After I ran the plugin, I got "Total savings since the first run: -64 KB" =
+* Sometimes that happens when you optimize InnoDB tables (instead of MyISAM tables).
+Optimizing InnoDB tables works differently than MyISAM.
+InnoDB focuses on speed optimization and sometimes it means the database can grow a little.
+
 = I scheduled the optimization for 8pm but it runs at 6pm (my local time) =
 * The scheduler uses the local time of the web server which can differ from your own local time
+
+= The plugin is visible in Main Site Tools but not in my subsites =
+* Multisite Support
+– Install the plugin as Network Administrator (Network Admin » Plugins)
+– ‘Network Activate’ the plugin
+– You only can configure and run the plugin on the main network site, but it will optimize ALL the sub-sites too!

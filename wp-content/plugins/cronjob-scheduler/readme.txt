@@ -4,7 +4,7 @@ Tags: task,scheduler,automation,cron,cronjob
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=6FVZN7BBHGR2S&lc=GB&item_name=WordPress%20Plugins%20%2d%20Cronjob%20Scheduler&no_note=0&cn=Add%20special%20instructions%20to%20the%20seller%3a&no_shipping=1&currency_code=GBP&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted
 Requires at least: 3.5.1
 Tested up to: 4.5.2
-Stable tag: 1.20
+Stable tag: 1.21
 Plugin URI: http://wordpress.org/plugins/cronjob-scheduler/
 License: GNU v3
 License URI: http://www.gnu.org/licenses/gpl.html
@@ -57,6 +57,9 @@ Sure, just go to the Cronjob Scheduler interface and hit the `Run` button agains
 3. The process of creating a new scheduled task
 
 == Changelog ==
+
+= 1.21 =
+Fixed creation bug caused by non-strict PHP checking. Credit Andreas Mak for this fix
 
 = 1.20 =
 Fixed lack of support for PHP 5.2 with __DIR__ magic constants being replaced for dirname(__FILE__)
