@@ -6,7 +6,7 @@ var gulp = require('gulp'),
 // Include Our Plugins
 var sass = require('gulp-sass'),
     sourcemaps = require('gulp-sourcemaps'),
-    minifycss = require('gulp-minify-css'),
+    cleancss = require('gulp-clean-css'),
     autoprefixer = require('gulp-autoprefixer'),
     concat = require('gulp-concat'),
     rename = require('gulp-rename'),
@@ -22,7 +22,7 @@ gulp.task('sass', function(){
     }}))
     .pipe(sass())
     .pipe(autoprefixer('last 2 versions'))
-    .pipe(minifycss())
+    .pipe(cleancss())
     .pipe(gulp.dest('css/'))
 });
 

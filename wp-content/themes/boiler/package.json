@@ -6,24 +6,20 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "vince",
+  "author": "dan freeman",
   "devDependencies": {
-    "browser-sync": "^2.9.3",
-    "gulp": "^3.9.0",
-    "gulp-autoprefixer": "^3.0.1",
-    "gulp-cache": "^0.3.0",
-    "gulp-concat": "^2.6.0",
-    "gulp-fontcustom": "^0.1.1",
-    "gulp-iconfont": "^5.0.1",
-    "gulp-iconfont-css": "^2.0.0",
-    "gulp-imagemin": "^2.3.0",
-    "gulp-nunjucks-render": "^1.0.0",
-    "gulp-plumber": "^1.0.1",
+    "browser-sync": "^2.18.13",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^4.0.0",
+    "gulp-cache": "^0.4.6",
+    "gulp-concat": "^2.6.1",
+    "gulp-imagemin": "^3.3.0",
+    "gulp-plumber": "^1.1.0",
     "gulp-rename": "^1.2.2",
-    "gulp-sass": "^2.0.4",
-    "gulp-uglify": "^1.4.1"
+    "gulp-sass": "^3.1.0",
+    "gulp-uglify": "^3.0.0"
   },
   "dependencies": {
-    "gulp-minify-css": "^1.2.1"
+    "gulp-clean-css": "^3.9.0"
   }
 }
