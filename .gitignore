@@ -24,6 +24,8 @@ wp-content/*.log
 wp-content/uploads/
 wp-config.php
 node_modules/
+node_modules
+
 
 #############################
 # Ignore everything in the "plugins" directory, except the plugins you
