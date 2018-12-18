@@ -1,8 +1,8 @@
-<?php if(!defined('ABSPATH')) exit('Direct access not allowed');
+<?php namespace chrispage1;
 /**
  * Plugin Name: Cronjob Scheduler
  * Description: Plugin to manage, edit and remove WordPress cron job tasks
- * Version: 1.21
+ * Version: 1.30
  * Author: chrispage1
  * Author URI: https://profiles.wordpress.org/chrispage1/
  *
@@ -11,12 +11,7 @@
  *
  */
 
-// set timezone based on WordPress timezone settings
-if($sOption = get_option('timezone_string')) {
-    date_default_timezone_set($sOption);
-}
-
-class ChrisPage1Commons {
+class Commons {
 
     protected
 
@@ -104,6 +99,20 @@ class ChrisPage1Commons {
     public function __set($param_name, $param_value) {
         // set the param against our $this->__get array
         return $this->__get[$param_name] = $param_value;
+    }
+
+
+    /**
+     * Get timezone from WordPress installation
+     * @return \DateTimeZone
+     */
+    protected function getTimezone () {
+
+        // get our timezone string
+        $sTimezone = $this->get_option('timezone_string');
+
+        // return DateTimeZone object
+        return new \DateTimeZone($sTimezone);
     }
 
 
@@ -303,7 +312,7 @@ class ChrisPage1Commons {
 
 }
 
-class ChrisPage1CronjobScheduler extends ChrisPage1Commons {
+class CronjobScheduler extends Commons {
 
     public
         $_schedules = array (),
@@ -476,8 +485,8 @@ class ChrisPage1CronjobScheduler extends ChrisPage1Commons {
 
     /**
      * Register all schedules
-     *
      * @param array $schedules Array of WordPress schedules
+     * @return array
      */
     public function add_schedules_to_filter($schedules) {
         // loop through each schedule and add to $schedules
@@ -544,7 +553,7 @@ class ChrisPage1CronjobScheduler extends ChrisPage1Commons {
                             $uniqid = md5($hook . $cron['schedule']);
 
                             // check we haven't already got an equivalent
-                            if( !wp_next_scheduled($hook, array ('uniqid'        => $uniqid) ) ) {
+                            if( !wp_next_scheduled($hook, array ('uniqid' => $uniqid) ) ) {
 
                                 // unschedule existing event
                                 wp_unschedule_event($timestamp, $hook, $cron['args']);
@@ -867,7 +876,6 @@ class ChrisPage1CronjobScheduler extends ChrisPage1Commons {
 
     /**
      * Outputs the admin settings page container
-     *
      */
     public function admin_settings_page () {
         $this->load_view('admin_page');
@@ -875,4 +883,4 @@ class ChrisPage1CronjobScheduler extends ChrisPage1Commons {
 }
 
 // create a new instance
-new ChrisPage1CronjobScheduler;
+new CronjobScheduler();

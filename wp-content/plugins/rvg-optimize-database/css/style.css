@@ -11,6 +11,16 @@
 .odb-title-bar h2 {
 	color: #FFF;
 }
+.odb-subheader-container {
+	width: 96%;
+}
+.odb-subheader-left {
+	float: left;
+}
+.odb-subheader-right {
+	float: right;
+	margin-top: 20px;
+}
 .odb-bold {
 	font-weight: 900;
 }
@@ -23,6 +33,9 @@
 .odb-blue {
 	/*color: #00F;*/
 	color: #0074a2;
+}
+.odb-red {
+	color: #C30;
 }
 /* v4.1.9: RUNNING INDICATOR ADDED */
 #odb-running {
@@ -138,5 +151,19 @@
 	white-space: nowrap;
 	width: 200px;
 }
-/*#odb-options-buttons {
-}*/
+/********************************************************
+ *
+ *	LOGS
+ *
+ ********************************************************/
+.odb-log-table {
+	font-size: 13px;
+}
+.odb-log-table th {
+	border-top: solid 1px #000;
+	border-bottom: solid 1px #000;
+}
+.odb-log-table td {
+	padding-bottom: 4px;
+	border-bottom: dotted 1px #CCC;
+}

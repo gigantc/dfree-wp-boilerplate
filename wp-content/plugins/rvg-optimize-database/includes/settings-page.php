@@ -6,9 +6,6 @@
  ********************************************************************************************/
 ?>
 <?php
-if(isset($_REQUEST['delete_log']))
-	if($_REQUEST['delete_log'] == "Y") @unlink(dirname(__FILE__).'/rvg-optimize-db-log.html');	
-
 if (isset($_POST['info_update'])) {
 	// SAVE SETTINGS
 	check_admin_referer('odb_action', 'odb_nonce');	
@@ -22,11 +19,11 @@ if (isset($_POST['info_update'])) {
 	$rel_posttypes = $this->odb_utilities_obj->odb_get_relevant_post_types();
 	// LOOP THROUGH THE RELEVANT POST TYPES
 	foreach ($rel_posttypes as $posttype) {
-		if (isset($_POST['cb_cpt_' . $posttype])) {
+		if (isset($_POST['rvg_cb_cpt_' . $posttype])) {
 			$updated_pts[$posttype] = "Y";
 		} else {
 			$updated_pts[$posttype] = "N";
-		} // if (isset($_POST['cb_cpt_' . $posttype]))
+		} // if (isset($_POST['rvg_cb_cpt_' . $posttype]))
 	} // foreach ($rel_posttypes as $posttype)
 	// UPDATE OPTIONS
 	$this->odb_rvg_options['post_types'] = $updated_pts;
@@ -59,6 +56,12 @@ if (isset($_POST['info_update'])) {
 
 	if(isset($_POST['rvg_clear_pingbacks'])) $this->odb_rvg_options['clear_pingbacks'] = sanitize_text_field($_POST['rvg_clear_pingbacks']);
 	else $this->odb_rvg_options['clear_pingbacks'] = 'N';	
+
+	if(isset($_POST['rvg_clear_oembed'])) $this->odb_rvg_options['clear_oembed'] = sanitize_text_field($_POST['rvg_clear_oembed']);
+	else $this->odb_rvg_options['clear_oembed'] = 'N';	
+
+	if(isset($_POST['rvg_clear_orphans'])) $this->odb_rvg_options['clear_orphans'] = sanitize_text_field($_POST['rvg_clear_orphans']);
+	else $this->odb_rvg_options['clear_orphans'] = 'N';
 
 	if(isset($_POST['rvg_odb_logging_on'])) $this->odb_rvg_options['logging_on'] = sanitize_text_field($_POST['rvg_odb_logging_on']);
 	else $this->odb_rvg_options['logging_on'] = 'N';
@@ -206,6 +209,8 @@ $cb_trash           = ($this->odb_rvg_options['clear_trash']      == "Y") ? $c :
 $cb_spam            = ($this->odb_rvg_options['clear_spam']       == "Y") ? $c : '';
 $cb_tags            = ($this->odb_rvg_options['clear_tags']       == "Y") ? $c : '';
 $cb_ping            = ($this->odb_rvg_options['clear_pingbacks']  == "Y") ? $c : '';
+$cb_oembed          = ($this->odb_rvg_options['clear_oembed']     == "Y") ? $c : '';
+$cb_orphans         = ($this->odb_rvg_options['clear_orphans']    == "Y") ? $c : '';
 $cb_logging         = ($this->odb_rvg_options['logging_on']       == "Y") ? $c : '';
 $cb_adminbar        = ($this->odb_rvg_options['adminbar']         == "Y") ? $c : '';
 $cb_adminmenu       = ($this->odb_rvg_options['adminmenu']        == "Y") ? $c : '';
@@ -251,7 +256,7 @@ foreach ($rel_posttypes as $posttype) {
 	echo '
               <td width="50%" valign="top">
                 <span class="odb-bold">
-                  <input name="cb_cpt_' . $posttype . '" id="cb_cpt_' . $posttype . '" type="checkbox" value="Y" ' . $cb_checked . ' /></span>			  
+                  <input name="rvg_cb_cpt_' . $posttype . '" id="rvg_cb_cpt_' . $posttype . '" type="checkbox" value="Y" ' . $cb_checked . ' /></span>			  
 			  </td>
 			</tr>			  
 	';
@@ -333,6 +338,18 @@ echo '
                 </span></td>
               <td width="50%" valign="top"><input name="rvg_clear_pingbacks" type="checkbox" value="Y" '.$cb_ping.'></td>
             </tr>
+            <tr>
+              <td width="50%" align="right" valign="top"><span class="odb-bold">
+                '.__('Clear oEmbed cache',$this->odb_txt_domain).'
+                </span></td>
+              <td width="50%" valign="top"><input name="rvg_clear_oembed" type="checkbox" value="Y" '.$cb_oembed.'></td>
+            </tr>
+            <tr>
+              <td width="50%" align="right" valign="top"><span class="odb-bold">
+                '.__('Clear orphans',$this->odb_txt_domain).'
+                </span></td>
+              <td width="50%" valign="top"><input name="rvg_clear_orphans" type="checkbox" value="Y" '.$cb_orphans.'></td>
+            </tr>						
             <tr>
               <td align="right" valign="top"><span class="odb-bold">
                 '. __('Optimize InnoDB tables too',$this->odb_txt_domain).'

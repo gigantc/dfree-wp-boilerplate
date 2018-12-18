@@ -1,6 +1,7 @@
 <?php
 /*
-	Copyright (C) 2015-17 CERBER TECH INC., Gregory Markov, http://wpcerber.com
+	Copyright (C) 2015-18 CERBER TECH INC., http://cerber.tech
+	Copyright (C) 2015-18 CERBER TECH INC., https://wpcerber.com
 
     Licenced under the GNU GPL.
 
@@ -143,7 +144,7 @@ function ripe_readable_info($ip){
 			$ret['data'][$att->name] = $att->value;
 			if (is_email($att->value)) $value = '<a href="mailto:'.$att->value.'">'.$att->value.'</a>';
 			elseif (strtolower($att->name) == 'country') {
-				$value = '<b><span '.cerber_get_flag_css($att->value).'>'.cerber_country_name($att->value).'</span> ('.$att->value.')</b>';
+				$value = cerber_get_flag_html($att->value) . '<b>' . cerber_country_name($att->value) . ' (' . $att->value . ')</b>';
 				$ret['country'] = $value;
 			}
 			else $value = $att->value;

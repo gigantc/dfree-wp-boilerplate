@@ -1,6 +1,7 @@
 <?php
 /*
-	Copyright (C) 2015-17 CERBER TECH INC., Gregory Markov, http://wpcerber.com
+	Copyright (C) 2015-18 CERBER TECH INC., http://cerber.tech
+	Copyright (C) 2015-18 CERBER TECH INC., https://wpcerber.com
 
     Licenced under the GNU GPL.
 
@@ -70,7 +71,7 @@ function cerber_ip_whois_info($ip) {
 		foreach ( $data as $key => $value ) {
 			if (is_email($value)) $value = '<a href="mailto:'.$value.'">'.$value.'</a>';
 			elseif (strtolower($key) == 'country') {
-				$value = '<b><span '.cerber_get_flag_css($value).'>'.cerber_country_name($value).'</span> ('.$value.')</b>';
+				$value = cerber_get_flag_html($value) . '<b>' . cerber_country_name($value) . ' (' . $value . ')</b>';
 				$ret['country'] = $value;
 			}
 
@@ -167,7 +168,9 @@ function cerber_parse_whois_data($txt){
  *
  */
 function make_whois_request($server, $ip) {
-	if (!$f = fsockopen( $server, 43, $errno, $errstr, WHOIS_IO_TIMEOUT )) return array('error'=>$errstr.' (WHOIS: '.$server.').');
+	if ( ! $f = @fsockopen( $server, 43, $errno, $errstr, WHOIS_IO_TIMEOUT ) ) {
+		return array( 'error' => 'Network error: ' . $errstr . ' (WHOIS server: ' . $server . ').' );
+	}
 	#Set the timeout for answering
 	if (!stream_set_timeout($f,WHOIS_IO_TIMEOUT)) return array('error'=>'WHOIS: Unable to set IO timeout.');
 	#Send the IP address to the whois server
@@ -187,14 +190,25 @@ function make_whois_request($server, $ip) {
 	if (!$data) return array('error'=>'Remote WHOIS server return empty response ('.$server.').');
 	return $data;
 }
-/*
- * Tiny national flag by country code
- * @since 2.7
+
+/**
+ * HTML for displaying a national flag
+ *
+ * @param $code string Country code
+ *
+ * @return string   HTML code
  *
  */
-function cerber_get_flag_css($code){
-	$assets_url = plugin_dir_url(CERBER_FILE).'assets';
-	return 'style="padding-left: 24px; background: url(\''.$assets_url.'/flags/'.strtolower($code).'.gif\') no-repeat left;"';
+function cerber_get_flag_html( $code, $txt = '' ) {
+	static $assets_url;
+	if ( ! $code ) {
+		return '';
+	}
+	if ( ! isset( $assets_url ) ) {
+		$assets_url = cerber_plugin_dir_url() . 'assets/';
+	}
+
+	return '<span class="crb-country" style="background: url(\'' . $assets_url . 'flags/' . strtolower( $code ) . '.gif\') no-repeat left;">' . $txt . '</span>';
 }
 /*
  *
@@ -203,263 +217,309 @@ function cerber_get_flag_css($code){
  * @since 2.7
  *
  */
-function cerber_country_name($code) {
+function cerber_country_name( $code ) {
+	global $wpdb, $cerber_country_names;
+	static $cache, $locale;
+
+	if ( ! $code ) {
+		return __( 'Unknown', 'wp-cerber' );
+	}
+
+	if ( isset( $cache[ $code ] ) ) {
+		return $cache[ $code ];
+	}
+
+	$code = strtoupper( $code );
+	$ret = '';
+
+	if (!isset($locale)) {
+		$locale = crb_get_bloginfo( 'language' );
+		if ( $locale != 'pt-BR' && $locale != 'zh-CN' ) {
+			$locale = substr( $locale, 0, 2 );
+			if ( ! in_array( $locale, array( 'de', 'en', 'es', 'fr', 'ja', 'ru' ) ) ) {
+				$locale = 'en';
+			}
+		}
+	}
+
+	$ret = cerber_db_get_var( 'SELECT country_name FROM ' . CERBER_GEO_TABLE . ' WHERE country = "'.$code.'" AND locale = "'.$locale.'"' );
+
+	if ($ret) {
+		$cache[ $code ] = $ret;
+		return $ret;
+	}
+
+	if ( isset( $cerber_country_names[ $code ] ) ) {
+		$ret =  $cerber_country_names[ $code ];
+	}
+	else {
+		$ret = __( 'Unknown', 'wp-cerber' );
+	}
+
+	$cache[ $code ] = $ret;
+	return $ret;
+}
+
+function cerber_get_country_list() {
 	global $cerber_country_names;
-	$code = strtoupper($code);
-	if (isset($cerber_country_names[$code])) return $cerber_country_names[$code];
-	return __('Unknown','wp-cerber');
+	$ret = array();
+	foreach ( $cerber_country_names as $code => $name ) {
+		$ret[ $code ] = cerber_country_name( $code );
+	}
+
+	return $ret;
 }
 
 $cerber_country_names = array(
-	'AF' => 'AFGHANISTAN',
-	'AL' => 'ALBANIA',
-	'AX' => 'Åland Islands',
-	'DZ' => 'ALGERIA',
-	'AS' => 'AMERICAN SAMOA',
-	'AD' => 'ANDORRA',
-	'AO' => 'ANGOLA',
-	'AI' => 'ANGUILLA',
-	'AQ' => 'ANTARCTICA',
-	'AG' => 'ANTIGUA AND BARBUDA',
-	'AR' => 'ARGENTINA',
-	'AM' => 'ARMENIA',
-	'AW' => 'ARUBA',
-	'AU' => 'AUSTRALIA',
-	'AT' => 'AUSTRIA',
-	'AZ' => 'AZERBAIJAN',
-	'BS' => 'BAHAMAS',
-	'BH' => 'BAHRAIN',
-	'BD' => 'BANGLADESH',
-	'BB' => 'BARBADOS',
-	'BY' => 'BELARUS',
-	'BE' => 'BELGIUM',
-	'BZ' => 'BELIZE',
-	'BJ' => 'BENIN',
-	'BM' => 'BERMUDA',
-	'BT' => 'BHUTAN',
-	'BO' => 'BOLIVIA, PLURINATIONAL STATE OF',
-	'BQ' => 'BONAIRE, SINT EUSTATIUS AND SABA',
-	'BA' => 'BOSNIA AND HERZEGOVINA',
-	'BW' => 'BOTSWANA',
-	'BV' => 'BOUVET ISLAND',
-	'BR' => 'BRAZIL',
-	'IO' => 'BRITISH INDIAN OCEAN TERRITORY',
-	'BN' => 'BRUNEI DARUSSALAM',
-	'BG' => 'BULGARIA',
-	'BF' => 'BURKINA FASO',
-	'BI' => 'BURUNDI',
-	'KH' => 'CAMBODIA',
-	'CM' => 'CAMEROON',
-	'CA' => 'CANADA',
-	'CV' => 'CAPE VERDE',
-	'KY' => 'CAYMAN ISLANDS',
-	'CF' => 'CENTRAL AFRICAN REPUBLIC',
-	'TD' => 'CHAD',
-	'CL' => 'CHILE',
-	'CN' => 'CHINA',
-	'CX' => 'CHRISTMAS ISLAND',
-	'CC' => 'COCOS (KEELING) ISLANDS',
-	'CO' => 'COLOMBIA',
-	'KM' => 'COMOROS',
-	'CG' => 'CONGO',
-	'CD' => 'CONGO, THE DEMOCRATIC REPUBLIC OF THE',
-	'CK' => 'COOK ISLANDS',
-	'CR' => 'COSTA RICA',
-	'CI' => 'COTE DIVOIRE',
-	'HR' => 'CROATIA',
-	'CU' => 'CUBA',
-	'CW' => 'CURACAO',
-	'CY' => 'CYPRUS',
-	'CZ' => 'CZECH REPUBLIC',
-	'DK' => 'DENMARK',
-	'DJ' => 'DJIBOUTI',
-	'DM' => 'DOMINICA',
-	'DO' => 'DOMINICAN REPUBLIC',
-	'EC' => 'ECUADOR',
-	'EG' => 'EGYPT',
-	'SV' => 'EL SALVADOR',
-	'GQ' => 'EQUATORIAL GUINEA',
-	'ER' => 'ERITREA',
-	'EE' => 'ESTONIA',
-	'ET' => 'ETHIOPIA',
+	'AF' => 'Afghanistan',
+	'AL' => 'Albania',
+	'AX' => 'Aland Islands',
+	'DZ' => 'Algeria',
+	'AS' => 'American Samoa',
+	'AD' => 'Andorra',
+	'AO' => 'Angola',
+	'AI' => 'Anguilla',
+	'AQ' => 'Antarctica',
+	'AG' => 'Antigua and Barbuda',
+	'AR' => 'Argentina',
+	'AM' => 'Armenia',
+	'AW' => 'Aruba',
+	'AU' => 'Australia',
+	'AT' => 'Austria',
+	'AZ' => 'Azerbaijan',
+	'BS' => 'Bahamas',
+	'BH' => 'Bahrain',
+	'BD' => 'Bangladesh',
+	'BB' => 'Barbados',
+	'BY' => 'Belarus',
+	'BE' => 'Belgium',
+	'BZ' => 'Belize',
+	'BJ' => 'Benin',
+	'BM' => 'Bermuda',
+	'BT' => 'Bhutan',
+	'BO' => 'Bolivia',
+	'BQ' => 'Caribbean Netherlands',
+	'BA' => 'Bosnia and Herzegovina',
+	'BW' => 'Botswana',
+	'BV' => 'Bouvet Island',
+	'BR' => 'Brazil',
+	'IO' => 'British Indian Ocean Territory',
+	'BN' => 'Brunei Darussalam',
+	'BG' => 'Bulgaria',
+	'BF' => 'Burkina Faso',
+	'BI' => 'Burundi',
+	'KH' => 'Cambodia',
+	'CM' => 'Cameroon',
+	'CA' => 'Canada',
+	'CV' => 'Cape Verde',
+	'KY' => 'Cayman Islands',
+	'CF' => 'Central African Republic',
+	'TD' => 'Chad',
+	'CL' => 'Chile',
+	'CN' => 'China',
+	'CX' => 'Christmas Island',
+	'CC' => 'Cocos (Keeling) Islands',
+	'CO' => 'Colombia',
+	'KM' => 'Comoros',
+	'CG' => 'Congo',
+	'CD' => 'Democratic Republic of the Congo',
+	'CK' => 'Cook Islands',
+	'CR' => 'Costa Rica',
+	'CI' => 'Cote Divoire',
+	'HR' => 'Croatia',
+	'CU' => 'Cuba',
+	'CW' => 'Curacao',
+	'CY' => 'Cyprus',
+	'CZ' => 'Czech Republic',
+	'DK' => 'Denmark',
+	'DJ' => 'Djibouti',
+	'DM' => 'Dominica',
+	'DO' => 'Dominican Republic',
+	'EC' => 'Ecuador',
+	'EG' => 'Egypt',
+	'SV' => 'El Salvador',
+	'GQ' => 'Equatorial Guinea',
+	'ER' => 'Eritrea',
+	'EE' => 'Estonia',
+	'ET' => 'Ethiopia',
 	'EU' => 'European Union',
 	'EZ' => 'Eurozone',
-	'FK' => 'FALKLAND ISLANDS (MALVINAS)',
-	'FO' => 'FAROE ISLANDS',
-	'FJ' => 'FIJI',
-	'FI' => 'FINLAND',
-	'FR' => 'FRANCE',
-	'GF' => 'FRENCH GUIANA',
-	'PF' => 'FRENCH POLYNESIA',
-	'TF' => 'FRENCH SOUTHERN TERRITORIES',
-	'GA' => 'GABON',
-	'GM' => 'GAMBIA',
-	'GE' => 'GEORGIA',
-	'DE' => 'GERMANY',
-	'GH' => 'GHANA',
-	'GI' => 'GIBRALTAR',
-	'GR' => 'GREECE',
-	'GL' => 'GREENLAND',
-	'GD' => 'GRENADA',
-	'GP' => 'GUADELOUPE',
-	'GU' => 'GUAM',
-	'GT' => 'GUATEMALA',
-	'GG' => 'GUERNSEY',
-	'GN' => 'GUINEA',
-	'GW' => 'GUINEA-BISSAU',
-	'GY' => 'GUYANA',
-	'HT' => 'HAITI',
-	'HM' => 'HEARD ISLAND AND MCDONALD ISLANDS',
-	'VA' => 'HOLY SEE (VATICAN CITY STATE)',
-	'HN' => 'HONDURAS',
-	'HK' => 'HONG KONG',
-	'HU' => 'HUNGARY',
-	'IS' => 'ICELAND',
-	'IN' => 'INDIA',
-	'ID' => 'INDONESIA',
-	'IR' => 'IRAN, ISLAMIC REPUBLIC OF',
-	'IQ' => 'IRAQ',
-	'IE' => 'IRELAND',
-	'IM' => 'ISLE OF MAN',
-	'IL' => 'ISRAEL',
-	'IT' => 'ITALY',
-	'JM' => 'JAMAICA',
-	'JP' => 'JAPAN',
-	'JE' => 'JERSEY',
-	'JO' => 'JORDAN',
-	'KZ' => 'KAZAKHSTAN',
-	'KE' => 'KENYA',
-	'KI' => 'KIRIBATI',
-	'KP' => 'KOREA, DEMOCRATIC PEOPLES REPUBLIC OF',
-	'KR' => 'KOREA, REPUBLIC OF',
-	'KW' => 'KUWAIT',
-	'KG' => 'KYRGYZSTAN',
-	'LA' => 'LAO PEOPLES DEMOCRATIC REPUBLIC',
-	'LV' => 'LATVIA',
-	'LB' => 'LEBANON',
-	'LS' => 'LESOTHO',
-	'LR' => 'LIBERIA',
-	'LY' => 'LIBYA',
-	'LI' => 'LIECHTENSTEIN',
-	'LT' => 'LITHUANIA',
-	'LU' => 'LUXEMBOURG',
-	'MO' => 'MACAO',
-	'MK' => 'MACEDONIA, THE FORMER YUGOSLAV REPUBLIC OF',
-	'MG' => 'MADAGASCAR',
-	'MW' => 'MALAWI',
-	'MY' => 'MALAYSIA',
-	'MV' => 'MALDIVES',
-	'ML' => 'MALI',
-	'MT' => 'MALTA',
-	'MH' => 'MARSHALL ISLANDS',
-	'MQ' => 'MARTINIQUE',
-	'MR' => 'MAURITANIA',
-	'MU' => 'MAURITIUS',
-	'YT' => 'MAYOTTE',
-	'MX' => 'MEXICO',
-	'FM' => 'MICRONESIA, FEDERATED STATES OF',
-	'MD' => 'MOLDOVA, REPUBLIC OF',
-	'MC' => 'MONACO',
-	'MN' => 'MONGOLIA',
-	'ME' => 'MONTENEGRO',
-	'MS' => 'MONTSERRAT',
-	'MA' => 'MOROCCO',
-	'MZ' => 'MOZAMBIQUE',
-	'MM' => 'MYANMAR',
-	'NA' => 'NAMIBIA',
-	'NR' => 'NAURU',
-	'NP' => 'NEPAL',
-	'NL' => 'NETHERLANDS',
-	'NC' => 'NEW CALEDONIA',
-	'NZ' => 'NEW ZEALAND',
-	'NI' => 'NICARAGUA',
-	'NE' => 'NIGER',
-	'NG' => 'NIGERIA',
-	'NU' => 'NIUE',
-	'NF' => 'NORFOLK ISLAND',
-	'MP' => 'NORTHERN MARIANA ISLANDS',
-	'NO' => 'NORWAY',
-	'OM' => 'OMAN',
-	'PK' => 'PAKISTAN',
-	'PW' => 'PALAU',
-	'PS' => 'PALESTINE, STATE OF',
-	'PA' => 'PANAMA',
-	'PG' => 'PAPUA NEW GUINEA',
-	'PY' => 'PARAGUAY',
-	'PE' => 'PERU',
-	'PH' => 'PHILIPPINES',
-	'PN' => 'PITCAIRN',
-	'PL' => 'POLAND',
-	'PT' => 'PORTUGAL',
-	'PR' => 'PUERTO RICO',
-	'QA' => 'QATAR',
-	'RE' => 'REUNION',
-	'RO' => 'ROMANIA',
-	'RU' => 'RUSSIAN FEDERATION',
-	'RW' => 'RWANDA',
-	'BL' => 'SAINT BARTH√âLEMY',
-	'SH' => 'SAINT HELENA, ASCENSION AND TRISTAN DA CUNHA',
-	'KN' => 'SAINT KITTS AND NEVIS',
-	'LC' => 'SAINT LUCIA',
-	'MF' => 'SAINT MARTIN (FRENCH PART)',
-	'PM' => 'SAINT PIERRE AND MIQUELON',
-	'VC' => 'SAINT VINCENT AND THE GRENADINES',
-	'WS' => 'SAMOA',
-	'SM' => 'SAN MARINO',
-	'ST' => 'SAO TOME AND PRINCIPE',
-	'SA' => 'SAUDI ARABIA',
-	'SN' => 'SENEGAL',
-	'RS' => 'SERBIA',
-	'SC' => 'SEYCHELLES',
-	'SL' => 'SIERRA LEONE',
-	'SG' => 'SINGAPORE',
-	'SX' => 'SINT MAARTEN (DUTCH PART)',
-	'SK' => 'SLOVAKIA',
-	'SI' => 'SLOVENIA',
-	'SB' => 'SOLOMON ISLANDS',
-	'SO' => 'SOMALIA',
-	'ZA' => 'SOUTH AFRICA',
-	'GS' => 'SOUTH GEORGIA AND THE SOUTH SANDWICH ISLANDS',
-	'SS' => 'SOUTH SUDAN',
-	'ES' => 'SPAIN',
-	'LK' => 'SRI LANKA',
-	'SD' => 'SUDAN',
-	'SR' => 'SURINAME',
-	'SJ' => 'SVALBARD AND JAN MAYEN',
-	'SZ' => 'SWAZILAND',
-	'SE' => 'SWEDEN',
-	'CH' => 'SWITZERLAND',
-	'SY' => 'SYRIAN ARAB REPUBLIC',
-	'TW' => 'TAIWAN, PROVINCE OF CHINA',
-	'TJ' => 'TAJIKISTAN',
-	'TZ' => 'TANZANIA, UNITED REPUBLIC OF',
-	'TH' => 'THAILAND',
-	'TL' => 'TIMOR-LESTE',
-	'TG' => 'TOGO',
-	'TK' => 'TOKELAU',
-	'TO' => 'TONGA',
-	'TT' => 'TRINIDAD AND TOBAGO',
-	'TN' => 'TUNISIA',
-	'TR' => 'TURKEY',
-	'TM' => 'TURKMENISTAN',
-	'TC' => 'TURKS AND CAICOS ISLANDS',
-	'TV' => 'TUVALU',
-	'UG' => 'UGANDA',
-	'UA' => 'UKRAINE',
-	'AE' => 'UNITED ARAB EMIRATES',
-	'GB' => 'UNITED KINGDOM',
-	'US' => 'UNITED STATES',
-	'UM' => 'UNITED STATES MINOR OUTLYING ISLANDS',
-	'UY' => 'URUGUAY',
-	'UZ' => 'UZBEKISTAN',
-	'VU' => 'VANUATU',
-	'VE' => 'VENEZUELA, BOLIVARIAN REPUBLIC OF',
-	'VN' => 'VIET NAM',
-	'VG' => 'VIRGIN ISLANDS, BRITISH',
-	'VI' => 'VIRGIN ISLANDS, U.S.',
-	'WF' => 'WALLIS AND FUTUNA',
-	'EH' => 'WESTERN SAHARA',
-	'YE' => 'YEMEN',
-	'ZM' => 'ZAMBIA',
-	'ZW' => 'ZIMBABWE'
+	'FK' => 'Falkland Islands',
+	'FO' => 'Faroe Islands',
+	'FJ' => 'Fiji',
+	'FI' => 'Finland',
+	'FR' => 'France',
+	'GF' => 'French Guiana',
+	'PF' => 'French Polynesia',
+	'TF' => 'French Southern Territories',
+	'GA' => 'Gabon',
+	'GM' => 'Gambia',
+	'GE' => 'Georgia',
+	'DE' => 'Germany',
+	'GH' => 'Ghana',
+	'GI' => 'Gibraltar',
+	'GR' => 'Greece',
+	'GL' => 'Greenland',
+	'GD' => 'Grenada',
+	'GP' => 'Guadeloupe',
+	'GU' => 'Guam',
+	'GT' => 'Guatemala',
+	'GG' => 'Guernsey',
+	'GN' => 'Guinea',
+	'GW' => 'Guinea-Bissau',
+	'GY' => 'Guyana',
+	'HT' => 'Haiti',
+	'HM' => 'Heard Island And McDonald Islands',
+	'VA' => 'Holy See',
+	'HN' => 'Honduras',
+	'HK' => 'Hong Kong',
+	'HU' => 'Hungary',
+	'IS' => 'Iceland',
+	'IN' => 'India',
+	'ID' => 'Indonesia',
+	'IR' => 'Iran',
+	'IQ' => 'Iraq',
+	'IE' => 'Ireland',
+	'IM' => 'Isle of Man',
+	'IL' => 'Israel',
+	'IT' => 'Italy',
+	'JM' => 'Jamaica',
+	'JP' => 'Japan',
+	'JE' => 'Jersey',
+	'JO' => 'Jordan',
+	'KZ' => 'Kazakhstan',
+	'KE' => 'Kenya',
+	'KI' => 'Kiribati',
+	'KP' => 'North Korea',
+	'KR' => 'South Korea',
+	'KW' => 'Kuwait',
+	'KG' => 'Kyrgyzstan',
+	'LA' => 'Laos',
+	'LV' => 'Latvia',
+	'LB' => 'Lebanon',
+	'LS' => 'Lesotho',
+	'LR' => 'Liberia',
+	'LY' => 'Libya',
+	'LI' => 'Liechtenstein',
+	'LT' => 'Lithuania',
+	'LU' => 'Luxembourg',
+	'MO' => 'Macao',
+	'MK' => 'Macedonia',
+	'MG' => 'Madagascar',
+	'MW' => 'Malawi',
+	'MY' => 'Malaysia',
+	'MV' => 'Maldives',
+	'ML' => 'Mali',
+	'MT' => 'Malta',
+	'MH' => 'Marshall Islands',
+	'MQ' => 'Martinique',
+	'MR' => 'Mauritania',
+	'MU' => 'Mauritius',
+	'YT' => 'Mayotte',
+	'MX' => 'Mexico',
+	'FM' => 'Micronesia',
+	'MD' => 'Moldova',
+	'MC' => 'Monaco',
+	'MN' => 'Mongolia',
+	'ME' => 'Montenegro',
+	'MS' => 'Montserrat',
+	'MA' => 'Morocco',
+	'MZ' => 'Mozambique',
+	'MM' => 'Myanmar',
+	'NA' => 'Namibia',
+	'NR' => 'Nauru',
+	'NP' => 'Nepal',
+	'NL' => 'Netherlands',
+	'NC' => 'New Caledonia',
+	'NZ' => 'New Zealand',
+	'NI' => 'Nicaragua',
+	'NE' => 'Niger',
+	'NG' => 'Nigeria',
+	'NU' => 'Niue',
+	'NF' => 'Norfolk Island',
+	'MP' => 'Northern Mariana Islands',
+	'NO' => 'Norway',
+	'OM' => 'Oman',
+	'PK' => 'Pakistan',
+	'PW' => 'Palau',
+	'PS' => 'Palestine',
+	'PA' => 'Panama',
+	'PG' => 'Papua New Guinea',
+	'PY' => 'Paraguay',
+	'PE' => 'Peru',
+	'PH' => 'Philippines',
+	'PN' => 'Pitcairn',
+	'PL' => 'Poland',
+	'PT' => 'Portugal',
+	'PR' => 'Puerto Rico',
+	'QA' => 'Qatar',
+	'RE' => 'Reunion',
+	'RO' => 'Romania',
+	'RU' => 'Russian Federation',
+	'RW' => 'Rwanda',
+	'BL' => 'Saint Barthelemy',
+	'SH' => 'Saint Helena, Ascension and Tristan da Cunha',
+	'KN' => 'Saint Kitts and Nevis',
+	'LC' => 'Saint Lucia',
+	'MF' => 'Saint Martin (French part)',
+	'PM' => 'Saint Pierre and Miquelon',
+	'VC' => 'Saint Vincent and the Grenadines',
+	'WS' => 'Samoa',
+	'SM' => 'San Marino',
+	'ST' => 'Sao Tome and Principe',
+	'SA' => 'Saudi Arabia',
+	'SN' => 'Senegal',
+	'RS' => 'Serbia',
+	'SC' => 'Seychelles',
+	'SL' => 'Sierra Leone',
+	'SG' => 'Singapore',
+	'SX' => 'Sint Maarten (Dutch part)',
+	'SK' => 'Slovakia',
+	'SI' => 'Slovenia',
+	'SB' => 'Solomon Islands',
+	'SO' => 'Somalia',
+	'ZA' => 'South Africa',
+	'GS' => 'South Georgia and the South Sandwich Islands',
+	'SS' => 'South Sudan',
+	'ES' => 'Spain',
+	'LK' => 'Sri Lanka',
+	'SD' => 'Sudan',
+	'SR' => 'Suriname',
+	'SJ' => 'Svalbard and Jan Mayen',
+	'SZ' => 'Swaziland',
+	'SE' => 'Sweden',
+	'CH' => 'Switzerland',
+	'SY' => 'Syrian Arab Republic',
+	'TW' => 'Taiwan, Province of China',
+	'TJ' => 'Tajikistan',
+	'TZ' => 'Tanzania',
+	'TH' => 'Thailand',
+	'TL' => 'Timor-Leste',
+	'TG' => 'Togo',
+	'TK' => 'Tokelau',
+	'TO' => 'Tonga',
+	'TT' => 'Trinidad and Tobago',
+	'TN' => 'Tunisia',
+	'TR' => 'Turkey',
+	'TM' => 'Turkmenistan',
+	'TC' => 'Turks And Caicos Islands',
+	'TV' => 'Tuvalu',
+	'UG' => 'Uganda',
+	'UA' => 'Ukraine',
+	'AE' => 'United Arab Emirates',
+	'GB' => 'United Kingdom',
+	'US' => 'United States',
+	'UM' => 'United States Minor Outlying Islands',
+	'UY' => 'Uruguay',
+	'UZ' => 'Uzbekistan',
+	'VU' => 'Vanuatu',
+	'VE' => 'Venezuela',
+	'VN' => 'Viet Nam',
+	'VG' => 'British Virgin Islands',
+	'VI' => 'United States Virgin Islands',
+	'WF' => 'Wallis and Futuna',
+	'EH' => 'Western Sahara',
+	'YE' => 'Yemen',
+	'ZM' => 'Zambia',
+	'ZW' => 'Zimbabwe'
 );
