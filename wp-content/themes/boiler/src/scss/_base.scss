@@ -6,7 +6,7 @@ body{
   color:$black;
   overflow-x:hidden;
   -webkit-overflow-scrolling: touch;
-  animation: bodyFade 1.0s forwards;
+  animation: bodyFade 0.5s forwards;
 }
 // fade in effect on page load
  @keyframes bodyFade {

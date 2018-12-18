@@ -7,11 +7,7 @@
 
 */
 
-$(document).ready(function(){ 
-
-// GLOBALS -----------------------
-var like = 0,
-    icarus = 0;
+document.addEventListener("DOMContentLoaded", function(){
 
 
 
@@ -19,6 +15,7 @@ var like = 0,
 // WINDOW RESIZE FUNCTIONS -----------------------
 var windowWidth = window.outerWidth,
     windowHeight = window.outerHeight;
+    
 window.addEventListener("resize", function(){
   windowWidth = window.outerWidth;
   windowHeight = window.outerHeight;
