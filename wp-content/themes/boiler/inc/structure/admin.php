@@ -96,6 +96,9 @@ function replace_admin_menu_icons_css() {
 #adminmenu #menu-dashboard div.wp-menu-image::before {content:'\f154';}
 #adminmenu #menu-settings div.wp-menu-image::before {content:'\f111';} 
 #adminmenu #collapse-button div::after {content:'\f341';} 
+#adminmenu #menu-posts-locations div.wp-menu-image::before {content:'\f231';}
+#adminmenu #menu-posts-people div.wp-menu-image::before {content:'\f338';}
+#adminmenu #toplevel_page_social-contact div.wp-menu-image::before {content:'\f237';}
 </style>
 <?php
 }
@@ -106,10 +109,10 @@ add_action( 'admin_head', 'replace_admin_menu_icons_css' );
 function lawfirm_change_post_label() {
     global $menu;
     global $submenu;
-    $menu[5][0] = 'Deez Posts';
-    $submenu['edit.php'][5][0] = 'Deez Posts';
-    $submenu['edit.php'][10][0] = 'Add Deez Posts';
-    $submenu['edit.php'][16][0] = 'Deez Post Tags';
+    $menu[5][0] = 'News';
+    $submenu['edit.php'][5][0] = 'News Posts';
+    $submenu['edit.php'][10][0] = 'Add News Post';
+    $submenu['edit.php'][16][0] = 'News Post Tags';
     echo '';
 }
 add_action( 'admin_menu', 'lawfirm_change_post_label' );

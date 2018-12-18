@@ -48,4 +48,4 @@ endif;
 function custom_roots_share_buttons_template() {
   return get_template_directory() . '/template-parts/shortcode-share.php';
 }
-add_action('roots/share_template', 'custom_roots_share_buttons_template');
+//add_action('roots/share_template', 'custom_roots_share_buttons_template');

@@ -84,11 +84,8 @@ function lawfirm_scripts() {
 	wp_register_script( 'lawfirm-js', get_template_directory_uri() . '/js/main.min.js', array('jquery'), '1.0.0', true );
   wp_register_script( 'libs', get_template_directory_uri() . '/js/libs/libs.min.js', array('jquery'), '1.0.0', true );
 
-  wp_register_script( 'ajax-posts', get_template_directory_uri() . '/js/ajax.min.js', array('jquery'), '1.0.0', true );
-
   wp_enqueue_script( 'jquery' );
   wp_enqueue_script( 'lawfirm-js' );
-  wp_enqueue_script('ajax-posts');
 
 
   //any page speciic scripts
@@ -156,24 +153,6 @@ function remove_anonymous_object_filter( $tag, $class, $method ) {
 // remove_anonymous_object_filter('woocommerce_before_add_to_cart_button', 'woocommerce_gravityforms', 'woocommerce_gravityform');
 
 
-
-/**
-* This function removes empty <p> tags that sometimes get placed in by ACF text fields
-* 
-*/
-function remove_empty_p( $content ) {
-  $content = force_balance_tags( $content );
-  $content = preg_replace( '#<p>\s*+(<br\s*/*>)?\s*</p>#i', '', $content );
-  $content = preg_replace( '~\s?<p>(\s|&nbsp;)+</p>\s?~', '', $content );
-  return $content;
-}
-// add_filter('the_content', 'remove_empty_p', 20, 1);
-// remove_filter('acf_the_content', 'wpautop');
-
-
-
-
-
 /**
 * This is how to activate an hourly WP Cron job whenever the site is loaded
 * Once it's created it won't do it again unless deleted in WP CRON SCHEDULER
@@ -193,3 +172,15 @@ function lawfirm_projects_cron_activation() {
 function lawfirm_get_project_data(){
   
 }
+
+
+// Add Page Slug to Body Class
+// creates a page-[slug] body class
+function add_slug_body_class( $classes ) {
+  global $post;
+  if ( isset( $post ) ) {
+  $classes[] = $post->post_type . '-' . $post->post_name;
+  }
+  return $classes;
+}
+add_filter( 'body_class', 'add_slug_body_class' );
