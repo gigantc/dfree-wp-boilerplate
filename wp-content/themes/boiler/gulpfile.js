@@ -33,20 +33,9 @@ gulp.task('libsjs', function(){
         .pipe(gulp.dest('js/libs/'));
 });
 
-gulp.task('page_scripts', function(){
-  return gulp.src('src/js/*.js')
-    .pipe(plumber({
-      errorHandler: function (error) {
-        console.log(error.message);
-        this.emit('end');
-    }}))
-    .pipe(rename({suffix: '.min'}))
-    .pipe(uglify())
-    .pipe(gulp.dest('js/'))
-});
 
 gulp.task('scripts', function(){
-  return gulp.src(['src/js/main.js'])
+  return gulp.src(['src/js/*.js'])
     .pipe(plumber({
       errorHandler: function (error) {
         console.log(error.message);
@@ -61,9 +50,9 @@ gulp.task('scripts', function(){
 // Watch Files For Changes
 gulp.task('watch', function() {
     gulp.watch('src/scss/**/*.scss', ['sass']),
-    gulp.watch('src/js/*.js', ['scripts', 'page_scripts']),
+    gulp.watch('src/js/*.js', ['scripts']),
     gulp.watch('src/js/libs/*.js', ['libsjs']);
 });
 
 // Default Task
-gulp.task('default', ['sass', 'libsjs', 'page_scripts', 'scripts', 'watch']);
+gulp.task('default', ['sass', 'libsjs', 'scripts', 'watch']);
