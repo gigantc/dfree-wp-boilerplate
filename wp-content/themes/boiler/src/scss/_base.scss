@@ -1,0 +1,88 @@
+/*// PRIMARY STYLES ----------------------- */
+body{
+  position:relative;
+  width:100%; height:100%;
+  background-color:$white;
+  color:$black;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling: touch;
+  animation: bodyFade 1.0s forwards;
+}
+// fade in effect on page load
+ @keyframes bodyFade {
+    0% {
+      opacity:0;
+    }
+    100% {
+      opacity:1;
+    }
+  }
+
+main{
+  overflow:hidden;
+}
+
+//text selection styles
+::selection {
+  background: $black;
+  color:$white;
+}
+::-moz-selection {
+  background: $black;
+  color:$white;
+}
+
+
+// base font styles
+// will be overwrtten to match the creative in the individual page fiels
+a{
+  text-decoration:none;
+  color:$black;
+  webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+h1{
+  color:$black;
+}
+
+h2{
+  color:$black;
+}
+
+h3{
+  color:$black;
+}
+
+h4{
+  color:$black;
+}
+
+h5{
+  color:$black;
+}
+
+h6{
+  color:$black;
+}
+
+p{
+  color:$black;
+}
+
+
+
+// base structure outside of the foundation XY Grid
+.container{
+  position:relative;
+  max-width:1440px; width:100%;
+  height:auto;
+  overflow:hidden;
+  margin:0px auto;
+  z-index:2;
+}
+
+
+// base for all line elements on the page
+hr{
+  border-bottom:1px solid $black;
+}
