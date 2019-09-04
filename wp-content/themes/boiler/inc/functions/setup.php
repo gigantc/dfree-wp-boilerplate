@@ -77,15 +77,35 @@ function lawfirm_scripts() {
 
 
   //JQUERY
-  wp_deregister_script('jquery');
-  wp_register_script('jquery', "http" . ($_SERVER['SERVER_PORT'] == 443 ? "s" : "") . "://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js", false, null);
+  // wp_deregister_script('jquery');
+  // wp_register_script('jquery', "http" . ($_SERVER['SERVER_PORT'] == 443 ? "s" : "") . "://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js", false, null);
 
 
-	wp_register_script( 'lawfirm-js', get_template_directory_uri() . '/js/main.min.js', array('jquery'), '1.0.0', true );
+  wp_register_script( 'lawfirm-js', get_template_directory_uri() . '/js/main.min.js', array('jquery'), '1.0.0', true );
   wp_register_script( 'libs', get_template_directory_uri() . '/js/libs/libs.min.js', array('jquery'), '1.0.0', true );
+  wp_register_script('slick', "http" . ($_SERVER['SERVER_PORT'] == 443 ? "s" : "") . "://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js", false, null);
 
-  wp_enqueue_script( 'jquery' );
+  //scrollmagic and tweenmagic
+  wp_register_script( 'tween-max', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.4/TweenMax.min.js', array(), '1.20.4', true );
+  wp_register_script( 'scrollmagic', 'https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.5/ScrollMagic.min.js', array(), '2.0.5', true );
+  wp_register_script( 'scrollmagic-ani', 'https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.5/plugins/animation.gsap.min.js', array(), '2.0.5', true );
+  wp_register_script( 'add-indicators', 'https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.5/plugins/debug.addIndicators.js', array(), '2.0.5', true );
+
+  //vimeo api
+  wp_register_script( 'vimeo', 'https://player.vimeo.com/api/player.js', array(), '1.0.0', true );
+
+  //wp_enqueue_script( 'jquery' );
   wp_enqueue_script( 'lawfirm-js' );
+  wp_enqueue_script('libs');
+  wp_enqueue_script('slick');
+  wp_enqueue_script('tween-max');
+  wp_enqueue_script('scrollmagic');
+  wp_enqueue_script('scrollmagic-ani');
+
+  //only use add indicators on a dev server
+  if ($_SERVER['HTTP_HOST']==="ecg.test") {
+    wp_enqueue_script('add-indicators');
+  }
 
 
   //any page speciic scripts
