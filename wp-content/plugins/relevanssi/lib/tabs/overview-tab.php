@@ -18,13 +18,13 @@
 function relevanssi_overview_tab() {
 	global $relevanssi_variables;
 	$this_page = '?page=' . plugin_basename( $relevanssi_variables['file'] );
-?>
+	?>
 	<h2><?php esc_html_e( 'Welcome to Relevanssi!', 'relevanssi' ); ?></h2>
 
 	<table class="form-table">
 
 	<?php
-	if ( ! is_multisite() && function_exists( 'relevanssi_form_api_key' ) ) {
+	if ( ! is_plugin_active_for_network( plugin_basename( $relevanssi_variables['file'] ) ) && function_exists( 'relevanssi_form_api_key' ) ) {
 		relevanssi_form_api_key();
 	}
 	if ( function_exists( 'relevanssi_form_hide_post_controls' ) ) {
@@ -40,11 +40,11 @@ function relevanssi_overview_tab() {
 			<p><?php esc_html_e( "You've already installed Relevanssi. That's a great first step towards good search experience!", 'relevanssi' ); ?></p>
 			<ol>
 				<?php if ( 'done' !== get_option( 'relevanssi_indexed' ) ) : ?>
-				<?php // Translators: %1$s opens the link, %2$s is the anchor text, %3$s closes the link. ?>
+					<?php // Translators: %1$s opens the link, %2$s is the anchor text, %3$s closes the link. ?>
 				<li><p><?php printf( esc_html__( 'Now, you need an index. Head over to the %1$s%2$s%3$s tab to set up the basic indexing options and to build the index.', 'relevanssi' ), "<a href='" . esc_attr( $this_page ) . "&amp;tab=indexing'>", esc_html__( 'Indexing', 'relevanssi' ), '</a>' ); ?></p>
 					<p><?php esc_html_e( 'You need to check at least the following options:', 'relevanssi' ); ?><br />
 				– <?php esc_html_e( 'Make sure the post types you want to include in the index are indexed.', 'relevanssi' ); ?><br />
-				<?php // Translators: %s is '_sku'. ?>
+					<?php // Translators: %s is '_sku'. ?>
 				– <?php printf( esc_html__( 'Do you use custom fields to store content you want included? If so, add those too. WooCommerce user? You probably want to include %s.', 'relevanssi' ), '<code>_sku</code>' ); ?></p>
 					<p><?php esc_html_e( "Then just save the options and build the index. First time you have to do it manually, but after that, it's fully automatic: all changes are reflected in the index without reindexing. (That said, it's a good idea to rebuild the index once a year.)", 'relevanssi' ); ?></p>
 				</li>
@@ -106,10 +106,11 @@ function relevanssi_overview_tab() {
 		<td>
 			<p><a href="https://www.relevanssi.com/buy-premium"><?php esc_html_e( 'Buy Relevanssi Premium now', 'relevanssi' ); ?></a> –
 			<?php // Translators: %1$s is the coupon code, %2$s is the year it expires. ?>
-			<?php printf( esc_html__( 'use coupon code %1$s for 20%% discount (valid at least until the end of %2$s)', 'relevanssi' ), '<strong>FREE2018</strong>', '2018' ); ?></p>
+			<?php printf( esc_html__( 'use coupon code %1$s for 20%% discount (valid at least until the end of %2$s)', 'relevanssi' ), '<strong>FREE2019</strong>', '2019' ); ?></p>
 			<p><?php esc_html_e( 'Here are some improvements Relevanssi Premium offers:', 'relevanssi' ); ?></p>
 			<ul class="relevanssi_ul">
 				<li><?php esc_html_e( 'PDF content indexing', 'relevanssi' ); ?></li>
+				<li><?php esc_html_e( 'A Related posts feature', 'relevanssi' ); ?></li>
 				<li><?php esc_html_e( 'Index and search user profile pages', 'relevanssi' ); ?></li>
 				<li><?php esc_html_e( 'Index and search taxonomy term pages', 'relevanssi' ); ?></li>
 				<li><?php esc_html_e( 'Multisite searches across many subsites', 'relevanssi' ); ?></li>
@@ -118,6 +119,7 @@ function relevanssi_overview_tab() {
 				<li><?php esc_html_e( 'Internal link anchors can be search terms for the target posts', 'relevanssi' ); ?></li>
 				<li><?php esc_html_e( 'Index and search any columns in the wp_posts database', 'relevanssi' ); ?></li>
 				<li><?php esc_html_e( 'Hide Relevanssi branding from the User Searches page on a client installation', 'relevanssi' ); ?></li>
+				<li><?php esc_html_e( 'Redirect search queries to custom URLs', 'relevanssi' ); ?></li>
 			</ul>
 		</td>
 	</tr>

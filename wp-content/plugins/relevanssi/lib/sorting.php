@@ -106,7 +106,7 @@ function relevanssi_get_next_key( &$orderby ) {
 	if ( 'rand' === $key ) {
 		if ( is_numeric( $dir ) ) {
 			// A specific random seed is requested.
-			mt_srand( $dir );
+			mt_srand( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions
 		}
 	} else {
 		$dir = strtolower( $dir );
@@ -140,8 +140,8 @@ function relevanssi_get_next_key( &$orderby ) {
 function relevanssi_get_compare_values( $key, $item_1, $item_2 ) {
 	if ( 'rand' === $key ) {
 		do {
-			$key1 = rand();
-			$key2 = rand();
+			$key1 = wp_rand();
+			$key2 = wp_rand();
 		} while ( $key1 === $key2 );
 		$keys = array(
 			'key1' => $key1,
@@ -155,14 +155,25 @@ function relevanssi_get_compare_values( $key, $item_1, $item_2 ) {
 		global $wp_query;
 		// Get the name of the field from the global WP_Query.
 		$key = $wp_query->query_vars['meta_key'];
+
 		if ( empty( $key ) ) {
 			// If empty, try the Relevanssi meta_query.
 			global $relevanssi_meta_query;
-			if ( isset( $relevanssi_meta_query[0]['key'] ) ) {
-				// Take from index 0, because using 'meta_value' requires the use of
-				// 'meta_key', which means there'll be just one key.
-				$key = $relevanssi_meta_query[0]['key'];
-			} else {
+			foreach ( $relevanssi_meta_query as $meta_row ) {
+				// There may be many rows. Choose the one where there's just key
+				// and no value.
+				if ( ! is_array( $meta_row ) ) {
+					continue;
+				}
+				if ( isset( $meta_row['value'] ) ) {
+					continue;
+				}
+				if ( isset( $meta_row['key'] ) ) {
+					$key = $meta_row['key'];
+				}
+			}
+
+			if ( empty( $key ) ) {
 				// The key is not set.
 				return array( '', '' );
 			}
@@ -187,7 +198,7 @@ function relevanssi_get_compare_values( $key, $item_1, $item_2 ) {
 		$key2 = get_post_meta( $item_2->ID, $key, true );
 		if ( empty( $key2 ) ) {
 			/**
-			 * Documented in lib/common.php.
+			 * Documented in lib/sorting.php.
 			 */
 			$key2 = apply_filters( 'relevanssi_missing_sort_key', $key2, $key );
 		}
@@ -200,7 +211,7 @@ function relevanssi_get_compare_values( $key, $item_1, $item_2 ) {
 			$key1 = get_post_meta( $item_1->ID, $relevanssi_meta_query[ $key ]['key'], true );
 		} else {
 			/**
-			 * Documented in lib/common.php.
+			 * Documented in lib/sorting.php.
 			 */
 			$key1 = apply_filters( 'relevanssi_missing_sort_key', $key1, $key );
 		}
@@ -211,7 +222,7 @@ function relevanssi_get_compare_values( $key, $item_1, $item_2 ) {
 			$key2 = get_post_meta( $item_2->ID, $relevanssi_meta_query[ $key ]['key'], true );
 		} else {
 			/**
-			 * Documented in lib/common.php.
+			 * Documented in lib/sorting.php.
 			 */
 			$key2 = apply_filters( 'relevanssi_missing_sort_key', $key2, $key );
 		}
@@ -388,7 +399,6 @@ function relevanssi_object_sort( &$data, $orderby, $meta_query ) {
 			$relevanssi_compares[] = $values['compare'];
 		}
 	} while ( ! empty( $values['key'] ) );
-	$primary_key = $relevanssi_keys[0];
 
 	usort( $data, 'relevanssi_cmp_function' );
 }

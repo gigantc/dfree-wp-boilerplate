@@ -86,7 +86,7 @@ function relevanssi_excerpts_tab() {
 	<table class="form-table">
 	<tr>
 		<th scope="row">
-			<label for='relevanssi_excerpts'><?php esc_html_e( 'Custom search result snippets', 'relevanssi' ); ?></label>
+			<?php esc_html_e( 'Custom search result snippets', 'relevanssi' ); ?>
 		</th>
 		<td>
 		<fieldset>
@@ -101,7 +101,7 @@ function relevanssi_excerpts_tab() {
 		$theme    = wp_get_theme();
 		$template = $theme->get( 'Template' );
 		if ( 'divi' === strtolower( $template ) ) :
-		?>
+			?>
 			<?php // Translators: %1$s opens the link, %2$s closes it. ?>
 			<p class="important"><?php printf( esc_html__( 'Looks like you are using Divi. In order to use custom excerpts with Divi, you need to make some changes to your templates. %1$sSee instructions here%2$s.', 'relevanssi' ), '<a href="https://www.relevanssi.com/knowledge-base/divi-page-builder-and-cleaner-excerpts/">', '</a>' ); ?></p>
 		<?php endif; ?>
@@ -125,6 +125,7 @@ function relevanssi_excerpts_tab() {
 			}
 			?>
 			/>
+			<label for="relevanssi_excerpt_type" class="screen-reader-text"><?php esc_html_e( 'Excerpt length type', 'relevanssi' ); ?></label>
 			<select name='relevanssi_excerpt_type' id='relevanssi_excerpt_type'
 			<?php
 			if ( empty( $excerpts ) ) {
@@ -149,7 +150,7 @@ function relevanssi_excerpts_tab() {
 			<label for='relevanssi_excerpt_allowable_tags'><?php esc_html_e( 'Allowable tags in excerpts', 'relevanssi' ); ?></label>
 		</th>
 		<td>
-			<input type='text' name='relevanssi_excerpt_allowable_tags' id='relevanssi_excerpt_allowable_tags' size='60' value='<?php echo esc_attr( $excerpt_allowable_tags ); ?>' 
+			<input type='text' name='relevanssi_excerpt_allowable_tags' id='relevanssi_excerpt_allowable_tags' size='60' value='<?php echo esc_attr( $excerpt_allowable_tags ); ?>'
 			<?php
 			if ( empty( $excerpts ) ) {
 				echo "disabled='disabled'";
@@ -167,7 +168,7 @@ function relevanssi_excerpts_tab() {
 		?>
 		>
 		<th scope="row">
-			<label for='relevanssi_excerpt_custom_fields'><?php esc_html_e( 'Use custom fields for excerpts', 'relevanssi' ); ?></label>
+			<?php esc_html_e( 'Use custom fields for excerpts', 'relevanssi' ); ?>
 		</th>
 		<td>
 		<fieldset>
@@ -191,7 +192,7 @@ function relevanssi_excerpts_tab() {
 		?>
 		</p>
 
-		<p class="description"><?php esc_html_e( 'Current custom field setting', 'relevanssi' ); ?>: 
+		<p class="description"><?php esc_html_e( 'Current custom field setting', 'relevanssi' ); ?>:
 		<?php
 		if ( 'visible' === $index_fields ) {
 			esc_html_e( 'all visible custom fields', 'relevanssi' );
@@ -243,9 +244,9 @@ function relevanssi_excerpts_tab() {
 			<p class="description"><?php esc_html_e( 'Requires custom snippets to work.', 'relevanssi' ); ?></p>
 		</td>
 	</tr>
-	<tr id="relevanssi_txt_col" class='<?php echo esc_attr( $txt_col_display ); ?>'>
+	<tr id="tr_relevanssi_txt_col" class='<?php echo esc_attr( $txt_col_display ); ?>'>
 		<th scope="row">
-			<label for="relevanssi_txt_col"><?php esc_html_e( 'Text color', 'relevanssi' ); ?></label>
+			<?php esc_html_e( 'Text color', 'relevanssi' ); ?>
 		</th>
 		<td>
 			<input type='text' name='relevanssi_txt_col' id='relevanssi_txt_col' size='7' class="color-field" data-default-color="#ff0000" value='<?php echo esc_attr( $txt_col ); ?>'
@@ -257,9 +258,9 @@ function relevanssi_excerpts_tab() {
 			/>
 		</td>
 	</tr>
-	<tr id="relevanssi_bg_col" class=' <?php echo esc_attr( $bg_col_display ); ?>'>
+	<tr id="tr_relevanssi_bg_col" class=' <?php echo esc_attr( $bg_col_display ); ?>'>
 		<th scope="row">
-			<label for="relevanssi_bg_col"><?php esc_html_e( 'Background color', 'relevanssi' ); ?></label>
+			<?php esc_html_e( 'Background color', 'relevanssi' ); ?>
 		</th>
 		<td>
 			<input type='text' name='relevanssi_bg_col' id='relevanssi_bg_col' size='7' class="color-field" data-default-color="#ffaf75" value='<?php echo esc_attr( $bg_col ); ?>'
@@ -271,7 +272,7 @@ function relevanssi_excerpts_tab() {
 			/>
 		</td>
 	</tr>
-	<tr id="relevanssi_css" class=' <?php echo esc_attr( $css_display ); ?>'>
+	<tr id="tr_relevanssi_css" class=' <?php echo esc_attr( $css_display ); ?>'>
 		<th scope="row">
 			<label for='relevanssi_css'><?php esc_html_e( 'CSS style for highlights', 'relevanssi' ); ?></label>
 		</th>
@@ -287,7 +288,7 @@ function relevanssi_excerpts_tab() {
 			<p class="description"><?php printf( esc_html__( 'The highlights will be wrapped in a %s with this CSS in the style parameter.', 'relevanssi' ), '&lt;span&gt;' ); ?></p>
 		</td>
 	</tr>
-	<tr id="relevanssi_class" class=' <?php echo esc_attr( $class_display ); ?>'>
+	<tr id="tr_relevanssi_class" class=' <?php echo esc_attr( $class_display ); ?>'>
 		<th scope="row">
 			<label for='relevanssi_class'><?php esc_html_e( 'CSS class for highlights', 'relevanssi' ); ?></label>
 		</th>
@@ -305,7 +306,7 @@ function relevanssi_excerpts_tab() {
 	</tr>
 	<tr>
 		<th scope="row">
-			<label for='relevanssi_hilite_title'><?php esc_html_e( 'Highlight in titles', 'relevanssi' ); ?></label>
+			<?php esc_html_e( 'Highlight in titles', 'relevanssi' ); ?>
 		</th>
 		<td>
 		<fieldset>
@@ -327,7 +328,7 @@ function relevanssi_excerpts_tab() {
 	</tr>
 	<tr>
 		<th scope="row">
-			<label for='relevanssi_highlight_docs'><?php esc_html_e( 'Highlight in documents', 'relevanssi' ); ?></label>
+			<?php esc_html_e( 'Highlight in documents', 'relevanssi' ); ?>
 		</th>
 		<td>
 		<fieldset>
@@ -349,7 +350,7 @@ function relevanssi_excerpts_tab() {
 	</tr>
 	<tr>
 		<th scope="row">
-			<label for='relevanssi_highlight_comments'><?php esc_html_e( 'Highlight in comments', 'relevanssi' ); ?></label>
+			<?php esc_html_e( 'Highlight in comments', 'relevanssi' ); ?>
 		</th>
 		<td>
 		<fieldset>
@@ -365,12 +366,12 @@ function relevanssi_excerpts_tab() {
 				<?php esc_html_e( 'Highlight query terms in comments', 'relevanssi' ); ?>
 			</label>
 		</fieldset>
-		<p class="description"><?php esc_html_e( 'Highlights hits in comments when user opens the post from search results.', 'relevanssi' ); ?></p>		
+		<p class="description"><?php esc_html_e( 'Highlights hits in comments when user opens the post from search results.', 'relevanssi' ); ?></p>
 		</td>
 	</tr>
 	<tr>
 		<th scope="row">
-			<label for='relevanssi_word_boundaries'><?php esc_html_e( 'Highlighting problems with non-ASCII alphabet?', 'relevanssi' ); ?></label>
+			<?php esc_html_e( 'Highlighting problems with non-ASCII alphabet?', 'relevanssi' ); ?>
 		</th>
 		<td>
 		<fieldset>
@@ -386,7 +387,7 @@ function relevanssi_excerpts_tab() {
 				<?php esc_html_e( 'Uncheck this if you use non-ASCII characters', 'relevanssi' ); ?>
 			</label>
 		</fieldset>
-		<p class="description"><?php esc_html_e( "If you use non-ASCII characters (like Cyrillic alphabet) and the highlights don't work, unchecking this option may make the highlights work.", 'relevanssi' ); ?></p>		
+		<p class="description"><?php esc_html_e( "If you use non-ASCII characters (like Cyrillic alphabet) and the highlights don't work, unchecking this option may make the highlights work.", 'relevanssi' ); ?></p>
 		</td>
 	</tr>
 	</table>
@@ -402,7 +403,7 @@ function relevanssi_excerpts_tab() {
 	">
 	<tr>
 		<th scope="row">
-			<label for='relevanssi_show_matches'><?php esc_html_e( 'Breakdown of search hits in excerpts', 'relevanssi' ); ?></label>
+			<?php esc_html_e( 'Breakdown of search hits in excerpts', 'relevanssi' ); ?>
 		</th>
 		<td>
 		<fieldset>

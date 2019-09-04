@@ -2,10 +2,10 @@
 Contributors: msaari
 Donate link: https://www.relevanssi.com/buy-premium/
 Tags: search, relevance, better search
-Requires at least: 4.0
-Tested up to: 5.0
+Requires at least: 4.8.3
+Tested up to: 5.2.2
 Requires PHP: 5.6
-Stable tag: 4.1.2
+Stable tag: 4.3.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,7 +17,7 @@ Relevanssi replaces the standard WordPress search with a better search engine, w
 
 This is the free version of Relevanssi. There's also Relevanssi Premium, which has added features. For more information about Premium, see [Relevanssi.com](https://www.relevanssi.com/).
 
-Do note that using Relevanssi may require large amounts (hundreds of megabytes) of database space (for a reasonable estimate, multiply the size of your `wp_posts database table by three). If your hosting setup has a limited amount of space for database tables, using Relevanssi may cause problems. In those cases use of Relevanssi cannot be recommended.
+Do note that using Relevanssi may require large amounts (hundreds of megabytes) of database space (for a reasonable estimate, multiply the size of your `wp_posts` database table by three). If your hosting setup has a limited amount of space for database tables, using Relevanssi may cause problems. In those cases use of Relevanssi cannot be recommended.
 
 = Key features =
 * Search results sorted in the order of relevance, not by date.
@@ -53,9 +53,9 @@ Do note that using Relevanssi may require large amounts (hundreds of megabytes) 
 * Assign weights to any post types and taxonomies.
 * Assign extra weight to new posts.
 * Let the user choose between AND and OR searches, use + and - operator (AND and NOT).
-* Highlighting search terms for visitors from external search engines.
 * Export and import settings.
 * [WP CLI commands](https://www.relevanssi.com/user-manual/wp-cli/).
+* Related posts.
 
 = Relevanssi in Facebook =
 You can find [Relevanssi in Facebook](https://www.facebook.com/relevanssi).
@@ -129,62 +129,45 @@ Each document database is full of useless words. All the little words that appea
 * John Calahan for extensive 4.0 beta testing.
 
 == Changelog ==
+= 4.3.2 =
+* New feature: SEOPress support, posts marked "noindex" in SEOPress are no longer indexed by Relevanssi by default.
+* Changed behaviour: Membership plugin compatibility is removed from `relevanssi_default_post_ok` function and has been moved to individual compatibility functions for each supported membership plugin. This makes it much easier to for example disable the membership plugin features if required.
+* Minor fix: The `searchform` shortcode now works better with different kinds of search forms.
+* Minor fix: Yoast SEO compatibility won't block indexing of posts with explicitly allowed indexing.
+* Minor fix: The `relevanssi_the_tags()` function printed out plain text, not HTML code like it should. The function now also accepts the post ID as a parameter.
+* Minor fix: Excerpt creation and highlighting have been improved a little.
 
-= 4.1.2 =
-* Choosing "CSS Style" for highlighting was not possible. That is now fixed.
-* Gutenberg reusable block indexing was fatally broken with the latest Gutenberg version. That has been updated.
-* Relevanssi now by default respects the WooCommerce "exclude from search" setting.
-* `post__not_in` still didn't work properly, it does now.
-* New filter: `relevanssi_comparison_order` can be used to define the sorting order when sorting the results by post type.
-* "Did you mean" process included a very slow query. It is now cached, leading in some cases to massive performance improvements (we're talking about several seconds here).
-* Highlights inside `code` and similar blocks are handled better now.
+= 4.3.1.1 =
+* Remove notice about undefined index.
 
-= 4.1.1.2 =
-* Fixes the broken User searches page.
+= 4.3.1 =
+* Adding a missing file.
 
-= 4.1.1.1 =
-* Adding the missing Gutenberg compatibility file.
-
-= 4.1.1 =
-* Relevanssi can now index Gutenberg reusable blocks. (This functionality broke once already before release, so that can happen, since Gutenberg is still in very active development.)
-* The `post__in` and `post__not_in` parameters didn't work, and are now fixed. `post_parent__in` and `post_parent__not_in` are also improved.
-* You can use named meta queries for sorting posts. Meta query sorting is improved in other ways as well.
-* Log export didn't work properly.
-* Adding stopwords from the common word list has been fixed.
-* The `relevanssi_get_words_having` filter hook is now also applied to the free version Did you mean queries.
-* New filters: `relevanssi_1day` and `relevanssi_7days` can be used to adjust the number of days for log displays, so instead of 1, 7 and 30 days you can have anything you want.
-
-= 4.1.0.1 =
-* Actually working admin search.
-
-= 4.1 =
-* New feature: You can now export the search log as a CSV file.
-* New feature: Admin Search page allows you to perform searches in WP admin using Relevanssi.
-* New filter: `relevanssi_admin_search_capability` can be used to adjust who sees the admin search page.
-* New filter: `relevanssi_entities_inside_pre` and `relevanssi_entities_inside_code` adjust how HTML entities are handled inside `pre` and `code` tags.
-* Numeric meta values (`meta_value_num`) are now sorted as numbers and not strings.
-* Pinned posts have `$post->relevanssi_pinned` set to 1 for debugging purposes, but you can also use this for styling the posts in the search results templates.
-* The Did you mean feature has been toned down a bit, to make the suggestions slightly less weird in some cases.
-* Post parent parameters now accept 0 as a value, making it easier to search for children of any post or posts without a parent.
-* Polylang compatibility has been improved.
-* Phrases with apostrophes inside work better.
-* The `relevanssi_excerpt` filter hook got a second parameter that holds the post ID.
-* Custom field sorting actually works now.
-* WP Search Suggest compatibility added.
+= 4.3.0 =
+* New feature: Multi-phrase searches now respect AND and OR operators. If multiple phrases are included in an OR search, any posts with at least one phrase will be included. In AND search, all phrases must be included.
+* New feature: Admin search has been improved: there's a post type dropdown and the search is triggered when you press enter. The debug information has a `div` tag around it with the id `debugging`, so you can hide them with CSS if you want to. The numbering of results also makes more sense.
+* New feature: The date parameters (`year`, `monthnum`, `w`, `day`, `hour`, `minute`, `second`, `m`) are now supported.
+* New feature: New filter hook `relevanssi_indexing_limit` filters the default number of posts to index (10). If you have issues with indexing timing out, you can try adjusting this to a smaller number like 5 or 1.
+* New feature: Support for Paid Membership Pro added.
+* New feature: WordPress SEO support, posts marked "noindex" in WordPress SEO are no longer indexed by Relevanssi by default.
+* Removed feature: qTranslate is no longer supported.
+* Major fix: Tax query searching had some bugs in it, manifesting especially into Polylang not limiting the languages correctly. Some problems with the test suites were found and fixed, and similar problems won't happen again.
+* Minor fix: Admin search only shows editing options to users with enough capabilities to use them.
+* Minor fix: Phrase searching now uses filterable post statuses instead of a hard-coded set of post statuses.
+* Minor fix: The plugin action links were missing on the Plugins page list, they're back now.
+* Minor fix: Search terms with slashes won't cause errors anymore.
+* Minor fix: Relevanssi admin pages have been examined for accessibility and form labels have been improved in many places.
+* Deprecated: `relevanssi_get_term_taxonomy()` function is deprecated and will be removed at some point in the future.
 
 == Upgrade notice ==
+= 4.3.2 =
+* Yoast SEO compatibility fix, minor updates.
 
-= 4.1.2 =
-* Better compatibility with Gutenberg, new features.
+= 4.3.1.1 =
+* Remove an error notice.
 
-= 4.1.1.2 =
-* Fixes the broken User searches page.
+= 4.3.1 =
+* Fixes the broken 4.3.0 release.
 
-= 4.1.1.1 =
-* Adding the missing Gutenberg compatibility file.
-
-= 4.1.1 =
-* Minor improvements here and there, particularly in custom field sorting.
-
-= 4.1 =
-* New features and plenty of small fixes.
+= 4.3.0 =
+* Major bug fixes for taxonomy queries, new features and smaller improvements.

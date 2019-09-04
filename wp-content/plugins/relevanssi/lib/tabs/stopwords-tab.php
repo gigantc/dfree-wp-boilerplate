@@ -20,6 +20,17 @@ function relevanssi_stopwords_tab() {
 
 	relevanssi_show_stopwords();
 
+	?>
+
+	<h3 id="bodystopwords"><?php esc_html_e( 'Content stopwords', 'relevanssi' ); ?></h3>
+
+	<?php
+	if ( function_exists( 'relevanssi_show_body_stopwords' ) ) {
+		relevanssi_show_body_stopwords();
+	} else {
+		printf( '<p>%s</p>', esc_html__( 'Content stopwords are a premium feature where you can set stopwords that only apply to the post content. Those stopwords will still be indexed if they appear in post titles, tags, categories, custom fields or other parts of the post. To use content stopwords, you need Relevanssi Premium.', 'relevanssi' ) );
+	}
+
 	/**
 	 * Filters whether the common words list is displayed or not.
 	 *
@@ -45,13 +56,8 @@ function relevanssi_stopwords_tab() {
 function relevanssi_show_stopwords() {
 	global $wpdb, $relevanssi_variables;
 
-	$plugin = 'relevanssi';
-	if ( RELEVANSSI_PREMIUM ) {
-		$plugin = 'relevanssi-premium';
-	}
-
 	printf( '<p>%s</p>', esc_html__( 'Enter a word here to add it to the list of stopwords. The word will automatically be removed from the index, so re-indexing is not necessary. You can enter many words at the same time, separate words with commas.', 'relevanssi' ) );
-?>
+	?>
 <table class="form-table">
 <tr>
 	<th scope="row">
@@ -73,7 +79,7 @@ function relevanssi_show_stopwords() {
 	<td>
 	<?php
 	echo '<ul>';
-	$results    = $wpdb->get_results( 'SELECT * FROM ' . $relevanssi_variables['stopword_table'] ); // WPCS: unprepared SQL ok, Relevanssi table name.
+	$results    = $wpdb->get_results( 'SELECT * FROM ' . $relevanssi_variables['stopword_table'] );  // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared
 	$exportlist = array();
 	foreach ( $results as $stopword ) {
 		$sw = stripslashes( $stopword->stopword );
@@ -83,7 +89,7 @@ function relevanssi_show_stopwords() {
 	echo '</ul>';
 
 	$exportlist = htmlspecialchars( implode( ', ', $exportlist ) );
-?>
+	?>
 	<p><input type="submit" id="removeallstopwords" name="removeallstopwords" value="<?php esc_attr_e( 'Remove all stopwords', 'relevanssi' ); ?>" class='button' /></p>
 	</td>
 </tr>
@@ -92,67 +98,12 @@ function relevanssi_show_stopwords() {
 		<?php esc_html_e( 'Exportable list of stopwords', 'relevanssi' ); ?>
 	</th>
 	<td>
+		<label for="stopwords" class="screen-reader-text"><?php esc_html_e( 'Exportable list of stopwords', 'relevanssi' ); ?></label>
 		<textarea name="stopwords" id="stopwords" rows="2" cols="80"><?php echo esc_textarea( $exportlist ); ?></textarea>
 		<p class="description"><?php esc_html_e( 'You can copy the list of stopwords here if you want to back up the list, copy it to a different blog or otherwise need the list.', 'relevanssi' ); ?></p>
 	</td>
 </tr>
 </table>
 
-<?php
-}
-
-/**
- * Displays the list of most common words in the index.
- *
- * @global object $wpdb                 The WP database interface.
- * @global array  $relevanssi_variables The global Relevanssi variables.
- *
- * @param int     $limit  How many words to display, default 25.
- * @param boolean $wp_cli If true, return just a list of words. If false, print out
- * HTML code.
- *
- * @return array A list of words, if $wp_cli is true.
- */
-function relevanssi_common_words( $limit = 25, $wp_cli = false ) {
-	global $wpdb, $relevanssi_variables;
-
-	$plugin = 'relevanssi';
-	if ( RELEVANSSI_PREMIUM ) {
-		$plugin = 'relevanssi-premium';
-	}
-
-	if ( ! is_numeric( $limit ) ) {
-		$limit = 25;
-	}
-
-	$words = $wpdb->get_results( 'SELECT COUNT(*) as cnt, term FROM ' . $relevanssi_variables['relevanssi_table'] . " GROUP BY term ORDER BY cnt DESC LIMIT $limit" ); // WPCS: unprepared sql ok, Relevanssi table name and $limit is numeric.
-
-	if ( ! $wp_cli ) {
-		printf( '<h2>%s</h2>', esc_html__( '25 most common words in the index', 'relevanssi' ) );
-		printf( '<p>%s</p>', esc_html__( "These words are excellent stopword material. A word that appears in most of the posts in the database is quite pointless when searching. This is also an easy way to create a completely new stopword list, if one isn't available in your language. Click the word to add the word to the stopword list. The word will also be removed from the index, so rebuilding the index is not necessary.", 'relevanssi' ) );
-
-?>
-<input type="hidden" name="dowhat" value="add_stopword" />
-<table class="form-table">
-<tr>
-	<th scope="row"><?php esc_html_e( 'Stopword Candidates', 'relevanssi' ); ?></th>
-	<td>
-<ul>
 	<?php
-	$src = plugins_url( 'delete.png', $relevanssi_variables['file'] );
-
-	foreach ( $words as $word ) {
-		$stop = __( 'Add to stopwords', 'relevanssi' );
-		printf( '<li><input style="padding: 0; margin: 0" type="submit" src="%1$s" name="term" value="%2$s"/> (%3$d)</li>', esc_attr( $src ), esc_attr( $word->term ), esc_html( $word->cnt ) );
-	}
-	?>
-	</ul>
-	</td>
-</tr>
-</table>
-	<?php
-
-	}
-
-	return $words;
 }
