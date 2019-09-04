@@ -2,7 +2,7 @@
 
   dFree Boilerplate
 
-  Site Development by Gigantc
+  Site Development by Badhawk Workshop
   Developer: Daniel Freeman [@dFree]
 
 */
