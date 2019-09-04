@@ -6,10 +6,7 @@ $white: #ffffff;
 
 
 // FONTS -----------------------
-$prox-reg: 'ProximaNova-Regular', sans-serif;
-$prox-med: 'ProximaNova-Semibold', sans-serif;
-$prox-lit: 'ProximaNova-LightIt', sans-serif;
-$prox-l:'ProximaNova-Light', sans-serif;
+$roboto: 'Roboto', sans-serif;
 
 
 
@@ -30,4 +27,11 @@ $prox-l:'ProximaNova-Light', sans-serif;
   :-moz-placeholder           {@content}
   ::-moz-placeholder          {@content}
   :-ms-input-placeholder      {@content}  
+}
+
+@mixin gradient($color1, $color2){
+  background: $color1;
+  background: -moz-linear-gradient(-45deg, $color1 0%, $color2 100%);
+  background: -webkit-linear-gradient(-45deg, $color1 0%,$color2 100%);
+  background: linear-gradient(160deg, $color1 0%,$color2 100%);
 }

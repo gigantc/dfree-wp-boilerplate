@@ -1,4 +1,7 @@
 /*// PRIMARY STYLES ----------------------- */
+#bdhwk{
+
+
 body{
   position:relative;
   width:100%; height:100%;
@@ -85,4 +88,18 @@ p{
 // base for all line elements on the page
 hr{
   border-bottom:1px solid $black;
+}
+
+// end of front-end styles
+// all front-end base styles are wrapped in the #bdhwk id
+// this is to explude these styles from the admin panel
+} 
+
+
+
+
+// wp-admin styles for block admin panel
+// all admin panel items should be wrapped in .wp-admin
+.wp-admin{
+  
 }
