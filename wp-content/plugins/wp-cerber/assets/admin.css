@@ -1,21 +1,35 @@
+.crb-display-none {
+    display: none;
+}
 
 #crb-activation-msg i{
     font-size: 1.6em;
 }
+
 #crb-activation-msg i:nth-of-type(n+2){
     margin-left:20px;
 }
 
-.crb-admin {
+#crb-admin {
     font-family: 'Roboto', sans-serif;
 }
 
-.crb-admin b, .crb-admin strong {
+#crb-admin b, #crb-admin strong {
     font-weight: 500;
 }
 
-.crb-admin h2, .crb-admin h3 {
+#crb-admin h2, #crb-admin h3 {
     font-weight: 500;
+}
+
+/*#crb-admin input,*/
+#crb-admin input[type="text"],
+#crb-admin input[type="number"],
+#crb-admin select,
+#crb-admin .select2-container {
+    margin: 0 0.3em 0.3em 0;
+    height: 28px;
+    vertical-align: middle;
 }
 
 .crb-main a:focus,
@@ -24,7 +38,6 @@
     box-shadow: none !important;
 }
 
-/* Common */
 .crb-main {
     width: auto;
     overflow: hidden;
@@ -44,8 +57,56 @@
     font-weight: bold;
 }
 
-.form-table {
+.crb-monospace {
+    font-family: Menlo, Consolas, Monaco, monospace;
+}
+
+/* Settings' forms */
+
+.crb-admin-form {
+    padding-right: 25%;
+}
+
+.crb-settings .form-table {
     margin-bottom: 30px;
+}
+.crb-settings .form-table:last-of-type {
+    margin-bottom: 0;
+}
+.crb-settings .form-table td {
+    /*padding-right: 15% !important;*/
+}
+.crb-settings .form-table th {
+    min-width: 200px;
+    /*
+    padding-top: 15px;
+    vertical-align: middle;*/
+}
+.crb-settings input[type="text"] {
+    padding: 0.4em;
+}
+.crb-settings label.crb-below {
+    padding-top: 0.5em;
+    /*padding-left: 0.5em;*/
+    color: #555;
+}
+.crb-settings .form-table input.crb-wide,
+.crb-settings .form-table select.crb-wide,
+.crb-settings .form-table textarea {
+    width: 100% !important;
+}
+.crb-settings input[type="submit"] {
+    margin-top: 20px;
+}
+.crb-settings .crb-disable-this {
+    display: none;
+}
+.crb-settings .crb-disabled th {
+    color: #888;
+}
+
+#crb-admin [class^='select2'] {
+    border-radius: 0 !important;
 }
 
 /* Dashboard */
@@ -255,6 +316,25 @@
 
 /* Tables */
 
+@media screen and (min-width: 782px) {
+    .crb-tab-sessions #ses_action {
+        width: 7em;
+    }
+}
+
+.crb-tab-sessions #ses_started,
+.crb-tab-sessions #ses_expires{
+    width: 15%;
+}
+
+.crb-tab-sessions .crb-us-lbl {
+    display: inline-block;
+    padding: 3px 5px 3px 5px;
+    margin-left: 0.5em;
+    background-color: #83CE77;
+    color: white;
+}
+
 
 .crb-table > tbody > tr:nth-child(even){
     background: #f9f9f9
@@ -269,9 +349,10 @@
     background: #FFF
 }
 
-.crb-table td {
+.crb-table > tbody > tr > td {
     vertical-align: middle;
     color: #222;
+    min-width: 70px;
 }
 
 /*#crb-traffic td:nth-child(2),
@@ -288,6 +369,11 @@
     margin: 1em 0 0 0;
     color: #555;
 }
+@media screen and (max-width: 1024px) {
+    #crb-traffic td {
+        word-break: break-all;
+    }
+}
 #crb-traffic .crb-request span{
     margin-right: 0.5em;
 }
@@ -303,6 +389,12 @@ td.crb-traffic-details td{
 td.crb-traffic-details table td:nth-child(2) {
     font-family: Menlo, Consolas, Monaco, monospace;
 }
+
+.crb-traffic-more {
+    position: relative;
+    left: -9999em;
+}
+
 
 /*
 td.crb-traffic-details div{
@@ -370,6 +462,7 @@ td.crb-traffic-details div{
 .crb-fields-table td {
     vertical-align: top;
     border: 1px solid #CCC;
+    word-break: break-all;
 }
 .crb-fields-table td:first-child {
     min-width: 150px;
@@ -382,11 +475,11 @@ td.crb-traffic-details div{
 }
 #crb-traffic-form input,
 #crb-traffic-form select{
-    width: 100%;
+    width: 290px; /* Select2 uses px */
 }
 #crb-traffic-form input[type=submit]{
     font-weight: bold;
-    margin-top: 10px;
+    margin-bottom: 20px;
 }
 #crb-traffic-form p {
     padding: 0 !important;
@@ -395,6 +488,20 @@ td.crb-traffic-details div{
     font-weight: bold;
     color: #333;
     font-family: 'Roboto', sans-serif;
+}
+#crb-traffic-form > div {
+    display: table;
+    margin: 0 auto;
+}
+#crb-traffic-form > div > div {
+    display: table-cell;
+    width: 300px;
+    padding: 1em 1.5em 1em 1.5em;
+}
+@media screen and (max-width: 800px) {
+    #crb-traffic-form > div > div {
+        display: block;
+    }
 }
 
 /* IP info like WHOIS details */
@@ -405,6 +512,10 @@ td.crb-traffic-details div{
 }
 
 /* Activity */
+
+.crb-tab-activity .crb-quick-nav {
+    padding-bottom: 10px;
+}
 
 #activity-filter {
     margin-top: 0.5em;
@@ -421,19 +532,12 @@ td.crb-traffic-details div{
     width: auto;
     line-height: 26px;
 }
-#activity-filter select{
-    max-width: 250px;
-    margin-top: -4px;
+#activity-filter select,
+#activity-filter input[type="text"]{
+    width: 250px;
 }
 #activity-filter input[type="submit"]{
     margin-right: 3em;
-}
-#activity-filter input[type="text"]{
-    min-width: 250px;
-}
-#activity-filter input,
-#activity-filter select{
-    margin-right: 0.2em;
 }
 #activity-filter a{
     text-decoration: none;
@@ -472,7 +576,7 @@ p.act-url{
 }
 .css-table > div{
     display: table-cell;
-    vertical-align: middle;
+    /*vertical-align: middle;*/
 }
 
 .ip-aclB, .crb-color-black {
@@ -706,6 +810,15 @@ a.nav-tab:last-of-type{
     text-align: center;
 }
 
+.crb-user-blocked td.column-username {
+    color: red;
+}
+
+.crb-user-blocked td.column-username strong::after,
+.crb-user-blocked .crb-user-name::after {
+    content: ' BLOCKED';
+}
+
 /* Scanner page */
 
 body.wp-cerber_page_cerber-integrity {
@@ -779,6 +892,11 @@ body.wp-cerber_page_cerber-integrity {
     color: #000;
 }
 
+@media screen and (max-width: 1600px) {
+    .crb-settings .form-table td {
+        padding-right: 10% !important;
+    }
+}
 @media screen and (max-width: 1300px) {
     #crb-aside {
         display: none;
@@ -786,8 +904,10 @@ body.wp-cerber_page_cerber-integrity {
     #activity-filter div:first-child{
         max-width: 70%;
     }
+    .crb-settings .form-table td {
+        padding-right: 5% !important;
+    }
 }
-
 @media screen and (max-width: 768px) {
     #activity-filter div:first-child,
     #activity-filter div:nth-child(2){
@@ -835,6 +955,7 @@ body.wp-cerber_page_cerber-integrity {
     color: #333;
     text-align: left;
     padding: 10px;
+    min-width: 0;
 }
 
 #crb-browse-files tr td:nth-child(3) {
@@ -1036,6 +1157,30 @@ body.wp-cerber_page_cerber-integrity {
     margin-right: 5px;
 }
 
+/* New popups */
+
+.crb-admin-mpopup .mfp-content {
+    background-color: #fff;
+    max-width: 800px;
+    margin-top: 50px;
+}
+.crb-admin-mpopup #crb-popup-wrap {
+    padding-left: 20px;
+}
+#crb-popup-wrap h3 {
+    margin-top: 0;
+}
+.crb-admin-mpopup #crb-outer {
+    padding-top: 40px;
+    margin-bottom: 60px;
+}
+.crb-admin-mpopup #crb-inner {
+    min-height: 100px;
+    max-height: 600px;
+    overflow-y: auto;
+    padding-right: 20px;
+}
+
 /* Widgets */
 
 #cerber_quick .inside {
@@ -1181,6 +1326,10 @@ div#whois:hover {
     margin-right: 3em;
 }
 
+#user-extra-info a {
+    text-decoration: none;
+}
+
 /* Diagnostic */
 
 #diagnostic h3 {
@@ -1236,6 +1385,18 @@ div#whois:hover {
     line-height: 18px;
     margin-left: 0.5em;
     margin-right: 0.5em;
+}
+
+.cerber-button  {
+    /*vertical-align: middle;*/
+}
+
+.cerber-button i {
+    vertical-align: middle;
+    font-size: 120%;
+    margin-right: 0.1em;
+    /*display: inline-block;
+    line-height: 26px;*/
 }
 
 /*  Fonts  */
@@ -1308,7 +1469,7 @@ table.crb-avatar img{
 table.crb-avatar p{
     margin-bottom: 0;
 }
-table.crb-avatar a{
+table.crb-avatar .crb-us-name {
     display:block;
     margin-top:0;
     line-height:100%;
@@ -1321,6 +1482,7 @@ table.crb-avatar a{
 }
 
 /* Help tab */
+
 #crb-help {
     padding: 0 10px;
 }
@@ -1390,6 +1552,9 @@ table.crb-geo-rule td:first-child{
     vertical-align: middle;
 }
 
+.crb-geo-switcher {
+    min-width: 50%;
+}
 
 /* Multi selector */
 
@@ -1402,26 +1567,42 @@ table.crb-geo-rule td:first-child{
 .multi-wrapper .non-selected-wrapper .item.selected {
     display: none;
 }
-
 .multi-wrapper .non-selected-wrapper, .multi-wrapper .selected-wrapper{
     height: 350px !important;
 }
 
+.crb-super-select {
+    position: relative;
+}
+.crb-super-select .crb-super-details {
+    position: absolute;
+    top: 390px;
+}
+
 /* Vertical Tabs */
 
-table.vtable td {
+table.vtable > tbody > tr > td {
     vertical-align: top;
     padding: 0;
 }
 
-table.vtable td:nth-child(2) {
-    padding-left: 1em;
-    padding-right: 1em;
+#crb-vtabs {
+    width: 20%;
+    border: 1px solid #CCC;
+    border-right: none;
+}
+
+#crb-vtabcontent {
+    border: 1px solid #ccc;
+    border-left: none;
+    background-color: #fff;
+    padding-bottom: 15px;
 }
 
 .vtabs {
     /*float: left;*/
-    border: 1px solid #CCC;
+    /*border: 1px solid #CCC;
+    border-right: none;*/
    /*background-color: #f1f1f1;*/
     /*width: 30%;*/
     /*min-width: 20%;*/
@@ -1430,7 +1611,7 @@ table.vtable td:nth-child(2) {
 
 .vtabs .tablinks {
     font-size: 110%;
-    font-weight: bold;
+    /*font-weight: bold;*/
     display: block;
     color: black;
     padding: 22px 16px;
@@ -1441,12 +1622,16 @@ table.vtable td:nth-child(2) {
     cursor: pointer;
     transition: 0.3s;
 }
+
 .vtabs .tablinks:hover {
     background-color: #ddd;
 }
 
 .vtabs .tablinks.active {
+    font-weight: bold;
     background-color: #fff;
+    /*border-left: 3px solid #fff;*/
+    padding-left: 20px;
 }
 
 .vtabs .tablinks span{
@@ -1455,19 +1640,42 @@ table.vtable td:nth-child(2) {
     font-weight: normal;
 }
 
-.vtabs-content {
-    float: left;
+.vtabs .tablinks::first-letter{
+    text-transform: uppercase;
 }
+
+/*.vtabs-content {
+    float: left;
+}*/
 .vtabcontent {
     /*float: left;*/
-    padding: 40px 40px 0 40px;
-    border: 1px solid #ccc;
+    /*padding: 40px 40px 0 40px;*/
+    padding: 0 40px 0 40px;
+   /* border: 1px solid #ccc;
+    border-left: none;*/
     background-color: #fff;
     /*min-width: 50%;*/
     /*border-left: none;*/
-    min-height: 560px;
+    /*min-height: 600px;*/
     /*height: 300px;*/
 }
+.vtabcontent .form-table th {
+    min-width: 250px;
+}
+.vtabcontent .form-table select,
+.vtabcontent .form-table input {
+    min-width: 200px;
+}
+
+
+
+/*
+.vtabcontent .form-table th {
+    padding: 12px 10px 12px 0;
+}
+.vtabcontent .form-table td {
+    padding: 12px 10px 10px 0;
+}*/
 
 #crb-log-viewer pre {
     font-family: monospace;
@@ -1478,6 +1686,24 @@ table.vtable td:nth-child(2) {
     padding: 1em;
     margin: 0;
 }
+
+#crb-log-viewer .cerber-error {
+    color: red;
+}
+
+#crb-change-log-view {
+    background-color: #fff;
+    color: #111;
+    padding: 1em;
+    margin: 0;
+    line-height: 1.6em;
+}
+#crb-change-log-view .crb-version{
+    font-size: 120%;
+    line-height: 2em;
+    font-weight: bold;
+}
+
 
 /* Switches & Toggle */
 
@@ -1551,6 +1777,7 @@ input:checked + .crb-slider:before {
     background-color: #fff;
     color: #dc2f34;
     border-left: solid 2px #dc2f34;
+    margin-bottom: 1em;
 }
 
 /* Flags */

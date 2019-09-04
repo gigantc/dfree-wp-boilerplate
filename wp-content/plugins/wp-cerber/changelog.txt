@@ -1,3 +1,59 @@
+= 8.4 =
+* New: More flexible role-based GEO access policies.
+* New: A logged in users' sessions manager.
+* Update: Access to users’ data via WordPress REST API is always granted for administrator accounts now.
+* Improvement: The custom login page feature has been updated to eliminate possible conflicts with themes and other plugins.
+* Improvement: Improved compatibility with operating systems that natively doesn’t support the PHP GLOB_BRACE constant.
+
+= 8.3 =
+* New: Two-Factor Authentication.
+* New: Block registrations with unwanted (banned) email domains.
+* New: Block access to the WordPress Dashboard on a per-role basis.
+* New: Redirect after login/logout on a per-role basis.
+* Update: The Users tab has been renamed to Global and now is under the new User Policies admin menu.
+* Fixed: Switching to the English language in Cerber’s admin interface has no effect.
+* Fixed: Multiple notifications about a new version of the plugin in the WordPress dashboard.
+* [Read more](https://wpcerber.com/wp-cerber-security-8-3/)
+
+= 8.2 =
+* New: Automatic recovery of infected files. When the malware scanner detects changes in the core WordPress files and plugins, it automatically recovers them.
+* New: A set of quick navigation buttons on the Activity page. They allow you to filter out log records quickly.
+* New: A unique Session ID (SID) is displayed on the Forbidden 403 Page now.
+* New: The advanced search on the Live Traffic page has got a set of new fields.
+* New: To make a website comply with GDPR, a cookie prefix can be set.
+* Update: The lockout notification settings are moved to the Notifications tab.
+* Update: The list of files to be scanned in Quick mode now also includes files with these extensions:  phtm, phtml, phps, php2, php3, php4, php5, php6, php7.
+* [Read more](https://wpcerber.com/wp-cerber-security-8-2/)
+
+= 8.1 =
+* New: On a master website you can get a list of active plugins and available plugin updates on a slave website.
+* New: Notification about a newer versions of Cerber and WordPres available ot install on a slave.
+* New: On a master website, you can select what language to use when a slave admin page is being displayed.
+* Improvement: Long URLs on the Live Traffic page now are shortened and displayed more neatly.
+* Improvement: The plugin uninstallation process has been improved and now cleans up the database completely.
+* Improvement: Multiple translations have been updated. Thanks to Maxime, Jos Knippen, Fredrik Näslund, Francesco.
+* Fixed: The "Add to the Black List" button on the Activity log page doesn't work.
+* Fixed: When the "All suspicious activity" button is clicked on the Dashboard admin page, the "Subscribe" link on the Activity page doesn't work correctly.
+* Fixed: When you open an email report, the link to the list of deleted files during a malware scan doesn't work as expected.
+* [Read more](https://wpcerber.com/wp-cerber-security-8-1/)
+
+= 8.0 =
+* New: [Manage multiple WP Cerber instances from one dashboard](https://wpcerber.com/manage-multiple-websites/).
+* New: A new bulk action to block multiple WordPress users at a time.
+* Improvement: The performance of the export feature has been improved significantly.
+* Improvement: Multiple code optimizations improve overall plugin performance.
+
+= 7.9.7 =
+* New: [Authorized users only mode](https://wpcerber.com/only-logged-in-wordpress-users/).
+* New: [An ability to block a user account](https://wpcerber.com/how-to-block-wordpress-user/).
+* New: [Role-based access to WordPress REST API](https://wpcerber.com/restrict-access-to-wordpress-rest-api/).
+* Update: Added ability to search and filter a user on the Activity page.
+* Update: A new, separate setting for preventing user enumeration and user data leaks via WordPress REST API.
+* Update: A new Changelog section on the Tools page.
+* Update: Improved handling scheduled maintenance tasks on a multi-site WordPress installation.
+* Fixed: Several HTML markup errors on plugin admin pages.
+* [Read more](https://wpcerber.com/wp-cerber-security-7-9-7/)
+
 = 7.9.3 =
 * New: New settings for the Traffic Inspector firewall allow you to fine-tune its behavior. You can enable less or more restrictive firewall rules.
 * Update: Troubleshooting of possible issues with scheduled maintenance tasks has been improved.
@@ -19,7 +75,7 @@
 * [Read more](https://wpcerber.com/wp-cerber-security-7-9/)
 
 = 7.8.5 =
-* New: A new set of heuristics algorithms for detecting obfuscated malware JavaScript code.
+* New: A new set of heuristics algorithms for detecting obfuscated malicious JavaScript code.
 * New: A new file filter on the Quarantine page lets to filter out quarantined files by the date of the scan.
 * New: The performance of the malware scanner has been improved. Now the scanner deletes all files in the website session and temporary folders permanently before the scan.
 * Update: If the plugin is unable to detect the remote IP address, it uses 0.0.0.0 as an IP.
