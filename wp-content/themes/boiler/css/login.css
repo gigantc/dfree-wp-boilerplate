@@ -21,7 +21,7 @@ You'll have to load your own images and mess
 with the width and height.
 */
 .login h1 a {
-  background: url(../images/logo.svg) no-repeat top center;
+  background: url(https://upload.wikimedia.org/wikipedia/commons/8/87/Aperture_Science_Logo.svg) no-repeat top center;
   /* make sure to replace this! */
   width: 274px;
   height: 98px;
@@ -29,6 +29,7 @@ with the width and height.
   overflow: hidden;
   padding-bottom: 15px;
   display: block; 
+  background-size:contain;
 }
 
 .login form {
@@ -63,7 +64,7 @@ body form .input {
 }
 
 .login .message {
-  border-left: 5px solid #27824D;
+  border-left: 5px solid #00b9eb;
   border-bottom: 1px solid #eeeeee;
   border-top: 1px solid #eeeeee;
   border-right: 1px solid #eeeeee;
@@ -82,8 +83,8 @@ You'll have to override some of the default styles
 but since we're referencing the id, it should be easy.
 */
 .login #wp-submit {
-  background: #27824D;
-  border-color: #27824D;
+  background: #00b9eb;
+  border-color: #00b9eb;
   -webkit-box-shadow: none;
   box-shadow: none;
   cursor: pointer; 
