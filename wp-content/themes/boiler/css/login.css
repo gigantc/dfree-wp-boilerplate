@@ -10,7 +10,8 @@ http://codex.wordpress.org/Creating_Admin_Themes
 
 ******************************************************************/
 body.login {
-  background-color: #FFFFFF; 
+  background-color: #FFFFFF;
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif !important;
 }
 
 /* the form box */
@@ -41,7 +42,7 @@ with the width and height.
 }
 
 body form .input {
-  font-family: "Forza SSm A","Forza SSm B" !important;
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif !important;
   font-style: normal;
   font-weight: 500;
   font-size: 18px;
@@ -70,7 +71,7 @@ body form .input {
 }
 
 form label{
-  font-family: "Forza SSm A","Forza SSm B", sans-serif;
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif !important;
   font-style: normal;
   font-weight: 400;
   text-transform: uppercase;
@@ -86,7 +87,7 @@ but since we're referencing the id, it should be easy.
   -webkit-box-shadow: none;
   box-shadow: none;
   cursor: pointer; 
-  font-family: "Forza SSm A","Forza SSm B", sans-serif;
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif !important;
   text-transform: uppercase;
   border-radius: 0px;
   text-shadow: none;

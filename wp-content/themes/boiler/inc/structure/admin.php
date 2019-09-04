@@ -226,6 +226,6 @@ function lawfirm_login_title() {
 }
 add_action( 'login_enqueue_scripts', 'lawfirm_login_css', 10 );
 add_filter( 'login_headerurl', 'lawfirm_login_url' );
-add_filter( 'login_headertitle', 'lawfirm_login_title' );
+add_filter( 'login_headertext', 'lawfirm_login_title' );
 
 ?>
