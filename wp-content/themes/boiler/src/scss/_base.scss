@@ -1,4 +1,7 @@
 /*// PRIMARY STYLES ----------------------- */
+
+// all front-end base styles are wrapped in the #bdhwk id
+// this is to explude these styles from the admin panel
 #bdhwk{
 
 
@@ -46,43 +49,46 @@ a{
 
 h1{
   color:$black;
+  font:700 40px/40px $roboto;
+  margin:0px;
 }
 
 h2{
   color:$black;
+  font:300 27px/27px $roboto;
+  margin:0px;
 }
 
 h3{
   color:$black;
+  font:700 18px/18px $roboto;
+  margin:0px;
 }
 
 h4{
   color:$black;
+  font:300 14px/14px $roboto;
+  margin:0px;
 }
 
 h5{
   color:$black;
+  font:700 14px/14px $roboto;
+  margin:0px;
 }
 
 h6{
   color:$black;
+  font:300 12px/12px $roboto;
+  margin:0px;
 }
 
 p{
   color:$black;
+  font:300 12px/12px $roboto;
+  margin:0px;
 }
 
-
-
-// base structure outside of the foundation XY Grid
-.container{
-  position:relative;
-  max-width:1440px; width:100%;
-  height:auto;
-  overflow:hidden;
-  margin:0px auto;
-  z-index:2;
-}
 
 
 // base for all line elements on the page
@@ -90,10 +96,9 @@ hr{
   border-bottom:1px solid $black;
 }
 
-// end of front-end styles
-// all front-end base styles are wrapped in the #bdhwk id
-// this is to explude these styles from the admin panel
-} 
+
+
+} // end of front-end styles #bdhwk
 
 
 
