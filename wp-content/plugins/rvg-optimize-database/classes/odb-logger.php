@@ -68,7 +68,7 @@ class ODB_Logger {
 			";
 			$wpdb->get_results($this->sql);
 		} // if($odb_class->odb_rvg_options['logging_on'] == "Y")
-	} // add_log_db()
+	} // odb_add_log()
 	
 
 	/********************************************************************************************
@@ -171,7 +171,9 @@ function odb_confirm_delete() {
 &nbsp;
 <input class="button odb-normal" type="button" name="odb_download_csv" value="<?php _e('Export to CSV', $odb_class->odb_txt_domain)?>" onclick="self.location='tools.php?page=rvg-optimize-database&action=odb_download_csv'" />
 &nbsp;&nbsp;
-<input class="button-primary button-large" type="button" name="start_optimization" value="<?php _e('Start Optimization', $odb_class->odb_txt_domain)?>" onclick="self.location='tools.php?page=rvg-optimize-database&action=run'" class="odb-bold" />
+<input class="button-primary button-large" type="button" name="optimize_summary" value="<?php _e('Optimize (summary)', $odb_class->odb_txt_domain)?>" onclick="self.location='tools.php?page=rvg-optimize-database&action=run_summary'" class="odb-bold" />
+&nbsp;
+<input class="button-primary button-large" type="button" name="optimize_detail" value="<?php _e('Optimize (detail)', $odb_class->odb_txt_domain)?>" onclick="self.location='tools.php?page=rvg-optimize-database&action=run_summary'" class="odb-bold" />
 <?php
 	} // odb_view_log()
 

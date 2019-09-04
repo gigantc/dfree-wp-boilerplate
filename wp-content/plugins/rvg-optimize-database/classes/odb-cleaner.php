@@ -9,27 +9,37 @@
 class ODB_Cleaner {
 	var $start_size;
 	var $nr_of_optimized_tables;
+	var $grand_total = 0;
 
 
 	/********************************************************************************************
+	 *
 	 *	CONSTRUCTOR
+	 *
 	 ********************************************************************************************/	
     function __construct() {
 	} // __construct()
 	 
 
 	/********************************************************************************************
+	 *
 	 *	RUN CLEANER
+	 *
 	 ********************************************************************************************/
-	function odb_run_cleaner($scheduler, $analyzing = false) {
+	function odb_run_cleaner($scheduler, $action = 'run_detail') {
 		global $odb_class;
 
 		if(!$scheduler) {
-			if ($analyzing) {
+			if ($action == 'analyze_summary' || $action == 'analyze_detail') {
+				if ($action == 'analyze_summary') {
+					$txt = 'Analyzing (summary)';
+				} else if ($action == 'analyze_detail') {
+					$txt = 'Analyzing (detail)';
+				}
 				echo '
 		  <div id="odb-cleaner" class="odb-padding-left">
 			<div class="odb-title-bar">
-			  <h2>'.__('Analyzing Database', $odb_class->odb_txt_domain).'</h2>
+			  <h2>'.__($txt, $odb_class->odb_txt_domain).'</h2>
 			</div>
 			<br>
 			<br>
@@ -55,7 +65,6 @@ class ODB_Cleaner {
 		$odb_class->log_arr["timestamp"]  = current_time('YmdHis', 0);
 		$odb_class->log_arr["after"]      = 0;
 		$odb_class->log_arr["before"]     = 0;
-		$odb_class->log_arr["orphans"]    = 0;
 		$odb_class->log_arr["pingbacks"]  = 0;
 		$odb_class->log_arr["oembeds"]    = 0;
 		$odb_class->log_arr["orphans"]    = 0;		
@@ -65,38 +74,66 @@ class ODB_Cleaner {
 		$odb_class->log_arr["tables"]     = 0;
 		$odb_class->log_arr["tags"]       = 0;
 		$odb_class->log_arr["transients"] = 0;
-		$odb_class->log_arr["trash"]      = 0;	
-	
+		$odb_class->log_arr["trash"]      = 0;
+
 		/****************************************************************************************
+		 *
 		 *	DELETE REVISIONS
+		 *
 		 ****************************************************************************************/
 		if($odb_class->odb_rvg_options['delete_older'] == 'Y' || $odb_class->odb_rvg_options['rvg_revisions'] == 'Y') {
+
 			// FIND REVISIONS
 			$results_older_than = array();
 			if($odb_class->odb_rvg_options['delete_older'] == 'Y') {
 				$results_older_than = $this->odb_get_revisions_older_than();
-			}
+			} // if($odb_class->odb_rvg_options['delete_older'] == 'Y')
 
 			$results_keep_revisions = array();
 			if($odb_class->odb_rvg_options['rvg_revisions'] == 'Y') {
 				$results_keep_revisions = $this->odb_get_revisions_keep_revisions();
-			}
-		
-			$total_deleted = 0;
-			if(count($results_older_than) > 0 || count($results_keep_revisions) > 0) {
-				// WE HAVE REVISIONS TO DELETE!
-				if(!$scheduler) {
-					if ($analyzing) {
-						$msg1 = __('REVISIONS','rvg-optimize-database');
-						$msg2 = __('revisions', $odb_class->odb_txt_domain);
+			} if($odb_class->odb_rvg_options['rvg_revisions'] == 'Y')
+
+			if (count($results_older_than) > 0 || count($results_keep_revisions) > 0) {
+				// REVISIONS FOUND
+				$this->grand_total += count($results_older_than) + count($results_keep_revisions);
+				
+				if ($action == 'analyze_summary') {
+	?>
+		<div class="odb-found-number">
+		  <?php _e('REVISIONS found to delete: ', $odb_class->odb_txt_domain);?>
+          <?php echo (count($results_older_than) + count($results_keep_revisions)) . '<br>';?>
+		</div>
+	<?php						
+				} // if ($action == 'analyze_summary')
+				
+				if ($action == 'run_summary') {
+	?>
+		<div class="odb-found-number">
+		  <?php _e('REVISIONS deleted: ', $odb_class->odb_txt_domain);?>
+          <?php echo (count($results_older_than) + count($results_keep_revisions)) . '<br>';?>
+		</div>
+	<?php						
+				} // if ($action == 'run_summary')
+				
+				if ($action == 'analyze_detail' || $action == 'run_detail') {
+					// 'ANALYZE_DETAIL', 'RUN_SUMMARY' or 'RUN_DETAIL'
+					if ($action == 'analyze_detail') {
+						$msg1 = __('REVISIONS', $odb_class->odb_txt_domain);
+						$msg2 = __('total number of revisions', $odb_class->odb_txt_domain);					
 					} else {
-						$msg1 = __('DELETED REVISIONS','rvg-optimize-database');
-						$msg2 = __('revisions deleted', $odb_class->odb_txt_domain);
-					}
+						// 'RUN_SUMMARY' or 'RUN_DETAIL'
+						if ($action == 'run_detail') {
+							$msg1 = __('DELETED REVISIONS', $odb_class->odb_txt_domain);
+							$msg2 = __('total number of revisions deleted', $odb_class->odb_txt_domain);							
+						} // if ($action == 'run_detail')
+					} // if ($action == 'analyze_detail')
 	?>
 	<table border="0" cellspacing="8" cellpadding="2" class="odb-result-table">
 	  <tr>
-		<td colspan="4"><div class="odb-found"><?php echo $msg1?></div></td>
+		<td colspan="4"><div class="odb-found">
+			<?php echo $msg1 ?>
+		  </div></td>
 	  </tr>
 	  <tr>
 		<th align="right" class="odb-border-bottom">#</th>
@@ -105,58 +142,78 @@ class ODB_Cleaner {
 		<th align="left" class="odb-border-bottom"><?php _e('revision date', $odb_class->odb_txt_domain);?></th>
 		<th align="right" class="odb-border-bottom"><?php echo $msg2?></th>
 	  </tr>
-		  <?php
-                } // if(!$scheduler)
-                
-                // LOOP THROUGH THE REVISIONS AND DELETE THEM
-                $total_deleted = $this->odb_delete_revisions($scheduler, $analyzing);
-                
-                if(!$scheduler) {
-					if ($analyzing) {
-						$msg1 = __('total number of revisions', $odb_class->odb_txt_domain);
-					} else {
-						$msg1 = __('total number of revisions deleted', $odb_class->odb_txt_domain);
-					} // if (!$analyzing)
-            ?>
+	  <?php
+				} // if ($action == 'analyze_detail' || $action == 'run_detail')
+				
+				// LOOP THROUGH THE REVISIONS AND DELETE THEM
+				$total_deleted = $this->odb_delete_revisions($scheduler, $action);
+				
+				if ($action == 'analyze_detail' || $action == 'run_detail') {
+?>
 	  <tr>
-		<td colspan="5" align="right" class="odb-border-top odb-bold"><?php echo $msg1 ?>: <?php echo $total_deleted?></td>
+		<td colspan="5" align="right" class="odb-border-top odb-bold"><?php echo $msg2 ?>: <?php echo $total_deleted?></td>
 	  </tr>
-	</table>
-		<?php
-                } // if(!$scheduler)
-            } else {
-				if(!$scheduler) {
-        ?>
+    </table>
+<?php
+				} // if ($action == 'analyze_detail' || $action == 'run_detail')
+				
+				if ($action == 'analyze_detail' || $action == 'run_summary' || $action == 'run_detail') {
+					// NUMBER OF DELETED REVISIONS FOR LOG FILE
+					$odb_class->log_arr["revisions"] = $total_deleted;
+				} // if ($action == 'analyze_detail' || $action == 'run_summary' || $action == 'run_detail')
+			} else {
+				// NO REVISIONS FOUND
+				if (!$scheduler) {
+?>
 	<div class="odb-not-found">
 	  <?php _e('No REVISIONS found to delete', $odb_class->odb_txt_domain);?>
 	</div>
-		<?php
-                } // if(!$scheduler)
-            } // if(count($results)>0)
-            
-            // NUMBER OF DELETED REVISIONS FOR LOG FILE
-            $odb_class->log_arr["revisions"] = $total_deleted;
+<?php					
+				} // if (!$scheduler)
+			} // if (count($results) > 0)
 		} // if($odb_class->odb_rvg_options['delete_older'] == 'Y' || $odb_class->odb_rvg_options['rvg_revisions'] == 'Y')
 
 	
 		/****************************************************************************************
+		 *
 		 *	DELETE TRASHED ITEMS
+		 *
 		 ****************************************************************************************/
-		if($odb_class->odb_rvg_options['clear_trash'] == 'Y') {
-			// GET TRASHED POSTS / PAGES AND COMMENTS
-			$results = $this->odb_get_trash($analyzing);
-	
-			$total_deleted = 0;		
-			if(count($results)>0) {
-				// WE HAVE TRASH TO DELETE!
-				if(!$scheduler) {
-					if ($analyzing) {
+		if ($odb_class->odb_rvg_options['clear_trash'] == 'Y') {
+			$results = $this->odb_get_trash();
+			if (count($results) > 0) {
+				// TRASHED ITEMS FOUNE
+				$this->grand_total += count($results);
+				
+				// TRASH FOUND
+				if ($action == 'analyze_summary') {
+	?>
+		<div class="odb-found-number">
+		  <?php _e('TRASHED ITEMS found to delete: ', $odb_class->odb_txt_domain);?>
+          <?php echo count($results) . '<br>';?>
+		</div>
+	<?php							
+				} // if ($action == 'analyze_summary')
+
+				if ($action == 'run_summary') {
+	?>
+		<div class="odb-found-number">
+		  <?php _e('TRASHED ITEMS deleted: ', $odb_class->odb_txt_domain);?>
+          <?php echo count($results) . '<br>';?>
+		</div>
+	<?php						
+				} // if ($action == 'run_summary')
+				
+				if ($action == 'analyze_detail' || $action == 'run_detail') {
+					// 'RUN' or 'ANALYZE_DETAIL
+					if ($action == 'analyze_detail') {
 						$msg1 = __('TRASHED ITEMS', $odb_class->odb_txt_domain);
 						$msg2 = __('total number of trashed items', $odb_class->odb_txt_domain);					
 					} else {
+					 // ACTION = 'RUN_DETAIL'
 						$msg1 = __('DELETED TRASHED ITEMS', $odb_class->odb_txt_domain);
-						$msg2 = __('total number of trashed items deleted', $odb_class->odb_txt_domain);
-					} // if ($analyzing)
+						$msg2 = __('total number of trashed items deleted', $odb_class->odb_txt_domain);							
+					} // if ($action == 'analyze_detail')
 	?>
 	<table border="0" cellspacing="8" cellpadding="2" class="odb-result-table">
 	  <tr>
@@ -171,53 +228,74 @@ class ODB_Cleaner {
 		<th align="left" class="odb-border-bottom"><?php _e('IP address / title', $odb_class->odb_txt_domain);?></th>
 		<th align="left" nowrap="nowrap" class="odb-border-bottom"><?php _e('date', $odb_class->odb_txt_domain);?></th>
 	  </tr>
-	  <?php
-				} // if(!$scheduler)
-	  
+	  <?php										
+				} // if ($action == 'analyze_detail' || $action == 'run_detail')
+
 				// LOOP THROUGH THE TRASHED ITEMS AND DELETE THEM
-				$total_deleted = $this->odb_delete_trash($results, $scheduler, $analyzing);
-				
-				if(!$scheduler) {
-	?>
-	  <tr>
-		<td colspan="5" align="right" class="odb-border-top odb-bold"><?php echo $msg2 ?>: <?php echo $total_deleted?></td>
-	  </tr>
-	</table>
-	<?php
-				} // if(!$scheduler)
+				$total_deleted = $this->odb_delete_trash($results, $scheduler, $action);		  
+				if ($action == 'analyze_detail' || $action == 'run_summary' || $action == 'run_detail') {
+					// NUMBER OF DELETED TRASH FOR LOG FILE
+					$odb_class->log_arr["trash"] = $total_deleted;
+				} // if (!$scheduler && ($action == 'run_summary' || $action == 'run_detail'))
+
+				if ($action == 'analyze_detail' || $action == 'run_detail') {
+?>
+    </table>
+<?php						
+				} // if ($action == 'analyze_detail' || $action == 'run_detail')
 			} else {
-				if(!$scheduler) {
-	?>
+				// NO TRASH FOUND
+				if (!$scheduler) {
+?>
 	<div class="odb-not-found">
 	  <?php _e('No TRASHED ITEMS found to delete', $odb_class->odb_txt_domain);?>
 	</div>
-	<?php
-				} // if(!$scheduler)
-			} // if(count($results)>0)
-			
-			// NUMBER OF DELETED TRASH FOR LOG FILE
-			$odb_class->log_arr["trash"] = $total_deleted;
+<?php					
+				} // if (!$scheduler)
+			} // if (count($results) > 0)
 		} // if($odb_class->odb_rvg_options['clear_trash'] == 'Y')
-	
-	
+		 
+
 		/****************************************************************************************
+		 *
 		 *	DELETE SPAMMED ITEMS
+		 *
 		 ****************************************************************************************/
-		if($odb_class->odb_rvg_options['clear_spam'] == 'Y') {
-			// GET SPAMMED COMMENTS
-			$results = $this->odb_get_spam($analyzing);		
-	
-			$total_deleted = 0;		
-			if(count($results)>0) {
-				// WE HAVE SPAM TO DELETE!
-				if (!$scheduler) {
-					if ($analyzing) {
-						$msg1 = __('SPAMMED ITEMS', $odb_class->odb_txt_domain);
-						$msg2 = __('total number of spammed items', $odb_class->odb_txt_domain);
-					} else {
-						$msg1 = __('DELETED SPAMMED ITEMS', $odb_class->odb_txt_domain);
-						$msg2 = __('total number of spammed items deleted', $odb_class->odb_txt_domain);
-					} // if ($analyzing)
+		 if ($odb_class->odb_rvg_options['clear_spam'] == 'Y') {
+			 $results = $this->odb_get_spam();
+			
+			if (count($results) > 0) {
+				// SPAM FOUND
+				$this->grand_total += count($results);
+				
+				if ($action == 'analyze_summary') {
+	?>
+		<div class="odb-found-number">
+		  <?php _e('SPAMMED ITEMS found to delete: ', $odb_class->odb_txt_domain);?>
+          <?php echo count($results) . '<br>';?>
+		</div>
+	<?php					 
+				} // if ($action == 'analyze_summary')
+				
+				if ($action == 'run_summary') {
+	?>
+		<div class="odb-found-number">
+		  <?php _e('SPAMMED ITEMS deleted: ', $odb_class->odb_txt_domain);?>
+          <?php echo count($results) . '<br>';?>
+		</div>
+	<?php						
+				} // if ($action == 'run_summary')
+				
+				if ($action == 'analyze_detail' || $action == 'run_detail') {
+					if ($action == 'analyze_detail') {
+							$msg1 = __('SPAMMED ITEMS', $odb_class->odb_txt_domain);
+							$msg2 = __('total number of spammed items', $odb_class->odb_txt_domain);					
+					} // if ($action == 'analyze_detail')
+					
+					if ($action == 'run_detail') {
+							$msg1 = __('DELETED SPAMMED ITEMS', $odb_class->odb_txt_domain);
+							$msg2 = __('total number of spammed items deleted', $odb_class->odb_txt_domain);
+					} // if ($action == 'run_detail')				
 	?>
 	<table border="0" cellspacing="8" cellpadding="2" class="odb-result-table">
 	  <tr>
@@ -232,54 +310,77 @@ class ODB_Cleaner {
 		<th align="left" class="odb-border-bottom"><?php _e('comment author email', $odb_class->odb_txt_domain);?></th>
 		<th align="left" nowrap="nowrap" class="odb-border-bottom"><?php _e('comment date', $odb_class->odb_txt_domain);?></th>
 	  </tr>
-	  <?php
-				} // if (!$scheduler)
-	  
-				// LOOP THROUGH SPAMMED ITEMS AND DELETE THEM
-				$total_deleted = $this->odb_delete_spam($results, $scheduler, $analyzing);
+	  <?php									
+				} // if ($action == 'analyze_detail' || $action == 'run_detail')
+
+				// LOOP THROUGH THE SPAMMED ITEMS AND DELETE THEM
+				$total_deleted = $this->odb_delete_spam($results, $scheduler, $action);
 				
+				if ($action == 'analyze_detail' || $action == 'run_summary' || $action == 'run_detail') {
+					// NUMBER OF DELETED SPAM FOR LOG FILE
+					$odb_class->log_arr["spam"] = $total_deleted;
+				} // if (!$scheduler && ($action == 'run_summary' || $action == 'run_detail'))				
+				
+				if ($action == 'analyze_detail' || $action == 'run_detail') {	  
+?>
+    </table>
+<?php
+				} // if ($action == 'analyze_detail' || $action == 'run_detail')
+			} else {
+				// NO SPAM FOUND
 				if (!$scheduler) {
-	?>
-	  <tr>
-		<td colspan="5" align="right" class="odb-border-top odb-bold"><?php echo $msg2 ?>: <?php echo $total_deleted?></td>
-	  </tr>
-	</table>
-	<?php
-				} // if (!$scheduler)
-			} else{
-				if (!$scheduler) {
-	?>
+?>
 	<div class="odb-not-found">
 	  <?php _e('No SPAMMED ITEMS found to delete', $odb_class->odb_txt_domain);?>
 	</div>
-	<?php
+<?php					
 				} // if (!$scheduler)
-			} // if(count($results)>0)
+			} // if (count($results) > 0)
+		} // if ($odb_class->odb_rvg_options['clear_spam'] == 'Y')
 
-			// NUMBER OF SPAM DELETED FOR LOG FILE
-			$odb_class->log_arr["spam"] = $total_deleted;			
-		} // if($odb_class->odb_rvg_options['clear_spam'] == 'Y')
-	
-	
+
 		/****************************************************************************************
+		 *
 		 *	DELETE UNUSED TAGS
+		 *
 		 ****************************************************************************************/
-		if($odb_class->odb_rvg_options['clear_tags'] == 'Y') {
+		if ($odb_class->odb_rvg_options['clear_tags'] == 'Y') {
 			// GET UNUSED TAGS
-			$results = $this->odb_get_unused_tags($analyzing);
+			$results = $this->odb_get_unused_tags();
 			
-			$total_deleted = 0;
-			
-			if(count($results)>0) {
-				// WE HAVE TAGS TO DELETE!
-				if (!$scheduler) {
-					if ($analyzing) {
+			if (count($results) > 0) {
+				// UNUSED TAGS FOUND
+				$this->grand_total += count($results);
+				
+				if ($action == 'analyze_summary' || $action == 'run_summary') {
+					if ($action == 'analyze_summary') {	
+	?>
+		<div class="odb-found-number">
+		  <?php _e('UNUSED TAGS found to delete: ', $odb_class->odb_txt_domain);?>
+          <?php echo count($results) . '<br>';?>
+		</div>
+	<?php
+					} // if ($action == 'analyze_summary')
+					
+					if ($action == 'run_summary') {	
+	?>
+		<div class="odb-found-number">
+		  <?php _e('UNUSED TAGS deleted: ', $odb_class->odb_txt_domain);?>
+          <?php echo count($results) . '<br>';?>
+		</div>
+	<?php
+					} // if ($action == 'run_summary')
+				} // if ($action == 'analyze_summary' || $action == 'run_summary')
+
+				if ($action == 'analyze_detail' || $action == 'run_detail') {
+					if ($action == 'analyze_detail') {
 						$msg1 = __('UNUSED TAGS', $odb_class->odb_txt_domain);
-						$msg2 = __('total number of unused tags', $odb_class->odb_txt_domain);						
+						$msg2 = __('total number of unused tags', $odb_class->odb_txt_domain);
 					} else {
+						 // ACTION = 'RUN_detail'
 						$msg1 = __('DELETED UNUSED TAGS', $odb_class->odb_txt_domain);
-						$msg2 = __('total number of unused tags deleted', $odb_class->odb_txt_domain);						
-					}
+						$msg2 = __('total number of unused tags deleted', $odb_class->odb_txt_domain);
+					} // if ($action == 'analyze_detail')
 	?>
 	<table border="0" cellspacing="8" cellpadding="2" class="odb-result-table">
 	  <tr>
@@ -292,133 +393,176 @@ class ODB_Cleaner {
 		<th align="left" class="odb-border-bottom"><?php _e('prefix', $odb_class->odb_txt_domain);?></th>
 		<th align="left" class="odb-border-bottom"><?php _e('tag', $odb_class->odb_txt_domain);?></th>
 	  </tr>
+	  <?php					
+				} // if ($action == 'analyze_detail' || $action == 'run_detail')
+
+				// LOOP THROUGH THE UNUSED TAGS AND DELETE THEM
+				$total_deleted = $this->odb_delete_unused_tags($results, $scheduler, $action);
+				
+				if ($action == 'analyze_detail' || $action == 'run_summary' || $action == 'run_detail') {
+					// NUMBER OF UNUSED TAGS FOR LOG FILE
+					$odb_class->log_arr["tags"] = $total_deleted;
+				} // if (!$scheduler && ($action == 'run_summary' || $action == 'run_detail'))						  
+
+				if ($action == 'analyze_detail' || $action == 'run_detail') {	  
+?>
+    </table>
 <?php
-				} // if (!$scheduler)
-
-				// LOOP THROUGH UNUSED TAGS AND DELETE THEM
-				$total_deleted = $this->odb_delete_unused_tags($results, $scheduler, $analyzing);
-
-				if (!$scheduler) {
-	?>
-	  <tr>
-		<td colspan="5" align="right" class="odb-border-top odb-bold"><?php echo $msg2 ?>: <?php echo $total_deleted?></td>
-	  </tr>
-	</table>
-	<?php
-				} // if (!$scheduler)
+				} // if ($action == 'analyze_detail' || $action == 'run_detail')				
 			} else {
+				// NO UNUSED TAGS FOUND
 				if (!$scheduler) {
-	?>
+?>
 	<div class="odb-not-found">
-	  <?php _e('No UNUSED TAGE found to delete', $odb_class->odb_txt_domain);?>
+	  <?php _e('No UNUSED TAGS found to delete', $odb_class->odb_txt_domain);?>
 	</div>
-	<?php
+<?php					
 				} // if (!$scheduler)
-			} // if(count($results)>0)
-
-			// NUMBER OF SPAM DELETED FOR LOG FILE
-			$odb_class->log_arr["tags"] = $total_deleted;			
-		} // if($odb_class->odb_rvg_options['clear_spam'] == 'Y')      
-	
+			} // if (count($results) > 0)
+		} // if ($odb_class->odb_rvg_options['clear_tags'] == 'Y')
+		
 	
 		/****************************************************************************************
-		 *	DELETE EXPIRED TRANSIENTS
+		 *
+		 *	DELETE TRANSIENTS
+		 *
 		 ****************************************************************************************/
-		if ($odb_class->odb_rvg_options['clear_transients'] !== 'N') {
-			// DELETE TRAMSIENTS ENABLED
-			$total_deleted = 0;
+		 if ($odb_class->odb_rvg_options['clear_transients'] !== 'N') {
+			 
+			 if ($odb_class->odb_rvg_options['clear_transients'] == 'Y') {
+				 $type   = 'EXPIRED';
+				 $typeLc = 'expired';
+				 $option = 'Y';
+			 } else {
+				 $type   = '';
+				 $typeLc = '';
+				 $option = 'A';
+			 }
+			 
+			 $results = $this->odb_get_transients($option);
 			
-			if (!$scheduler) {
-				// NOT VIA SCHEDULER
-				if ($odb_class->odb_rvg_options['clear_transients'] == 'Y') {
-					// EXPRIRED TRANSIENTS ONLY
-					if ($analyzing){
-						$msg1 = __('EXPIRED TRANSIENTS', $odb_class->odb_txt_domain);
-						$msg2 = __('total number of expired transients', $odb_class->odb_txt_domain);
+			if (count($results) > 0) {
+				// TRANSIENTS FOUND
+				$this->grand_total += count($results);
+				
+				if ($action == 'analyze_summary' || $action == 'run_summary') {
+					if ($action == 'analyze_summary') {
+	?>
+		<div class="odb-found-number">
+		  <?php _e($type . ' TRANSIENTS found to delete: ', $odb_class->odb_txt_domain);?>
+          <?php echo count($results) . '<br>';?>
+		</div>
+	<?php
+					} // if ($action == 'analyze_summary')
+					
+					if ($action == 'run_summary') {
+	?>
+		<div class="odb-found-number">
+		  <?php _e($type . ' TRANSIENTS deleted: ', $odb_class->odb_txt_domain);?>
+          <?php echo count($results) . '<br>';?>
+		</div>
+	<?php
+					} // if ($action == 'run_summary')
+				} // if ($action == 'analyze_summary' || $action == 'run_summary')
+				
+				if ($action == 'analyze_detail' || $action == 'run_detail') {
+					// 'RUN' or 'ANALYZE_DETAIL
+					if ($action == 'analyze_detail') {
+						$msg1 = __($type . ' TRANSIENTS', $odb_class->odb_txt_domain);
+						$msg2 = __('total number of ' . $typeLc . ' transients', $odb_class->odb_txt_domain);					
 					} else {
-						$msg1 = __('EXPIRED TRANSIENTS DELETED', $odb_class->odb_txt_domain);
-						$msg2 = __('total number of expired transients deleted', $odb_class->odb_txt_domain);						
-					} // if ($analyzing)
-				} else {
-					// ALL TRANSIENTS
-					if ($analyzing){
-						$msg1 = __('TRANSIENTS', $odb_class->odb_txt_domain);
-						$msg2 = __('total number of transients', $odb_class->odb_txt_domain);
-					} else {
-						$msg1 = __('TRANSIENTS DELETED', $odb_class->odb_txt_domain);
-						$msg2 = __('total number of transients', $odb_class->odb_txt_domain);					
-					} // if ($analyzing
-				} // if ($odb_class->odb_rvg_options['clear_transients'] == 'Y')
-				$res = $this->odb_delete_transients($scheduler, $analyzing);
-				$total_deleted = count($res);
-				if ($total_deleted > 0) {
+						 // ACTION = 'RUN_DETAIL'
+						$msg1 = __('DELETED ' . $type . ' TRANSIENTS', $odb_class->odb_txt_domain);
+						$msg2 = __('total number of ' . $typeLc . ' deleted', $odb_class->odb_txt_domain);
+					} // if ($action == 'analyze_detail')
+	?>
+	<table border="0" cellspacing="8" cellpadding="2" class="odb-result-table">
+	  <tr>
+		<td colspan="4"><div class="odb-found">
+			<?php echo $msg1 ?>
+		  </div></td>
+	  </tr>
+      <tr>
+	    <th align="right" class="odb-border-bottom">#</th>
+	    <th align="left" class="odb-border-bottom"><?php _e('prefix', $odb_class->odb_txt_domain);?></th>
+	    <th align="left" class="odb-border-bottom"><?php _e('option name', $odb_class->odb_txt_domain);?></th>
+      </tr>
+	  <?php									
+				} // if ($action == 'analyze_detail' || $action == 'run_detail')
+
+				// LOOP THROUGH THE TRANSIENTS AND DELETE THEM
+				$total_deleted = $this->odb_delete_transients($results, $scheduler, $action, $option);
+				
+				if ($action == 'analyze_detail' || $action == 'run_summary' || $action == 'run_detail') {
+					// NUMBER OF DELETED SPAM FOR LOG FILE
+					$odb_class->log_arr["transients"] = $total_deleted;
+				} // if (!$scheduler && ($action == 'run_summary' || $action == 'run_detail'))
+									
+				if ($action == 'analyze_detail' || $action == 'run_detail') {					  
 ?>
-<table border="0" cellspacing="8" cellpadding="2" class="odb-result-table">
-  <tr>
-	<td colspan="4"><div class="odb-found">
-		<?php echo $msg1 ?>
-	  </div></td>
-  </tr>
-  <tr>
-	<th align="right" class="odb-border-bottom">#</th>
-	<th align="left" class="odb-border-bottom"><?php _e('prefix', $odb_class->odb_txt_domain);?></th>
-	<th align="left" class="odb-border-bottom"><?php _e('option name', $odb_class->odb_txt_domain);?></th>
-  </tr>
-  <?php
-				// LOOP THROUGH TRANSIENS ITEMS AND DELETE THEM
-				$nr = 1;
-				for ($j = 0; $j < $total_deleted; $j++) {
-?>
-	<tr>
-	  <td align="right" valign="top"><?php echo $nr; ?></td>
-	  <td align="left" valign="top"><?php echo $res[$j]['site']?></td>
-	  <td valign="top"><?php echo $res[$j]['option_name']; ?></td>
-	</tr>	
+    </table>
 <?php
-					$nr++;
-				} // for ($j = 0; $j < count($res);$j++) {
-?>
-  <tr>
-	<td colspan="3" align="right" class="odb-border-top odb-bold"<?php echo $msg2 ?>: <?php echo $total_deleted?></td>
-  </tr>
-</table>
-  <?php						
-				} else {
-?>					
-<div class="odb-not-found">
-<?php
-				if ($odb_class->odb_rvg_options['clear_transients'] == 'Y') {
-					$msg = _e('No EXPIRED TRANSIENTS found to delete', $odb_class->odb_txt_domain);
-				} else {
-					$msg = _e('No TRANSIENTS found to delete', $odb_class->odb_txt_domain);
-				}
-?>						
-</div>
-<?php		
-				}
+				} // if ($action == 'analyze_detail' || $action == 'run_detail')
 			} else {
-				return;
-			} // if (!$scheduler)
-		} // if($odb_class->odb_rvg_options['clear_transients'] != 'N')
+				// NO TRANSIENTS FOUND
+				if (!$scheduler) {
+					if ($option == 'Y') {
+						$msg = 'No EXPIRED TRANSIENTS found to delete';
+					} else {
+						$msg = 'No TRANSIENTS found to delete';
+					} // if ($option == 'Y')
+?>
+	<div class="odb-not-found">
+	  <?php _e($msg, $odb_class->odb_txt_domain);?>
+	</div>
+<?php					
+				} // if (!$scheduler)
+			} // if (count($results) > 0)
+		} // if ($odb_class->odb_rvg_options['clear_transients'] !== 'N')
+
 	
 		/****************************************************************************************
+		 *
 		 *	DELETE PINGBACKS AND TRACKBACKS
-		 ****************************************************************************************/	
-		if($odb_class->odb_rvg_options['clear_pingbacks'] == 'Y') {
+		 *
+		 ****************************************************************************************/
+		if ($odb_class->odb_rvg_options['clear_pingbacks'] == 'Y') {
 			// GET PINGBACKS AND TRACKBACKS
-			$results = $this->odb_get_pingbacks($analyzing);
-	
-			$total_deleted = 0;		
-			if(count($results)>0) {
-				// WE HAVE TRASH TO DELETE!
-				if(!$scheduler) {
-					if ($analyzing) {
+			$results = $this->odb_get_pingbacks();
+			
+			if (count($results) > 0) {
+				// PINGBACKS AND/OR TRACKBACKS FOUND FOUND
+				$this->grand_total += count($results);
+				
+				if ($action == 'analyze_summary' || $action == 'run_summary') {
+					if ($action == 'analyze_summary') {
+	?>
+		<div class="odb-found-number">
+		  <?php _e('PINGBACKS AND/OR TRACKBACKS found to delete: ', $odb_class->odb_txt_domain);?>
+          <?php echo count($results) . '<br>';?>
+		</div>
+	<?php
+					} // if ($action == 'analyze_summary')
+					
+					if ($action == 'run_summary') {
+	?>
+		<div class="odb-found-number">
+		  <?php _e('PINGBACKS AND/OR TRACKBACKS deleted: ', $odb_class->odb_txt_domain);?>
+          <?php echo count($results) . '<br>';?>
+		</div>
+	<?php
+					} // if ($action == 'run_summary')		 
+				} // if ($action == 'analyze_summary' || $action == 'run_summary')
+				
+				if ($action == 'analyze_detail' || $action == 'run_detail') {
+					if ($action == 'analyze_detail') {
 						$msg1 = __('PINGBACKS AND TRACKBACKS', $odb_class->odb_txt_domain);
 						$msg2 = __('total number of pingbacks and trackbacks', $odb_class->odb_txt_domain);						
 					} else {
+						 // ACTION = 'RUN'
 						$msg1 = __('DELETED PINGBACKS AND TRACKBACKS', $odb_class->odb_txt_domain);
 						$msg2 = __('total number of pingbacks and trackbacks deleted', $odb_class->odb_txt_domain);
-					} // if ($analyzing)
+					} // if ($action == 'analyze_detail')
 	?>
 	<table border="0" cellspacing="8" cellpadding="2" class="odb-result-table">
 	  <tr>
@@ -433,54 +577,83 @@ class ODB_Cleaner {
 		<th align="left" class="odb-border-bottom"><?php _e('comment_author', $odb_class->odb_txt_domain);?></th>
 		<th align="left" nowrap="nowrap" class="odb-border-bottom"><?php _e('date', $odb_class->odb_txt_domain);?></th>
 	  </tr>
-	  <?php
-				} // if(!$scheduler)
-	  
-				// LOOP THROUGH THE TRASHED ITEMS AND DELETE THEM
-				$total_deleted = $this->odb_delete_pingbacks($results, $scheduler, $analyzing);
+	  <?php										
+				} // if ($action == 'analyze_detail' || $action == 'run_detail')
 				
-				if(!$scheduler) {
-	?>
-	  <tr>
-		<td colspan="5" align="right" class="odb-border-top odb-bold"><?php echo $msg2 ?>: <?php echo $total_deleted?></td>
-	  </tr>
-	</table>
-	<?php
-				} // if(!$scheduler)
+				// LOOP THROUGH THE PINGBACKS AND TRACKBACKS AND DELETE THEM
+				$total_deleted = $this->odb_delete_pingbacks($results, $scheduler, $action);
+				
+				if ($action == 'analyze_detail' || $action == 'run_summary' || $action == 'run_detail') {
+					// NUMBER OF DELETED PINGBACKS AND TRACKBACKS FOR LOG FILE
+					$odb_class->log_arr["pingbacks"] = $total_deleted;
+				} // if (!$scheduler && ($action == 'run_summary' || $action == 'run_detail'))				
+					  
+				if ($action == 'analyze_detail' || $action == 'run_detail') {
+?>
+    </table>
+<?php
+				} // if ($action == 'analyze_detail' || $action == 'run_detail')
+				
+				if (!$scheduler && ($action == 'run_summary' || $action == 'run_detail')) {
+					// NUMBER OF DELETED PINGBACKS AND TRACKBACKS FOR LOG FILE
+					$odb_class->log_arr["pingbacks"] = $total_deleted;
+				} // if (!$scheduler && ($action == 'run_summary' || $action == 'run_detail'))
 			} else {
-				if(!$scheduler) {
-	?>
+				// NO PINGBACKS NOR TRACKBACKS FOUND
+				if (!$scheduler) {
+?>
 	<div class="odb-not-found">
 	  <?php _e('No PINGBACKS nor TRACKBACKS found to delete', $odb_class->odb_txt_domain);?>
 	</div>
-	<?php
-				} // if(!$scheduler)
-			} // if(count($results)>0)
-			
-			// NUMBER OF DELETED PINGBACKS FOR LOG FILE
-			$odb_class->log_arr["pingbacks"] = $total_deleted;	
-		} // if($odb_class->odb_rvg_options['clear_pingbacks'] == 'Y')
+<?php					
+				} // if (!$scheduler)
+			} // if (count($results) > 0)
+		} // if ($odb_class->odb_rvg_options['clear_pingbacks'] == 'Y')
 
 
 		/****************************************************************************************
+		 *
 		 *	DELETE OEMBED CACHE
-		 ****************************************************************************************/	
-		if($odb_class->odb_rvg_options['clear_oembed'] == 'Y') {
+		 *
+		 ****************************************************************************************/
+		if ($odb_class->odb_rvg_options['clear_oembed'] == 'Y') {
 			
 			// GET OEMBED CACHE
-			$results = $this->odb_get_oembed($analyzing);
-	
-			$total_deleted = 0;		
-			if(count($results)>0) {
-				// WE HAVE TRASH TO DELETE!
-				if(!$scheduler) {
-					if ($analyzing) {
-						$msg1 = __('OEMBED CACHE', $odb_class->odb_txt_domain);
-						$msg2 = __('total number of oEmbeds', $odb_class->odb_txt_domain);						
+			$results = $this->odb_get_oembed();
+			
+			if (count($results) > 0) {
+				// OEMBED CACHE FOUND
+				$this->grand_total += count($results);
+				
+				if ($action == 'analyze_summary' || $action == 'run_summary') {
+					if ($action == 'analyze_summary') {
+	?>
+		<div class="odb-found-number">
+		  <?php _e('OEMBED CACHE ITEMS found to delete: ', $odb_class->odb_txt_domain);?>
+          <?php echo count($results) . '<br>';?>
+		</div>
+	<?php
+					} // if ($action == 'analyze_summary')
+					
+					if ($action == 'run_summary') {
+	?>
+		<div class="odb-found-number">
+		  <?php _e('OEMBED CACHE ITEMS deleted: ', $odb_class->odb_txt_domain);?>
+          <?php echo count($results) . '<br>';?>
+		</div>
+	<?php
+					} // if ($action == 'run_summary')
+				} // if ($action == 'analyze_summary' || $action == 'run_summary')
+				
+				if ($action == 'analyze_detail' || $action == 'run_detail') {
+					if ($action == 'analyze_detail') {
+						$msg1 = __('OEMBED CACHE items', $odb_class->odb_txt_domain);
+						$msg2 = __('total number of oembed cache items', $odb_class->odb_txt_domain);
 					} else {
-						$msg1 = __('DELETED OEMBEDS', $odb_class->odb_txt_domain);
-						$msg2 = __('total number of oEmbeds deleted', $odb_class->odb_txt_domain);
-					} // if ($analyzing)
+						 // ACTION = 'RUN'
+						$msg1 = __('DELETED OEMBED CACHE ITEMS', $odb_class->odb_txt_domain);
+						$msg2 = __('total number of oembed cache items deleted', $odb_class->odb_txt_domain);
+					} // if ($action == 'analyze_detail')					
 	?>
 	<table border="0" cellspacing="8" cellpadding="2" class="odb-result-table">
 	  <tr>
@@ -494,117 +667,137 @@ class ODB_Cleaner {
 		<th align="left" class="odb-border-bottom"><?php _e('meta key', $odb_class->odb_txt_domain);?></th>
 		<th align="left" class="odb-border-bottom"><?php _e('meta value', $odb_class->odb_txt_domain);?></th>
 	  </tr>
-	  <?php
-				} // if(!$scheduler)
-	  
-				// LOOP THROUGH THE TRASHED ITEMS AND DELETE THEM
-				$total_deleted = $this->odb_delete_oembed($results, $scheduler, $analyzing);
-				
-				if(!$scheduler) {
-	?>
-	  <tr>
-		<td colspan="4" align="right" class="odb-border-top odb-bold"><?php echo $msg2 ?>: <?php echo $total_deleted?></td>
-	  </tr>
-	</table>
-	<?php
-				} // if(!$scheduler)
-			} else {
-				if(!$scheduler) {
-	?>
-	<div class="odb-not-found">
-	  <?php _e('No OEMED CHACHE found to delete', $odb_class->odb_txt_domain);?>
-	</div>
-	<?php
-				} // if(!$scheduler)
-			} // if(count($results)>0)
-			
-			// NUMBER OF DELETED PINGBACKS FOR LOG FILE
-			$odb_class->log_arr["oembeds"] = $total_deleted;
-		} // if($odb_class->odb_rvg_options['clear_oembed'] == 'Y')
+	  <?php								
+				} // if ($action == 'analyze_detail' || $action == 'run_detail')
 
-	
+				// LOOP THROUGH THE ORPHANS THEM
+				$total_deleted = $this->odb_delete_oembed($results, $scheduler, $action);
+				
+				if ($action == 'analyze_detail' || $action == 'run_summary' || $action == 'run_detail') {
+					// NUMBER OF OEMBED CACHE ITEMS FOR LOG FILE
+					$odb_class->log_arr["oembeds"] = $total_deleted;
+				} // if (!$scheduler && ($action == 'run_summary' || $action == 'run_detail')
+				
+				if ($action == 'analyze_detail' || $action == 'run_detail') {
+?>
+    </table>
+<?php
+				} // if ($action == 'analyze_detail' || $action == 'run_detail')
+			} else {
+				// NO OEMBED CACHE ITEMS FOUND
+				if (!$scheduler) {
+?>
+	<div class="odb-not-found">
+	  <?php _e('No OEMBED CACHE ITEMS found to delete', $odb_class->odb_txt_domain);?>
+	</div>
+<?php					
+				} // if (!$scheduler)
+			} // if (count($results) > 0)
+		} // if ($odb_class->odb_rvg_options['clear_oembed'] == 'Y')
+
+
 		/****************************************************************************************
+		 *
 		 *	DELETE ORPHANS
+		 *
 		 ****************************************************************************************/
 		if($odb_class->odb_rvg_options['clear_orphans'] == 'Y') {
-			$results = $this->odb_get_orphans($results, $scheduler,$analyzing);
-	
-			$total_deleted = count($results);
+		
+			$results = $this->odb_get_orphans($scheduler);
 			
-			//$total_deleted = $this->odb_delete_orphans($analyzing);
-			
-			if($total_deleted > 0) {
-				if (!$scheduler) {
-					if ($analyzing) {
-						$msg1 = __('POSTMETA ORPHANS', $odb_class->odb_txt_domain);
+			 if (count($results) > 0) {
+				// ORPHANS FOUND
+				$this->grand_total += count($results);
+				
+				if ($action == 'analyze_summary' || $action == 'run_summary') {
+					if ($action == 'analyze_summary') {
+	?>
+		<div class="odb-found-number">
+		  <?php _e('ORPHANS found to delete: ', $odb_class->odb_txt_domain);?>
+          <?php echo count($results) . '<br>';?>
+		</div>
+	<?php
+					} // if ($action == 'analyze_summary')
+					
+					if ($action == 'run_summary') {
+	?>
+		<div class="odb-found-number">
+		  <?php _e('ORPHANS deleted: ', $odb_class->odb_txt_domain);?>
+          <?php echo count($results) . '<br>';?>
+		</div>
+	<?php
+					} // if ($action == 'run_summary')
+				} // if ($action == 'analyze_summary' || $action == 'run_summary')
+
+				if ($action == 'analyze_detail' || $action == 'run_detail') {
+					
+					if ($action == 'analyze_detail') {
+						$msg1 = __('ORPHANS', $odb_class->odb_txt_domain);
 						$msg2 = __('total number of orphans', $odb_class->odb_txt_domain);
 					} else {
-						$msg1 = __('DELETED POSTMETA ORPHANS', $odb_class->odb_txt_domain);
-						$msg2 = __('total number of orphans', $odb_class->odb_txt_domain);
-					}
-		?>
-	<!--	<div class="odb-found-number">
-		  <?php echo $msg1 ?>: <span class="odb-blue"><?php echo $total_deleted;?></span>
-		</div>-->
-		<table border="0" cellspacing="8" cellpadding="2" class="odb-result-table">
-		  <tr>
-			<td colspan="8"><div class="odb-found">
-				<?php echo $msg1 ?>
-			  </div></td>
-		  </tr>
-		  <tr>
-			<th align="right" class="odb-border-bottom">#</th>
-			<th align="left" class="odb-border-bottom"><?php _e('prefix', $odb_class->odb_txt_domain);?></th>
-			<th align="left" class="odb-border-bottom"><?php _e('type', $odb_class->odb_txt_domain);?></th>
-			<th align="left" class="odb-border-bottom"><?php _e('id', $odb_class->odb_txt_domain);?></th>
-			<th align="left" class="odb-border-bottom"><?php _e('title', $odb_class->odb_txt_domain);?></th>
-			<th align="left" nowrap="nowrap" class="odb-border-bottom"><?php _e('modified', $odb_class->odb_txt_domain);?></th>
-			<th align="left" class="odb-border-bottom"><?php _e('meta key', $odb_class->odb_txt_domain);?></th>
-			<th align="left" class="odb-border-bottom"><?php _e('meta value', $odb_class->odb_txt_domain);?></th>
-		  </tr>
-		  <?php
-					} // if(!$scheduler)
-		  
-					// LOOP THROUGH THE TRASHED ITEMS AND DELETE THEM
-					$total_deleted = $this->odb_delete_orphans($results, $scheduler, $analyzing);
-					
-					if(!$scheduler) {
-		?>
-		  <tr>
-			<td colspan="8" align="right" class="odb-border-top odb-bold"><?php echo $msg2 ?> <?php echo $total_deleted?></td>
-		  </tr>
-		</table>      
-		  
-		<?php
-				} // if (!$scheduler)
+						// ACTION = 'RUN_DETAIL'
+						$msg1 = __('DELETED ORPHANS', $odb_class->odb_txt_domain);
+						$msg2 = __('total number of orphans deleted', $odb_class->odb_txt_domain);
+					} // if ($action == 'analyze_detail')						
+	?>
+	<table border="0" cellspacing="8" cellpadding="2" class="odb-result-table">
+	  <tr>
+		<td colspan="4"><div class="odb-found">
+			<?php echo $msg1 ?>
+		  </div></td>
+	  </tr>
+      <tr>
+        <th align="right" class="odb-border-bottom">#</th>
+        <th align="left" class="odb-border-bottom"><?php _e('prefix', $odb_class->odb_txt_domain);?></th>
+        <th align="left" class="odb-border-bottom"><?php _e('type', $odb_class->odb_txt_domain);?></th>
+        <th align="left" class="odb-border-bottom"><?php _e('id', $odb_class->odb_txt_domain);?></th>
+        <th align="left" class="odb-border-bottom"><?php _e('title', $odb_class->odb_txt_domain);?></th>
+        <th align="left" nowrap="nowrap" class="odb-border-bottom"><?php _e('modified', $odb_class->odb_txt_domain);?></th>
+        <th align="left" class="odb-border-bottom"><?php _e('meta key', $odb_class->odb_txt_domain);?></th>
+        <th align="left" class="odb-border-bottom"><?php _e('meta value', $odb_class->odb_txt_domain);?></th>
+      </tr>
+	  <?php
+				} // if ($action == 'analyze_detail' || $action == 'run_detail')
+
+				// LOOP THROUGH THE ORPHANS AND DELETE THEM
+				$total_deleted = $this->odb_delete_orphans($results, $scheduler, $action);
+				if ($action == 'analyze_detail' || $action == 'run_summary' || $action == 'run_detail') {
+					// NUMBER OF ORPHANS FOR LOG FILE
+					$odb_class->log_arr["orphans"] = $total_deleted;
+				} // if (!$scheduler && ($action == 'run_summary' || $action == 'run_detail')				  
+?>
+    </table>
+<?php
 			} else {
+				// NO ORPHANS FOUND
 				if (!$scheduler) {
-		?>
-		<div class="odb-not-found">
-		  <?php _e('No POSTMETA ORPHANS found to delete', $odb_class->odb_txt_domain);?>
-		</div>
-		<?php
+?>
+	<div class="odb-not-found">
+	  <?php _e('No ORPHANS found to delete', $odb_class->odb_txt_domain);?>
+	</div>
+<?php					
 				} // if (!$scheduler)
-			} // if($total_deleted > 0)
-			// FOR LOG FILE
-			$odb_class->log_arr["orphans"] = $total_deleted;
-			
-			if (!$scheduler) {
-			?>
-			</div><!-- /odb-cleaner -->
-			<?php
-			} // if (!$scheduler)
-		} // if($odb_class->odb_rvg_options['clear_oembed'] == 'Y')
+			} // if (count($results) > 0)
+		} // if($odb_class->odb_rvg_options['clear_orphans'] == 'Y')
+		
+	?>
+		<div class="odb-found-number">
+		  <?php _e('TOTAL NUMBER OF ITEMS: ', $odb_class->odb_txt_domain);?>
+          <?php echo '<span class="odb-blue">' . $this->grand_total . '</span><br>';?>
+		</div>
+	<?php
 	} // odb_run_cleaner()
 
 
 	/********************************************************************************************
+	 *
 	 *	RUN OPTIMIZER
+	 *
 	 ********************************************************************************************/	
-	function odb_run_optimizer($scheduler) {
+	function odb_run_optimizer($scheduler, $action) {
 		global $odb_class;
 	
-		if(!$scheduler) {
+		if(!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail')) {
 ?>
 	<div class="odb-optimizing-table" class="odb-padding-left">
 	  <div class="odb-title-bar">
@@ -622,24 +815,26 @@ class ODB_Cleaner {
 		  <th class="odb-border-bottom" align="right"><?php _e('table size', $odb_class->odb_txt_domain);?></th>
 		</tr>
 		<?php
-		} // if(!$scheduler)
+		} // if(!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail'))
 		
 		# OPTIMIZE THE DATABASE TABLES
-		$this->nr_of_optimized_tables = $this->odb_optimize_tables($scheduler);
+		$this->nr_of_optimized_tables = $this->odb_optimize_tables($scheduler, $action);
 		
-		if(!$scheduler) {
+		if(!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail')) {
 	?>
 	  </table>
 	</div><!-- /odb-optimizing-table -->	
 <?php
-		} // if(!$scheduler)
+		} // if(!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail'))
 	} // odb_run_optimizer()
 
 
 	/********************************************************************************************
+	 *
 	 *	CALCULATE AND DISPLAY SAVINGS
+	 *
 	 ********************************************************************************************/		
-	function odb_savings($scheduler) {
+	function odb_savings($scheduler, $action) {
 		global $odb_class;
 		global $odb_logger_obj;
 
@@ -653,9 +848,11 @@ class ODB_Cleaner {
 		// TOTAL SAVING
 		$odb_class->log_arr["savings"] = $odb_class->odb_utilities_obj->odb_format_size(($this->start_size - $end_size),3);
 		
-		// WRITE RESULTS TO LOG FILE - v4.6
-		$odb_class->odb_logger_obj->odb_add_log($odb_class->log_arr);
-	
+		if ($scheduler || $action == 'run_summary' || $action == 'run_detail') {
+			// WRITE RESULTS TO THE DATABASE - v4.6		
+			$odb_class->odb_logger_obj->odb_add_log($odb_class->log_arr);
+		}
+				
 		$total_savings = $odb_class->odb_rvg_options['total_savings'];
 		$total_savings += ($this->start_size - $end_size);
 		$odb_class->odb_rvg_options['total_savings'] = $total_savings;		
@@ -699,7 +896,9 @@ class ODB_Cleaner {
 	
 
 	/********************************************************************************************
+	 *
 	 *	SHOW LOADING TIME
+	 *
 	 ********************************************************************************************/	
 	function odb_done($analyze = false) {
 		global $odb_class;
@@ -758,7 +957,9 @@ function odb_confirm_delete() {
 
 
 	/********************************************************************************************
+	 *
 	 *	GET REVISIONS (OLDER THAN x DAYS)
+	 *
 	 ********************************************************************************************/
 	function odb_get_revisions_older_than() {
 		global $odb_class, $wpdb;
@@ -828,7 +1029,9 @@ function odb_confirm_delete() {
 
 
 	/********************************************************************************************
+	 *
 	 *	GET REVISIONS (KEEP MAX NUMBER OF REVISIONS)
+	 *
 	 ********************************************************************************************/	
 	function odb_get_revisions_keep_revisions() {
 		global $odb_class, $wpdb;
@@ -870,7 +1073,11 @@ function odb_confirm_delete() {
 			
 			$sql = sprintf ("
 			  SELECT '%s' AS site,
-			  	p1.`ID`, p1.`post_parent`, p1.`post_title`, COUNT(*) cnt
+			  	p1.`ID`,
+				p1.`post_parent`,
+				p1.`post_title`,
+				p1.`post_modified`,
+				COUNT(*) cnt
 				FROM %sposts p1, %sposts p2
 			   WHERE p1.`post_type` = 'revision'
                  AND p1.`post_parent` = p2.ID			   
@@ -902,14 +1109,20 @@ function odb_confirm_delete() {
 	} // odb_get_revisions_keep_revisions()
 
 
-	/********************************************************************************************
+	/********************************************************************************************^
+	 *
 	 *	DELETE THE REVISIONS
+	 *
 	 ********************************************************************************************/
-	function odb_delete_revisions($scheduler, $analyzing = false) {
+	function odb_delete_revisions($scheduler, $action = 'run_detail') {
 		global $odb_class, $wpdb;
 
 		$total_deleted = 0;
-		$nr = 1;
+		
+		// v4.8.1
+		if($scheduler && $action == '') {
+			$action = 'run_detail';
+		} // if($scheduler && $action == '')
 
 		if($odb_class->odb_rvg_options['delete_older'] == 'Y') {
 			// DELETE REVISIONS OLDER THAN x DAYS
@@ -917,52 +1130,51 @@ function odb_confirm_delete() {
 			$older_than = $odb_class->odb_rvg_options['older_than'];
 			$total_deleted += count($results);
 			
-			for($i=0; $i<count($results); $i++) {
-				if (!$scheduler) {
+			for($i = 0; $i < count($results); $i++) {
+				if (!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail')) {
 			?>
 		<tr>
-		  <td align="right" valign="top"><?php echo $nr?>.</td>
+		  <td align="right" valign="top"><?php echo ($i + 1)?>.</td>
 		  <td align="left" valign="top"><?php echo $results[$i]['site']?></td>
 		  <td valign="top" class="odb-bold"><?php echo $results[$i]['post_title']?></td>
 		  <td valign="top" class="odb-bold"><?php echo $results[$i]['post_modified']?></td><?php
-				} // if (!$scheduler)
+				} // if (!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail'))
 
-				if (!$analyzing) {
+				if ($action == 'run_summary' || $action == 'run_detail') {
 					$sql_delete = sprintf ("
 					DELETE FROM %sposts
 					 WHERE `ID` = %d
 					", $results[$i]['site'], $results[$i]['ID']);
 					
 					$wpdb->get_results($sql_delete);
-				} // if (!$analyzing)
+				} // if ($action == 'run')
 				
-				$nr++;
-				if(!$scheduler) {
+				if(!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail')) {
 		?>
 		  <td align="right" valign="top" class="odb-bold">1</td>
 		</tr>
 		<?php
-				} // if(!$scheduler)				
+				} // if(!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail')
 			} // for($i=0; $i<count($results); $i++)			
 		} // if($odb_class->odb_rvg_options['delete_older'] == 'Y')
 		
 		if($odb_class->odb_rvg_options['rvg_revisions'] == 'Y') {
-			// KEEP MAX NUMBER OF REVISIONS
+			// KEEP MAX NUMBER OF REVISIONS		
 			$results       = $this->odb_get_revisions_keep_revisions();
 			$max_revisions = $odb_class->odb_rvg_options['nr_of_revisions'];
 			
-			for($i=0; $i<count($results); $i++) {
+			for($i = 0; $i < count($results); $i++) {
 				$nr_to_delete  = $results[$i]['cnt'] - $max_revisions;
 				$total_deleted += $nr_to_delete;
 					
-				if (!$scheduler) {
+				if (!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail')) {
 			?>
 		<tr>
-		  <td align="right" valign="top"><?php echo $nr?>.</td>
+		  <td align="right" valign="top"><?php echo ($i + 1)?>.</td>
 		  <td align="left" valign="top"><?php echo $results[$i]['site']?></td>
 		  <td valign="top" class="odb-bold"><?php echo $results[$i]['post_title']?></td>
-		  <td valign="top"><?php
-				} // if (!$scheduler)
+		  <td valign="top" class="odb-bold"><?php echo $results[$i]['post_modified']?></td><?php
+				} // if (!$scheduler && $action == 'analyze_detail' || $action == 'run_detail'))
 				
 				$sql_get_posts = sprintf( "
 				  SELECT `ID`, `post_modified`
@@ -974,26 +1186,25 @@ function odb_confirm_delete() {
 	
 				$results_get_posts = $wpdb->get_results($sql_get_posts);
 				
-				for($j=0; $j<$nr_to_delete; $j++) {
-					if(!$scheduler) echo $results_get_posts[$j]->post_modified.'<br>';
-					if (!$analyzing) {
+				for($j = 0; $j < $nr_to_delete; $j++) {
+					// if(!$scheduler) echo $results_get_posts[$j]->post_modified.'<br>';
+					if ($action == 'run_summary' || $action == 'run_detail') {
 						$sql_delete = sprintf ("
 						DELETE FROM %sposts
 						 WHERE `ID` = %d
 						", $results[$i]['site'], $results_get_posts[$j]->ID);
 						
 						$wpdb->get_results($sql_delete);
-					} // if (!$analyzing)
-				} // for($j=0; $j<$nr_to_delete; $j++)
+					} // if ($action == 'run')
+				} // for($j = 0; $j < $nr_to_delete; $j++)
 				
-				$nr++;
-				if(!$scheduler) {
+				if(!$scheduler && ($action == 'analyze_detail' ||  $action == 'run_detail')) {
 		?></td>
 		  <td align="right" valign="top" class="odb-bold"><?php echo $nr_to_delete?> <?php _e('of', $odb_class->odb_txt_domain)?> <?php echo $results[$i]['cnt'];?></td>
 		</tr>
 		<?php
-				} // if(!$scheduler)
-			} // for($i=0; $i<count($results); $i++)
+				} // if(!$scheduler && ($action == 'analyze_detail' ||  $action == 'run_detail'))
+			} // for($i = 0; $i < count($results); $i++)
 		} // if($odb_class->odb_rvg_options['rvg_revisions'] == 'Y')
 		
 		return $total_deleted;		
@@ -1001,7 +1212,9 @@ function odb_confirm_delete() {
 
 
 	/********************************************************************************************
+	 *
 	 *	CHECK IF POST IS EXCLUDED BY A CUSTOM FIELD ('keep_revisions')
+	 *
 	 ********************************************************************************************/
 	function odb_post_is_excluded($parent_id) {
 		$keep_revisions = get_post_meta($parent_id, 'keep_revisions', true);
@@ -1010,9 +1223,11 @@ function odb_confirm_delete() {
 
 
 	/********************************************************************************************
+	 *
 	 *	GET TRASHED POSTS / PAGES AND COMMENTS
+	 *
 	 ********************************************************************************************/
-	function odb_get_trash($analyzing = false) {
+	function odb_get_trash() {
 		global $wpdb, $odb_class;
 		
 		$res_arr = array();
@@ -1054,39 +1269,40 @@ function odb_confirm_delete() {
 
 
 	/********************************************************************************************
+	 *
 	 *	DELETE TRASHED POSTS AND PAGES
+	 *
 	 ********************************************************************************************/
-	function odb_delete_trash($results, $scheduler, $analyzing) {
+	function odb_delete_trash($results, $scheduler, $action) {
 		global $wpdb;
 	
-		$nr = 1;
 		$total_deleted = count($results);
-		
-		for($i=0; $i<$total_deleted; $i++) {
-			if(!$scheduler) {
+	
+		for ($i = 0; $i < $total_deleted; $i++) {
+			if (!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail')) {
 	?>
 	<tr>
-	  <td align="right" valign="top"><?php echo $nr; ?></td>
+	  <td align="right" valign="top"><?php echo ($i + 1); ?></td>
 	  <td align="left" valign="top"><?php echo $results[$i]['site']?></td>
 	  <td valign="top"><?php echo $results[$i]['post_type']; ?></td>
 	  <td valign="top"><?php echo $results[$i]['title']; ?></td>
 	  <td valign="top" nowrap="nowrap"><?php echo $results[$i]['modified']; ?></td>
 	</tr>
 	<?php
-			} // if(!$scheduler)
+			} // if (!$scheduler && ($action == 'analyze_detail' || $action = 'run_detail'))
 			
 			if($results[$i]['post_type'] == 'comment') {
 				// DELETE META DATA (IF ANY...)
-				if (!$analyzing) {
+				if ($action == 'run_summary' || $action == 'run_detail') {
 					$sql_delete = sprintf ("
 					DELETE FROM %scommentmeta
 					 WHERE `comment_id` = %d
 					", $results[$i]['site'], $results[$i]['id']);
 					$wpdb->get_results($sql_delete);  
-				} // if (!$analyzing)
+				} // if ($action == 'run_summary' || $action == 'run_detail')
 			} // if($results[$i]['post_type'] == 'comment')
-			
-			if (!$analyzing) {
+
+			if ($action == 'run_summary' || $action == 'run_detail') {
 				// DELETE TRASHED POSTS / PAGES
 				$sql_delete = sprintf ("
 				DELETE FROM %sposts
@@ -1100,25 +1316,25 @@ function odb_confirm_delete() {
 				 WHERE `comment_approved` = 'trash'
 				", $results[$i]['site']);
 				$wpdb->get_results($sql_delete);
-			} // if (!$analyzing)
-			
-			$nr++;
-		} // for($i=0; $i<count($results); $i++)
+			} // if ($action == 'run_summary' || $action == 'run_detail')
+		} // for ($i = 0; $i < $total_deleted; $i++)
 	
 		return $total_deleted;
 	} // odb_delete_trash()
 
 
 	/********************************************************************************************
+	 *
 	 *	GET SPAMMED COMMENTS
+	 *
 	 ********************************************************************************************/
-	function odb_get_spam($analyzing = false) {
+	function odb_get_spam() {
 		global $wpdb, $odb_class;
 	
 		$res_arr = array();
 
 		// LOOP THROUGH SITES
-		for($i=0; $i<count($odb_class->odb_ms_prefixes); $i++) {
+		for ($i = 0; $i < count($odb_class->odb_ms_prefixes); $i++) {
 			$prefix = $odb_class->odb_ms_prefixes[$i];
 			
 			$sql = sprintf ("
@@ -1137,33 +1353,35 @@ function odb_confirm_delete() {
 			for($j = 0; $j < count($res); $j++) {
 				array_push($res_arr, $res[$j]);
 			} // for($j = 0; $j < count($res); $j++)
-		} // for($i=0; $i<count($odb_class->odb_ms_prefixes); $i++)	
+		} // for ($i = 0; $i < count($odb_class->odb_ms_prefixes); $i++)
 		return $res_arr;
 	} // odb_get_spam()
 
 
 	/********************************************************************************************
+	 *
 	 *	DELETE SPAMMED ITEMS
+	 *
 	 ********************************************************************************************/
-	function odb_delete_spam($results, $scheduler, $analyzing = false) {
+	function odb_delete_spam($results, $scheduler, $action = 'run') {
 		global $wpdb;
-	
-		$nr = 1;
+
 		$total_deleted = count($results);
-		for($i=0; $i<count($results); $i++) {
-			if (!$scheduler) {
+		
+		for ($i = 0; $i < count($results); $i++) {
+			if (!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail')) {
 	?>
 	<tr>
-	  <td align="right" valign="top"><?php echo $nr; ?></td>
+	  <td align="right" valign="top"><?php echo ($i + 1); ?></td>
 	  <td align="left" valign="top"><?php echo $results[$i]['site']?></td>
 	  <td valign="top"><?php echo $results[$i]['comment_author']; ?></td>
 	  <td valign="top"><?php echo $results[$i]['comment_author_email']; ?></td>
 	  <td valign="top" nowrap="nowrap"><?php echo $results[$i]['comment_date']; ?></td>
 	</tr>
 	<?php
-			} // if (!$scheduler)
+			} // if (!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail'))
 			
-			if (!$analyzing) {
+			if ($action == 'run_summary' || $action == 'run_detail') {
 				$sql_delete = sprintf ("
 				DELETE FROM %scommentmeta
 				 WHERE `comment_id` = %d
@@ -1175,19 +1393,19 @@ function odb_confirm_delete() {
 				 WHERE `comment_approved` = 'spam'
 				", $results[$i]['site']);
 				$wpdb->get_results($sql_delete);
-			} // if (!$analyzing)
-	
-			$nr++;				
-		} // for($i=0; $i<count($results); $i++)
+			} // if ($action == 'run_summary' || $action == 'run_detail')
+		} // for ($i = 0; $i < count($results); $i++)
 		
 		return $total_deleted;
 	} // odb_delete_spam()
 
 
 	/********************************************************************************************
+	 *
 	 *	GET UNUSED TAGS
+	 *
 	 ********************************************************************************************/
-	 function odb_get_unused_tags($analyzing = false) {
+	 function odb_get_unused_tags() {
 		 global $wpdb, $odb_class;
 		 
 		 $res_arr = array();
@@ -1220,25 +1438,27 @@ function odb_confirm_delete() {
 	 
 
 	/********************************************************************************************
+	 *
 	 *	DELETE UNUSED TAGS
+	 *
 	 ********************************************************************************************/
-	function odb_delete_unused_tags($results, $scheduler, $analyzing = false) {
+	function odb_delete_unused_tags($results, $scheduler, $action = 'run') {
 		global $wpdb, $odb_class;
 
-		$nr = 1;
 		$total_deleted = count($results);
-		for($i=0; $i<count($results); $i++) {
-			if (!$scheduler) {
+		
+		for ($i = 0; $i < $total_deleted; $i++) {
+			if (!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail')) {
 	?>
 	<tr>
-	  <td align="right" valign="top"><?php echo $nr; ?></td>
+	  <td align="right" valign="top"><?php echo ($i + 1); ?></td>
 	  <td align="left" valign="top"><?php echo $results[$i]['site']?></td>
 	  <td valign="top"><?php echo $results[$i]['name']; ?></td>
 	</tr>
 	<?php
-			} // if (!$scheduler)
+			} // if (!$scheduler && ($action = 'analyze_detail' || $action == 'run_detail'))
 			
-			if (!$analyzing) {
+			if ($action == 'run_summary' || $action == 'run_detail') {				
 				$sql_del = sprintf ("
 				DELETE FROM %sterm_taxonomy
 				 WHERE term_id = %d
@@ -1250,17 +1470,17 @@ function odb_confirm_delete() {
 				 WHERE term_id = %d
 				", $results[$i]['site'], $results[$i]['term_id']);
 				$wpdb->get_results($sql_del);
-			} // if (!$analyzing)
-	
-			$nr++;				
-		} // for($i=0; $i<count($results); $i++)
+			} // if ($action == 'run_summary' || $action == 'run_detail')
+		} // for ($i = 0; $i < $total_deleted; $i++)
 		
 		return $total_deleted;
 	} // odb_delete_unused_tags()
 
 
 	/********************************************************************************************
+	 *
 	 *	IS THE UNUSED TAG USED IN ONE OR MORE SCHEDULED POSTS?
+	 * 
 	 ********************************************************************************************/
 	function odb_delete_tags_is_scheduled($term_id, $odb_prefix) {
 		global $wpdb;
@@ -1278,93 +1498,132 @@ function odb_confirm_delete() {
 	
 		return false;	
 	} // odb_delete_tags_is_scheduled()
-	
+
+
 	/********************************************************************************************
-	 *	DELETE TRANSIENTS (v4.7.3)
+	 *
+	 *	GET TRANSIENTS v4.8.2
+	 *
 	 ********************************************************************************************/
-	function odb_delete_transients($scheduler, $analyzing = false) {
+	 function odb_get_transients($option = "Y") {
+	 	// $option == "A": delete all transients
+	 	// %option == "Y": only delete EXPIRED transients
+	 
 		global $wpdb, $odb_class;
-		
-		$total_deleted = 0;
-		$nr = 1;
-
-		if ($odb_class->odb_rvg_options['clear_transients'] !== 'Y' && $odb_class->odb_rvg_options['clear_transients'] !== 'A') {
-			// DISABLED
-			return $total_deleted;
-		}
-
+		 
+		$res_arr = array();
+		 
 		// ONE MINUTE DELAY
-		$delay = time() - 60;
-		
-		// LOOP THROUGH SITES		
+		$delay = time() - 60;		 
+
+		// LOOP THROUGH SITES
 		for($i=0; $i<count($odb_class->odb_ms_prefixes); $i++) {
 			$prefix = $odb_class->odb_ms_prefixes[$i];
 			
-			if ($odb_class->odb_rvg_options['clear_transients'] == 'Y') {
-				// EXPIRED TRANSIENTS ONLY 
-				$sql = "
-				SELECT '" . $prefix . "' AS site,
-					`option_name`
-				FROM " . $prefix . "options
-				WHERE (
-					option_name LIKE '_transient_timeout_%'
-					OR option_name LIKE '_site_transient_timeout_%'
-				)
-				AND option_value < '" . $delay . "'" .  "
-				ORDER BY `option_name`
-				";
-				
-				// DELETE EXPIRED TRANSINTS FOR THIS (MULTI-) SITE
-				$sqldel = "
-				DELETE FROM " . $prefix . "options
-				WHERE (
-					option_name LIKE '_transient_timeout_%'
-					OR option_name LIKE '_site_transient_timeout_%'
-				)
-				AND option_value < '" . $delay . "'" .  "		
-				";
-			} else if ($odb_class->odb_rvg_options['clear_transients'] == 'A') {
-				// ALL TRANSIENTS 
-				$sql = "
-				SELECT '" . $prefix . "' AS site,
-					`option_name`
-				FROM " . $prefix . "options
-				WHERE (
-					option_name LIKE '_transient_timeout_%'
-					OR option_name LIKE '_site_transient_timeout_%'
-				)
-				ORDER BY `option_name`
-				";
-				
-				// DELETE TRANSINTS FOR THIS (MULTI-) SITE
-				$sqldel = "
-				DELETE FROM " . $prefix . "options
-				WHERE (
-					option_name LIKE '_transient_timeout_%'
-					OR option_name LIKE '_site_transient_timeout_%'
-				)
-				";
-			} // if ($odb_class->odb_rvg_options['clear_transients'] == 'Y')
-			
+			$table = $prefix . 'options';
+			// v4.8.2
+			if ($option == 'Y') {
+				// EXPIRED ONLY
+				$sql = sprintf ("
+					SELECT '%s' AS site,
+						`option_name`
+					FROM `%soptions`
+					WHERE (
+						option_name LIKE '_transient_timeout_%%'
+						OR option_name LIKE '_site_transient_timeout_%%'
+					)
+					AND option_value < '%d'
+					ORDER BY `option_name`
+				", $prefix,	$prefix, $delay);
+				//echo $sql . '<br>';			
+			} else {
+				// ALL
+				$sql = sprintf ("
+					SELECT '%s' AS site,
+						`option_name`
+					FROM `%soptions`
+					WHERE (
+						option_name LIKE '_transient_timeout_%%'
+						OR option_name LIKE '_site_transient_timeout_%%'
+					)
+					ORDER BY `option_name`
+				", $prefix,	$prefix);					
+			}
+			//echo $sql . '<br>';
 			$res = $wpdb->get_results($sql, ARRAY_A);
-			// ACTUALLY DELETE THE TRANSIENTS
-			if (!$analyzing) $resdel = $wpdb->get_results($sqldel, ARRAY_A);
+	
+			for($j = 0; $j < count($res); $j++) {
+				array_push($res_arr, $res[$j]);
+			} // for($j = 0; $j < count($res); $j++)
 		} // for($i=0; $i<count($odb_class->odb_ms_prefixes); $i++)
+		return $res_arr;		 
+	 } // function odb_get_transients()
 
-		return $res;
-	} // odb_delete_transients()
 
 	/********************************************************************************************
-	 *	GET PINGBACKS AND TRACKBACKS
+	 *
+	 *	DELETE TRANSIENTS (v4.8.2)
+	 *
 	 ********************************************************************************************/
-	function odb_get_pingbacks($analyzing = false) {
+	function odb_delete_transients($results, $scheduler, $action = 'run', $option = 'Y') {
+		global $wpdb, $odb_class;
+
+		// ONE MINUTE DELAY
+		$delay = time() - MINUTE_IN_SECONDS;
+
+		$total_deleted = count($results);
+
+		// LOOP THROUGH SITES		
+		for($i = 0; $i < count($odb_class->odb_ms_prefixes); $i++) {
+			$prefix = $odb_class->odb_ms_prefixes[$i];
+			
+			for ($j = 0; $j < count($results); $j++) {
+				if (!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail')) {
+	?>
+	<tr>
+	  <td align="right" valign="top"><?php echo ($j + 1); ?></td>
+	  <td align="left" valign="top"><?php echo $results[$j]['site']?></td>
+	  <td valign="top"><?php echo $results[$j]['option_name']; ?></td>
+	</tr>	
+	<?php
+				} // if (!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail'))
+				
+				// v4.8.2
+				if ($action == 'run_summary' || $action == 'run_detail') {
+					$timeout = $results[$j]['option_name'];
+					$trans = str_replace('_timeout', '', $timeout);
+					$sqldel = sprintf ("
+					DELETE
+					FROM `%soptions`
+					WHERE (
+						option_name = '%s'
+						OR option_name = '%s'
+					)
+					", $prefix, $timeout, $trans);					
+
+					//echo $sqldel . '<br>';
+					$resdel = $wpdb->get_results($sqldel, ARRAY_A);
+				} // if ($action == 'run_summary' || $action == 'run_detail'))
+			} // for($i = 0; $i < count($odb_class->odb_ms_prefixes); $i++)
+		} // for($i = 0; $i < count($odb_class->odb_ms_prefixes); $i++)
+		
+		return $total_deleted;		
+	} // odb_delete_transients()
+
+
+	/********************************************************************************************
+	 *
+	 *	GET PINGBACKS AND TRACKBACKS
+	 *
+	 ********************************************************************************************/
+	function odb_get_pingbacks() {
 
 		global $wpdb, $odb_class;
 				
 		$res_arr = array();
 		
 		// LOOP THROUGH SITES
-		for($i=0; $i<count($odb_class->odb_ms_prefixes); $i++) {
+		for($i = 0; $i < count($odb_class->odb_ms_prefixes); $i++) {
 			$prefix = $odb_class->odb_ms_prefixes[$i];;
 			
 			$sql = sprintf ("
@@ -1385,34 +1644,36 @@ function odb_confirm_delete() {
 			for($j = 0; $j < count($res); $j++) {
 				array_push($res_arr, $res[$j]);
 			} // for($j = 0; $j < count($res); $j++)
-		} // for($i=0; $i<count($odb_class->odb_ms_prefixes); $i++)	
+		} // for($i = 0; $i < count($odb_class->odb_ms_prefixes); $i++)
 		return $res_arr;
 	} // odb_get_pingbacks
 
 
 	/********************************************************************************************
+	 *
 	 *	DELETE PINGBACKS AND TRACKBACKS
+	 *
 	 ********************************************************************************************/
-	function odb_delete_pingbacks($results, $scheduler, $analyzing) {
+	function odb_delete_pingbacks ($results, $scheduler, $action = 'run') {
 		global $wpdb, $odb_class;
 
-		$nr = 1;
 		$total_deleted = count($results);
-		for($i=0; $i<count($results); $i++) {
-			if (!$scheduler) {
+		
+		for ($i = 0; $i < count($results); $i++) {
+			if (!$scheduler && ($action == 'analyze_detail' | $action == 'run_detail')) {
 	?>
 	<tr>
-	  <td align="right" valign="top"><?php echo $nr; ?></td>
+	  <td align="right" valign="top"><?php echo ($i + 1); ?></td>
 	  <td align="left" valign="top"><?php echo $results[$i]['site']?></td>
 	  <td valign="top"><?php echo $results[$i]['comment_type']?></td>      
 	  <td valign="top"><?php echo $results[$i]['comment_author']?></td>
 	  <td valign="top" nowrap="nowrap"><?php echo $results[$i]['comment_date']; ?></td>
 	</tr>
 	<?php
-			} // if (!$scheduler)
+			} // if (!$scheduler && ($action == 'analyze_detail' | $action == 'run_detail'))
 			
-			if (!$analyzing) {
-				for($j=0; $j<count($results); $j++) {
+			if ($action == 'run_summary' || $action == 'run_detail') {
+				for($j = 0; $j < count($results); $j++) {
 					// DELETE METADATA FOR THIS COMMENT (IF ANY)
 					$sql = sprintf ("
 					DELETE FROM %scommentmeta
@@ -1428,26 +1689,26 @@ function odb_confirm_delete() {
 					)	
 					", $results[$j]['site']);
 					$wpdb->get_results($sql);			
-				} // for($j=0; $j<count($results); $j++)
-			} // if (!$analyzing)
-	
-			$nr++;				
-		} // for($i=0; $i<count($results); $i++)
+				} // for($j = 0; $j < count($results); $j++)
+			} // if ($action == 'run_summary' || $action == 'run_detail')
+		} // for ($i = 0; $i < count($results); $i++)
 		
 		return $total_deleted;
 	} // odb_delete_pingbacks()
 
 
 	/********************************************************************************************
+	 *
 	 *	GET OEMBED CACHE
+	 *
 	 ********************************************************************************************/
-	function odb_get_oembed($analyzing = false) {
+	function odb_get_oembed() {
 		global $wpdb, $odb_class;
 				
 		$res_arr = array();
 		
 		// LOOP THROUGH SITES
-		for($i=0; $i<count($odb_class->odb_ms_prefixes); $i++) {
+		for($i = 0; $i < count($odb_class->odb_ms_prefixes); $i++) {
 			$prefix = $odb_class->odb_ms_prefixes[$i];
 			
 			$sql = sprintf ("
@@ -1465,32 +1726,34 @@ function odb_confirm_delete() {
 			for($j = 0; $j < count($res); $j++) {
 				array_push($res_arr, $res[$j]);
 			} // for($j = 0; $j < count($res); $j++)
-		} // for($i=0; $i<count($odb_class->odb_ms_prefixes); $i++)	
+		} // for($i = 0; $i < count($odb_class->odb_ms_prefixes); $i++)
 		return $res_arr;
 	} // odb_get_oembed()
 	
 
 	/********************************************************************************************
+	 *
 	 *	CLEAR OEMBED CACHE
+	 *
 	 ********************************************************************************************/
-	function odb_delete_oembed($results, $scheduler, $analyzing) {
+	function odb_delete_oembed($results, $scheduler, $action = 'run') {
 		global $wpdb, $odb_class;
 		
-		$nr = 1;
 		$total_deleted = count($results);
-		for($i=0; $i<count($results); $i++) {
-			if (!$scheduler) {
+		
+		for($i = 0; $i < $total_deleted; $i++) {
+			if (!$scheduler && ($action == 'analyze_detail' | $action == 'run_detail')) {
 	?>
 	<tr>
-	  <td align="right" valign="top"><?php echo $nr; ?></td>
+	  <td align="right" valign="top"><?php echo ($i + 1); ?></td>
 	  <td align="left" valign="top"><?php echo $results[$i]['site']?></td>
 	  <td valign="top"><?php echo $results[$i]['meta_key']?></td>      
 	  <td valign="top"><?php echo $results[$i]['meta_value']?></td>
 	</tr>
 	<?php
-			} // if (!$scheduler)
+			} // if (!$scheduler && ($action == 'analyze_detail' | $action == 'run_detail'))
 
-			if (!$analyzing) {
+			if ($action == 'run_summary' || $action == 'run_detail') {
 				// DELETE COMMENTS			
 				$sql = sprintf ("
 				DELETE FROM %spostmeta
@@ -1498,25 +1761,25 @@ function odb_confirm_delete() {
 				", $results[$i]['site']);
 				
 				$wpdb->get_results($sql);
-			} // if (!$analyzing)
-	
-			$nr++;				
-		} // for($i=0; $i<count($results); $i++)
+			} // if ($action == 'run_summary' || $action == 'run_detail')
+		} // for($i = 0; $i < $total_deleted; $i++)
 		
 		return $total_deleted;
 	} // odb_delete_oembed()
 	
 
 	/********************************************************************************************
+	 *
 	 *	GET ORPHAN POSTMETA AND MEDIA RECORDS
+	 *
 	 ********************************************************************************************/
-	function odb_get_orphans($results, $scheduler, $analyzing) {
+	function odb_get_orphans() {
 		global $wpdb, $odb_class;
 			
 		$res_arr = array();
 
 		// LOOP THROUGH SITES
-		for($i=0; $i<count($odb_class->odb_ms_prefixes); $i++) {
+		for($i = 0; $i < count($odb_class->odb_ms_prefixes); $i++) {
 			$prefix = $odb_class->odb_ms_prefixes[$i];
 			
 			$sql = sprintf ("
@@ -1554,25 +1817,26 @@ function odb_confirm_delete() {
 			for ($j = 0; $j < count($results); $j++) {
 				array_push($res_arr, $results[$j]);
 			} // for ($j = 0; $j < count($results); $j++)
-		} // for($i=0; $i<count($odb_class->odb_ms_prefixes); $i++)
+		} // for($i = 0; $i < count($odb_class->odb_ms_prefixes); $i++)
 		return $res_arr;
 	} // odb_get_orphans()
 	 
 	 
 	/********************************************************************************************
+	 *
 	 *	DELETE ORPHAN POSTMETA AND MEDIA RECORDS
+	 *
 	 ********************************************************************************************/
-	function odb_delete_orphans($results, $scheduler, $analyzing) {
+	function odb_delete_orphans($results, $scheduler, $action = 'run_detail') {
 		
 		global $wpdb, $odb_class;
-	
-		$nr = 1;
+
 		$total_deleted = count($results);
-		for($i=0; $i<count($results); $i++) {
-			if (!$scheduler) {
+		for($i = 0; $i < count($results); $i++) {
+			if (!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail')) {
 	?>
 	<tr>
-	  <td align="right" valign="top"><?php echo $nr; ?></td>
+	  <td align="right" valign="top"><?php echo ($i + 1); ?></td>
 	  <td align="left" valign="top"><?php echo $results[$i]['site']?></td>
 	  <td valign="top"><?php echo $results[$i]['type']?></td>           
 	  <td valign="top"><?php echo $results[$i]['ID']?></td>      
@@ -1582,10 +1846,10 @@ function odb_confirm_delete() {
       <td valign="top" nowrap="nowrap"><?php echo $results[$i]['meta_value']; ?></td>
 	</tr>
 	<?php
-			} // if (!$scheduler)	
+			} // if (!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail'))
 			
-			if (!$analyzing) {
-				for($j=0; $j<count($results); $j++) {
+			if ($action == 'run_summary' || $action == 'run_detail') {
+				for($j = 0; $j < count($results); $j++) {
 					// DELETE METADATA FOR THIS COMMENT (IF ANY)
 					if ($results[$j]['type'] == 'meta') {
 						$sql = sprintf ("
@@ -1598,25 +1862,24 @@ function odb_confirm_delete() {
 						 WHERE `ID` = %d
 						", $results[$j]['site'], $results[$j]['ID']);		
 					} // if ($results[$j]['type'] == 'meta')
-					//echo 'SQL: ' . $sql.'<br>';
 					$wpdb->get_results($sql);
-				}// for($j=0; $j<count($results); $j++)
-			} // if (!$analyzing)
-			$nr++;				
-		} // for($i=0; $i<count($results); $i++)
-		
+				} // for($j = 0; $j < count($results); $j++)
+			} // if ($action == 'run_summary' || $action == 'run_detail')
+		} // for($i = 0; $i < count($results); $i++)
 		return $total_deleted;		
 	} // odb_delete_orphans()
 
 
 	/********************************************************************************************
+	 *
 	 *	OPTIMIZE DATABASE TABLES
+	 *
 	 ********************************************************************************************/
-	function odb_optimize_tables($scheduler) {
+	function odb_optimize_tables($scheduler, $action) {
 		global $odb_class, $wpdb;
 
 		$cnt = 0;
-		for ($i=0; $i<count($odb_class->odb_tables); $i++) {
+		for ($i = 0; $i < count($odb_class->odb_tables); $i++) {
 			if(!isset($odb_class->odb_rvg_excluded_tabs[$odb_class->odb_tables[$i][0]])) {
 				# TABLE NOT EXCLUDED
 				$cnt++;
@@ -1653,8 +1916,7 @@ function odb_confirm_delete() {
 					} // if (strtolower($table_info[0]->engine) == 'myisam')
 				} // if($odb_class->odb_rvg_options["optimize_innodb"] == 'N' && strtolower($table_info[0]->engine) == 'innodb')
 				
-				if (!$scheduler)
-				{	// NOT FROM THE SCEDULER
+				if (!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail')) {
 	?>
 	<tr>
 	  <td align="right" valign="top"><?php echo $cnt?>.</td>
@@ -1665,16 +1927,17 @@ function odb_confirm_delete() {
 	  <td align="right" valign="top"><?php echo $odb_class->odb_utilities_obj->odb_format_size($table_info[0]->size) ?></td>
 	</tr>
 	<?php
-				} // if (!$scheduler)
+				} // if (!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail'))
 			} // if(!$excluded)
-		} // for ($i=0; $i<count($tables); $i++)
+		} // for ($i = 0; $i < count($odb_class->odb_tables); $i++)
 		return $cnt;
-		
 	} // odb_optimize_tables()
 
 
 	/********************************************************************************************
+	 *
 	 *	OPTIMIZE A MyISAM TABLE
+	 *
 	 ********************************************************************************************/	
 	function odb_optimize_myisam($table_name) {
 		global $wpdb;
@@ -1684,7 +1947,9 @@ function odb_confirm_delete() {
 
 
 	/********************************************************************************************
+	 *
 	 *	OPTIMIZE AN InnoDB TABLE
+	 *
 	 ********************************************************************************************/		
 	function odb_optimize_innodb($table_name) {
 		global $wpdb;

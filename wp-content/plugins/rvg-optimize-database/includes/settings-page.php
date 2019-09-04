@@ -228,7 +228,7 @@ echo '
 	  <div id="odb-options-wrap">
         <div id="odb-options-settings">
           <div class="odb-title-bar">
-            <h2>'.__('Settings',$this->odb_txt_domain).'</h2>
+            <h2>'.__('Settings',$this->odb_txt_domain) . ' <a href="http://cagewebdev.com/optimize-database-after-deleting-revisions-wordpress-plugin/" target="_blank" title="Help"><img src="' . $this->odb_plugin_url.'images/question.png" align="absmiddle"></a>'  . '</h2>
           </div>
           <table border="0" cellspacing="2" cellpadding="5" class="editform" align="center">
 		    <tr>

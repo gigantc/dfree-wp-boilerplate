@@ -9,9 +9,9 @@ Author: CAGE Web Design | Rolf van Gelder, Eindhoven, The Netherlands
 Contributors: cageehv
 Requires at least: 2.8
 Requires PHP: 5.0
-Tested up to: 5.0
-Stable tag: 4.7.3
-Version: 4.7.3
+Tested up to: 5.2.2
+Stable tag: 4.8.3
+Version: 4.8.3
 License: GPLv2 or later
 
 == Description ==
@@ -40,15 +40,15 @@ You can find the settings page in the WP Admin Panel &raquo; Optimize Database -
 = Excluding specific posts/pages from deleting revisions =
 If you want to keep revisions for a specific post/page (no matter what the other settings are), create a custom field named 'keep_revisions' for that post/page and give it the value 'Y'<br>
 
-= Running the Analyzer =
-Before running the Optimization, you can run the Database Analyzer first<br>
-Go to: Dashboard > Tools > Optimize Database<br>
-Click the 'Analyze Database' button<br>
-
-= Starting the Optimization =
+= Starting the Analysis / Optimization =
 You can start the Optimization in the WP Admin Panel &raquo; Optimize Database.<br>
 Note: if you use the Scheduler the Optimization will run automatically!<br>
-Note: you also can click the 'Optimize DB (1 click)' link in the admin bar (if enabled)
+Note: you also can click the 'Optimize DB (1 click)' link in the admin bar (if enabled)<br>
+You can click one of the following buttons:<br>
+'Analyze (summary): analyzes the database and gives the count of what will be cleaned<br>
+'Analyze (detail): analyzes the database and gives a detailed report of what will be deleted<br>
+'Optimize (summary): actually deletes the items and gives the count of what has been deleted<br>
+'Optimize (detail): actually deletes the items and gives a detailed report of what has been deleted<br>
 
 = Multisite Support =
 * Install the plugin as Network Administrator (Network Admin &raquo; Plugins)
@@ -95,7 +95,7 @@ NO WARRANTY, USE IT AT YOUR OWN RISK!
 
 = Plugins by CAGE Web Design | Rolf van Gelder =
 WordPress plugins created by CAGE Web Design | Rolf van Gelder<br>
-http://cagewebdev.com/wordpress-plugins/
+http://cagewebdev.com/category/news-tech-art/wordpress/
 
 == Installation ==
 
@@ -111,6 +111,23 @@ http://cagewebdev.com/wordpress-plugins/
 * If you run the plugin from any of the sites, it will cleanup ALL the sites in the network!
 
 == Changelog ==
+= 4.8.3 [09/01/2019] =
+* BUG FIX: Scheduler bug fixed
+
+= 4.8.2 [08/15/2019] =
+* CHANGE: Rewrote the deletion of (expired) transients
+
+= 4.8.1 [07/15/2019] =
+* BUG FIX: Scheduler bug fixed
+
+= 4.8.0 [05/26/2019] =
+* NEW: New analyze / optimize options (summary or detail)
+
+= 4.7.4 [01/05/2019] =
+* CHANGE: 'set_time_limit' warning suppressed
+* CHANGE: Some lay-out fixes
+* NEW: Added a 'help'-button on the settings page
+
 = 4.7.3 [12/12/2018] =
 * CHANGE: The deletion of transients has been fully rewritten and is many times faster now!
 * CHANGE: Increased the time_limit

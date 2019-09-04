@@ -185,8 +185,10 @@ class ODB_Displayer {
 		if(!defined('RUN_OPTIMIZE_DATABASE')) {
 			echo '
 		<div id="odb-start-buttons" class="odb-padding-left">
+		  <br>
 		  <p>
 		  <input class="button odb-normal" type="button" name="change_options" value="'.__('Change Settings', $odb_class->odb_txt_domain).'" onclick="self.location=\'options-general.php?page=odb_settings_page\'">
+		  <br><br>
 			';
 	
 			// v4.6
@@ -211,19 +213,22 @@ function odb_confirm_delete() {
 				// NOT RUNNING: SHOW LOG- AND START BUTTONS
 				if($odb_class->odb_logger_obj->odb_log_count() > 0) {
 					echo '
-		  &nbsp;
 		  <input class="button odb-normal" type="button" name="view_log" value="'.__('View Log', $odb_class->odb_txt_domain).'" onclick="self.location=\'tools.php?page=rvg-optimize-database&action=view_log\'">
 		  &nbsp;
 		  <input class="button odb-normal" type="button" name="clear_log" value="'.__('Clear Log', $odb_class->odb_txt_domain).'" onclick="return odb_confirm_delete();">
-		  &nbsp;		
+		  <br><br>
 					';
 				} // if($odb_class->odb_logger_obj->odb_log_count() > 0)
 				
+				// v4.8.0
 				echo '
+          <input class="button-primary button-large" type="button" name="analyze_summary" value="'.__('Analyze (summary)', $odb_class->odb_txt_domain).'" onclick="self.location=\'tools.php?page=rvg-optimize-database&action=analyze_summary\'" class="odb-bold">
           &nbsp;
-		  <input class="button-primary button-large" type="button" name="analyze" value="'.__('Analyze Database', $odb_class->odb_txt_domain).'" onclick="self.location=\'tools.php?page=rvg-optimize-database&action=analyze\'" class="odb-bold">
-		  &nbsp;				
-		  &nbsp;<input class="button-primary button-large" type="button" name="start_optimization" value="'.__('Start Optimization', $odb_class->odb_txt_domain).'" onclick="self.location=\'tools.php?page=rvg-optimize-database&action=run\'" class="odb-bold">
+		  <input class="button-primary button-large" type="button" name="analyze_detail" value="'.__('Analyze (detail)', $odb_class->odb_txt_domain).'" onclick="self.location=\'tools.php?page=rvg-optimize-database&action=analyze_detail\'" class="odb-bold">
+		  <br><br>
+		  <input class="button-primary button-large" type="button" name="run_summary" value="'.__('Optimize (summary)', $odb_class->odb_txt_domain).'" onclick="self.location=\'tools.php?page=rvg-optimize-database&action=run_summary\'" class="odb-bold">
+		  &nbsp;	
+		  <input class="button-primary button-large" type="button" name="run_detail" value="'.__('Optimize (detail)', $odb_class->odb_txt_domain).'" onclick="self.location=\'tools.php?page=rvg-optimize-database&action=run_detail\'" class="odb-bold">
 				';
 			} // if($odb_class->odb_logger_obj->odb_log_count() > 0)
 		
