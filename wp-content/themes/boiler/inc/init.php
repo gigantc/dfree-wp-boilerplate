@@ -25,7 +25,7 @@ require get_template_directory() . '/inc/structure/admin.php';
 require get_template_directory() . '/inc/structure/core.php';
 require get_template_directory() . '/inc/structure/posts.php';
 require get_template_directory() . '/inc/structure/hooks.php';
-require get_template_directory() . '/inc/structure/sidebar.php';
+require get_template_directory() . '/inc/structure/blocks.php';
 require get_template_directory() . '/inc/structure/search.php';
 /**
  * ACF in the Admin Dashboard
