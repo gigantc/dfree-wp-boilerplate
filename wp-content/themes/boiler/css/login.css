@@ -22,7 +22,6 @@ with the width and height.
 */
 .login h1 a {
   background: url(https://upload.wikimedia.org/wikipedia/commons/8/87/Aperture_Science_Logo.svg) no-repeat top center;
-  /* make sure to replace this! */
   width: 274px;
   height: 98px;
   text-indent: -9999px;
