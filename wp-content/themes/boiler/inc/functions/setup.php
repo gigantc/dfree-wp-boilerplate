@@ -103,7 +103,7 @@ function lawfirm_scripts() {
   wp_enqueue_script('scrollmagic-ani');
 
   //only use add indicators on a dev server
-  if ($_SERVER['HTTP_HOST']==="ecg.test") {
+  if ($_SERVER['HTTP_HOST']==="lawfirm.test") {
     wp_enqueue_script('add-indicators');
   }
 
@@ -116,6 +116,25 @@ function lawfirm_scripts() {
 
 }
 add_action( 'wp_enqueue_scripts', 'lawfirm_scripts' );
+
+
+
+
+// get main.css for the admin Gutenberg blocks along with any other needed styles
+function load_custom_wp_admin_style() {
+  wp_register_style( 'lawfirm-main-style-admin', get_template_directory_uri() . '/css/main.css', false, '1.1.0' );
+  wp_enqueue_style( 'lawfirm-main-style-admin' );
+
+  //typekit
+  //wp_enqueue_style( 'typekit-admin', 'https://use.typekit.net/icc0ban.css', false );
+
+  //google fonts
+  // wp_enqueue_style( 'custom-google-fonts', 'https://fonts.googleapis.com/css?family=Montserrat:200,400,500,700', false );
+  //font awesome
+
+  wp_enqueue_style( 'font-awesome-admin', 'https://pro.fontawesome.com/releases/v5.7.2/css/all.css', false );
+}
+add_action( 'admin_enqueue_scripts', 'load_custom_wp_admin_style' );
 
 
 

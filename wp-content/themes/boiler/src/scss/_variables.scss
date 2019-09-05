@@ -1,4 +1,6 @@
 // VARIABLES -----------------------
+$em-base: 16px !default;
+
 
 // COLORS -----------------------
 $black: #333333;
@@ -34,4 +36,31 @@ $roboto: 'Roboto', sans-serif;
   background: -moz-linear-gradient(-45deg, $color1 0%, $color2 100%);
   background: -webkit-linear-gradient(-45deg, $color1 0%,$color2 100%);
   background: linear-gradient(160deg, $color1 0%,$color2 100%);
+}
+
+
+// FUNCTIONS -----------------------
+// It strips the unit of measure and returns it
+@function strip-unit($num) {
+  @return $num / ($num * 0 + 1);
+}
+
+// Converts px to em passed from 'cem'
+@function convert-to-em($value, $base-value: $em-base)  {
+  $value: strip-unit($value) / strip-unit($base-value) * 1em;
+  @if ($value == 0em) { $value: 0; } // Turn 0em into 0
+  @return $value;
+}
+
+// call this to convert pixels to em - even lists of px
+@function cem($values, $base-value: $em-base) {
+  $max: length($values); // Get the total number of parameters passed
+  
+  @if $max == 1 { @return convert-to-em(nth($values, 1), $base-value); }
+
+  $emValues: (); // This will eventually store the converted $values in a list
+  @for $i from 1 through $max {
+    $emValues: append($emValues, convert-to-em(nth($values, $i), $base-value));
+  }
+  @return $emValues;
 }

@@ -1,8 +1,8 @@
 /*// PRIMARY STYLES ----------------------- */
 
-// all front-end base styles are wrapped in the #bdhwk id
+// all front-end base styles are wrapped in the bdhwk class
 // this is to explude these styles from the admin panel
-#bdhwk{
+.bdhwk{
 
 
 body{
@@ -98,7 +98,7 @@ hr{
 
 
 
-} // end of front-end styles #bdhwk
+} // end of front-end styles .bdhwk
 
 
 

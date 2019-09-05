@@ -13,8 +13,20 @@ var sass = require('gulp-sass'),
     uglify = require('gulp-uglify');
 
 // Set up compression, prefixing, sourcemaps and destination
+gulp.task('blocks', function(){
+  gulp.src(['src/scss/blocks/*.scss'])
+    .pipe(plumber({
+      errorHandler: function (error) {
+        console.log(error.message);
+        this.emit('end');
+    }}))
+    .pipe(concat('_blocks-combined.scss'))
+    .pipe(gulp.dest('src/scss/'))
+});
+
+
 gulp.task('sass', function(){
-  gulp.src(['src/scss/**/*.scss'])
+  gulp.src(['src/scss/*.scss'])
     .pipe(plumber({
       errorHandler: function (error) {
         console.log(error.message);
@@ -49,10 +61,11 @@ gulp.task('scripts', function(){
 
 // Watch Files For Changes
 gulp.task('watch', function() {
+    gulp.watch('src/scss/blocks/*.scss', ['blocks']),
     gulp.watch('src/scss/**/*.scss', ['sass']),
     gulp.watch('src/js/*.js', ['scripts']),
     gulp.watch('src/js/libs/*.js', ['libsjs']);
 });
 
 // Default Task
-gulp.task('default', ['sass', 'libsjs', 'scripts', 'watch']);
+gulp.task('default', ['sass', 'blocks', 'libsjs', 'scripts', 'watch']);
