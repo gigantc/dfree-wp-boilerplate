@@ -16,8 +16,15 @@
 <meta charset="<?php bloginfo( 'charset' ); ?>">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
-<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet">
+<meta property="og:type" content="website" />
+<meta property="og:title" content="" />
+<meta property="og:description" content="" />
+<meta property="og:url" content="" />
+<meta property="og:site_name" content="" />
+<meta property="og:image" content="" />
+<meta property="og:locale" content="en_US" />
 
 
 

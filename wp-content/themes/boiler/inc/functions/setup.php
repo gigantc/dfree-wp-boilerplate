@@ -75,6 +75,8 @@ function lawfirm_scripts() {
 	wp_enqueue_style( 'lawfirm-style', get_stylesheet_uri() );
 	wp_enqueue_style( 'lawfirm-main-style', get_template_directory_uri() . '/css/main.css', '$deps', '1.0.0', 'screen' );
 
+	//google fonts
+  wp_enqueue_style( 'custom-google-fonts', 'https://fonts.googleapis.com/css?family=Roboto:300,400,700', false );
 
   //JQUERY
   // wp_deregister_script('jquery');
