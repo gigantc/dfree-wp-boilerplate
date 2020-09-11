@@ -1,17 +1,18 @@
 @font-face {
   font-family: 'crb';
   src:
-    url('fonts/crb.ttf?y57wup') format('truetype'),
-    url('fonts/crb.woff?y57wup') format('woff'),
-    url('fonts/crb.svg?y57wup#crb') format('svg');
+    url('fonts/crb.ttf?v388dd') format('truetype'),
+    url('fonts/crb.woff?v388dd') format('woff'),
+    url('fonts/crb.svg?v388dd#crb') format('svg');
   font-weight: normal;
   font-style: normal;
+  font-display: block;
 }
 
 .crb-icon {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'crb' !important;
-  speak: none;
+  speak: never;
   font-style: normal;
   font-weight: normal;
   font-variant: normal;
@@ -31,6 +32,9 @@
 }
 .crb-icon-bx-bell-off:before {
   content: "\e937";
+}
+.crb-icon-bx-bell-plus:before {
+  content: "\e938";
 }
 .crb-icon-bx-bolt:before {
   content: "\e93d";
@@ -55,6 +59,9 @@
 }
 .crb-icon-bx-dashboard:before {
   content: "\e204";
+}
+.crb-icon-bx-download:before {
+  content: "\e9a3";
 }
 .crb-icon-bx-error:before {
   content: "\e205";

@@ -1,7 +1,7 @@
 <?php
 /*
-	Copyright (C) 2015-19 CERBER TECH INC., https://cerber.tech
-	Copyright (C) 2015-19 CERBER TECH INC., https://wpcerber.com
+	Copyright (C) 2015-20 CERBER TECH INC., https://cerber.tech
+	Copyright (C) 2015-20 CERBER TECH INC., https://wpcerber.com
 
     Licenced under the GNU GPL.
 
@@ -33,19 +33,22 @@
 
 if ( ! defined( 'WPINC' ) ) { exit; }
 
-if ( nexus_is_slave() ) {
-	require_once( dirname( __FILE__ ) . '/cerber-nexus-slave.php' );
-	if ( nexus_is_valid_request() ) {
-		nexus_slave_process();
-	}
-}
+function nexus_init() {
 
-if ( defined( 'WP_ADMIN' )
-     || defined( 'WP_NETWORK_ADMIN' )
-     || cerber_is_wp_cron() ) {
-	if ( nexus_is_master() ) {
-		require_once( dirname( __FILE__ ) . '/cerber-nexus-master.php' );
+	if ( nexus_is_slave() ) {
+		require_once( dirname( __FILE__ ) . '/cerber-nexus-slave.php' );
+		if ( nexus_is_valid_request() ) {
+			nexus_slave_process();
+		}
 	}
+	elseif ( defined( 'WP_ADMIN' )
+	     || defined( 'WP_NETWORK_ADMIN' )
+	     || cerber_is_wp_cron() ) {
+		if ( nexus_is_master() ) {
+			require_once( dirname( __FILE__ ) . '/cerber-nexus-master.php' );
+		}
+	}
+
 }
 
 // Admin functions
@@ -79,7 +82,7 @@ function nexus_admin_page() {
 		}
 
 
-		echo '</div>';
+		echo '<p style="margin-top: 3rem">Know more: <a href="https://wpcerber.com/manage-multiple-websites/" target="_blank">Managing multiple WP Cerber instances from one dashboard</a></p></div>';
 
 		return;
 	}
@@ -295,7 +298,7 @@ function nexus_is_valid_request() {
 		}
 	}
 	else {
-		if ( ! cerber_is_ip_allowed( null, null, true ) || lab_is_blocked() ) {
+		if ( ! cerber_is_ip_allowed( null, CRB_CNTX_NEXUS ) || lab_is_blocked() ) {
 
 			$ret = false;
 			return false;
@@ -322,12 +325,12 @@ function nexus_is_valid_request() {
 	//$payload = stripslashes( $payload );
 
 	if ( hash_equals( $auth, hash( 'sha512', $role['slave']['nx_pass'] . sha1( $payload ) ) ) ) {
-		nexus_diag_log( 'Master request: credentials are valid' );
+		nexus_diag_log( 'Master credentials are valid' );
 		$ret = true;
 	}
 	else {
 		cerber_log( 300 );
-		nexus_diag_log( 'Master request: invalid credentials or payload checksum mismatch' );
+		nexus_diag_log( 'ERROR: invalid master credentials or payload checksum mismatch' );
 		$ret = false;
 	}
 
@@ -337,8 +340,13 @@ function nexus_is_valid_request() {
 function nexus_get_context() {
 	static $slave, $slave_id;
 
-	if ( ! nexus_is_master()
-	     || ! is_super_admin() ) {
+	if ( ! is_admin()
+	     || ! nexus_is_master() ) {
+		return false;
+	}
+
+	if ( ! function_exists( 'wp_get_current_user' ) // No information about a user is available
+	     || ! current_user_can( 'manage_options' ) ) {
 		return false;
 	}
 
@@ -389,7 +397,6 @@ function nexus_is_slave() {
 }
 
 function nexus_diag_log( $msg ) {
-	global $cerber_db_errors;
 
 	if ( ( nexus_is_slave() && crb_get_settings( 'slave_diag' ) )
 	     || ( nexus_is_master() && crb_get_settings( 'master_diag' ) ) ) {
@@ -401,7 +408,7 @@ function nexus_diag_log( $msg ) {
 			$m = 'Master';
 		}
 
-		cerber_diag_log( $cerber_db_errors, 'NXS ' . $m );
+		cerber_diag_log( cerber_db_get_errors(), 'NXS ' . $m );
 
 		if ( is_array( $msg ) ) {
 			foreach ( $msg as $k => $v ) {

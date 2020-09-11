@@ -1,7 +1,7 @@
 <?php
 /*
-	Copyright (C) 2015-19 CERBER TECH INC., https://cerber.tech
-	Copyright (C) 2015-19 CERBER TECH INC., https://wpcerber.com
+	Copyright (C) 2015-20 CERBER TECH INC., https://cerber.tech
+	Copyright (C) 2015-20 CERBER TECH INC., https://wpcerber.com
 
     Licenced under the GNU GPL.
 
@@ -20,8 +20,8 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-define( 'CERBER_PIN_LENGTH', 4 );
-define( 'CERBER_PIN_EXPIRES', 15 );
+const CERBER_PIN_LENGTH = 4;
+const CERBER_PIN_EXPIRES = 15;
 
 final class CRB_2FA {
 	private static $user_id = null;
@@ -141,7 +141,7 @@ final class CRB_2FA {
 					}
 				}
 				if ( crb_array_get( $policies, '2fanewnet4' ) ) {
-					if ( cerber_get_subnet( $last_login['ip'] ) != cerber_get_subnet( cerber_get_remote_ip() ) ) {
+					if ( cerber_get_subnet_ipv4( $last_login['ip'] ) != cerber_get_subnet_ipv4( cerber_get_remote_ip() ) ) {
 						return true;
 					}
 				}
@@ -223,7 +223,7 @@ final class CRB_2FA {
 	}
 
 	static function restrict_and_verify( $user_id = null ) {
-	    global $cerber_status;
+	    global $cerber_act_status;
 		static $done = false;
 
 		if ( $done ) {
@@ -316,14 +316,14 @@ final class CRB_2FA {
 		if ( cerber_is_http_post()
 		     && ! empty( $twofactor['nonce'] )
 		     && $_POST['cerber_tag'] === $twofactor['nonce']
-		     && ( $pin = crb_array_get( $_POST, 'cerber_pin' ) )
+		     && ( $pin = cerber_get_post( 'cerber_pin' ) )
 		     && self::verify_pin( trim( $pin ) ) ) {
 
 			unset( $cus['2fa'] );
 			$cus['2fa_history'] = array( 0, time() );
 			cerber_update_set( 'cerber_user', $cus, $user_id );
 
-			$cerber_status = 27;
+			$cerber_act_status = 27;
 			cerber_log( 5, $twofactor['login'], $user_id );
 			cerber_login_history( $user_id );
 
@@ -340,7 +340,7 @@ final class CRB_2FA {
 
 	static function process_ajax( $new_pin ) {
 		if ( ( ! $nonce = cerber_get_post( 'the_2fa_nonce', '\w+' ) )
-		     || ( ! $pin = crb_array_get( $_POST, 'cerber_verify_pin' ) ) ) {
+		     || ( ! $pin = cerber_get_post( 'cerber_verify_pin' ) ) ) {
 			return;
 		}
 
@@ -508,7 +508,7 @@ final class CRB_2FA {
 				$ds[] = 'Location: ' . cerber_country_name( $c ) . ' (' . $c . ')';
 			}
 			$ds[] = 'Browser: ' . substr( strip_tags( crb_array_get( $_SERVER, 'HTTP_USER_AGENT', 'Not set' ) ), 0, 1000 );
-			$ds[] = 'Date: ' . cerber_date( time() );
+			$ds[] = 'Date: ' . cerber_date( time(), false );
 
 			$body[] = '';
 			$body[] = __( 'Here are the details of the sign-in attempt', 'wp-cerber' );
@@ -630,7 +630,7 @@ final class CRB_2FA {
                     ).fail(function (jqXHR, textStatus, errorThrown) {
                         var err = errorThrown + ' ' + jqXHR.status;
                         alert(err);
-                        console.error('Server error: ' + err);
+                        console.error('Server Error: ' + err);
                     });
                 });
 

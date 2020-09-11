@@ -1,7 +1,7 @@
 <?php
 /*
-	Copyright (C) 2015-19 CERBER TECH INC., https://cerber.tech
-	Copyright (C) 2015-19 CERBER TECH INC., https://wpcerber.com
+	Copyright (C) 2015-20 CERBER TECH INC., https://cerber.tech
+	Copyright (C) 2015-20 CERBER TECH INC., https://wpcerber.com
 
     Licenced under the GNU GPL.
 
@@ -31,194 +31,58 @@
 
 */
 
-define( 'CERBER_PK_WP', 'wordpress' );
-define( 'CERBER_PK_PLUGIN', 'plugin' );
-define( 'CERBER_PK_THEME', 'theme' );
+const CERBER_PK_WP = 'wordpress';
+const CERBER_PK_PLUGIN = 'plugin';
+const CERBER_PK_THEME = 'theme';
 
-define( 'CERBER_FT_WP', 1 );
-define( 'CERBER_FT_PLUGIN', 2 );
-define( 'CERBER_FT_THEME', 3 );
-define( 'CERBER_FT_ROOT', 4 );
-define( 'CERBER_FT_UPLOAD', 5 );
-define( 'CERBER_FT_LNG', 6 );
-define( 'CERBER_FT_MUP', 7 );
-define( 'CERBER_FT_CNT', 8 );
-define( 'CERBER_FT_CONF', 10 );
-define( 'CERBER_FT_DRIN', 11 );
-define( 'CERBER_FT_OTHER', 12 );
+const CERBER_FT_WP = 1;
+const CERBER_FT_PLUGIN = 2;
+const CERBER_FT_THEME = 3;
+const CERBER_FT_ROOT = 4;
+const CERBER_FT_UPLOAD = 5;
+const CERBER_FT_LNG = 6;
+const CERBER_FT_MUP = 7;
+const CERBER_FT_CNT = 8;
+const CERBER_FT_CONF = 10;
+const CERBER_FT_DRIN = 11;
+const CERBER_FT_OTHER = 12;
 
-define( 'CERBER_MAX_SECONDS', 5 );
-define( 'CERBER_MAX_SECONDS_CLOUD', 25 );
+const CERBER_MAX_SECONDS = 5;
+const CERBER_MAX_SECONDS_CLOUD = 25;
 
-define( 'CERBER_FOK', 1 );
-define( 'CERBER_VULN', 4 );
-define( 'CERBER_NOHASH', 5 );
-define( 'CERBER_IMD', 15 );
-define( 'CERBER_SCF', 16 );
-define( 'CERBER_PMC', 17 );
-define( 'CERBER_USF', 18 );
-define( 'CERBER_EXC', 20 );
-define( 'CERBER_DIR', 26 );
-define( 'CERBER_UXT', 30 );
-define( 'CERBER_NEW', 51 );
+const CERBER_FOK = 1;
+const CERBER_VULN = 4;
+const CERBER_NOHASH = 5;
+const CERBER_IMD = 15;
+const CERBER_SCF = 16;
+const CERBER_PMC = 17;
+const CERBER_USF = 18;
+const CERBER_EXC = 20;
+const CERBER_DIR = 26;
+const CERBER_UXT = 30;
+const CERBER_MOD = 50;
+const CERBER_NEW = 51;
 
-define( 'CERBER_FDUN', 300 );
-define( 'CERBER_FDLD', 301 );
-define( 'CERBER_FRCV', 311 );
+const CERBER_FDUN = 300;
+const CERBER_FDLD = 301;
+const CERBER_FRCV = 311;
 
-define( 'CERBER_MALWR_DETECTED', 1000 );
+const CERBER_MALWR_DETECTED = 1000;
 
-define( 'CRB_HASH_THEME', 'hash_tm_' );
-define( 'CRB_HASH_PLUGIN', 'hash_pl_' );
-define( 'CRB_LAST_FILE', 'tmp_last_file' );
+const CRB_HASH_THEME = 'hash_tm_';
+const CRB_HASH_PLUGIN = 'hash_pl_';
+const CRB_LAST_FILE = 'tmp_last_file';
 
-define( 'CRB_SCAN_GO',   '__CERBER__SECURITY_SCAN_GO__' );
-define( 'CRB_SCAN_STOP', '__CERBER__SECURITY_SCAN_STOP__' );
-define( 'CRB_SCAN_DTB',  '__CERBER__SECURITY_SCAN_DATA_B' );
-define( 'CRB_SCAN_DTE',  '__CERBER__SECURITY_SCAN_DATA_E' );
+const CRB_SCAN_GO = '__CERBER__SECURITY_SCAN_GO__';
+const CRB_SCAN_STOP = '__CERBER__SECURITY_SCAN_STOP__';
+const CRB_SCAN_DTB = '__CERBER__SECURITY_SCAN_DATA_B';
+const CRB_SCAN_DTE = '__CERBER__SECURITY_SCAN_DATA_E';
 
-define( 'CRB_SCAN_RCV_DIR', 'recovery' );
+const CRB_SCAN_RCV_DIR = 'recovery';
 
-function cerber_show_scanner() {
-    // http://www.adequatelygood.com/JavaScript-Module-Pattern-In-Depth.html
-
-	$msg      = '';
-	$status   = 0;
-
-	if ( $scan = cerber_get_scan() ) {
-		if ( ! $scan['finished'] ) {
-			if ( $scan['cloud']
-			     && cerber_is_cloud_enabled()
-			     && $scan['started'] > ( time() - 900 )
-			) {
-				$msg = __( 'Currently a scheduled scan in progress. Please wait until it is finished.', 'wp_cerber' );
-				$status = 1;
-			}
-			else {
-				$msg = sprintf( __( 'Previous scan started %s has not been completed. Continue scanning?', 'wp-cerber' ), cerber_date( $scan['started'] ) );
-				$status = 2;
-			}
-		}
-		else {
-
-		}
-	}
-	else {
-		$msg = __( 'It seems this website has never been scanned. To start scanning click the button below.', 'wp-cerber' );
-	}
-
-	$start_quick = '<input data-control="start_scan" data-mode="quick" type="button" value="' . __( 'Start Quick Scan', 'wp-cerber' ) . '" class="button button-primary">';
-	$start_full  = '<input data-control="start_scan" data-mode="full" type="button" value="' . __( 'Start Full Scan', 'wp-cerber' ) . '" class="button button-primary">';
-	$stop        = '<input id="crb-stop-scan" style="display: none;" data-control="stop_scan" type="button" value="' . __( 'Stop Scanning', 'wp-cerber' ) . '" class="button button-primary">';
-	$continue    = '<input id="crb-continue-scan" data-control="continue_scan" type="button" value="' . __( 'Continue Scanning', 'wp-cerber' ) . '" class="button button-primary">';
-	$controls    = '';
-
-	switch ( $status ) {
-		case 0:
-			$controls = $start_quick . $start_full;
-			break;
-		case 1:
-			$controls = '';
-			break;
-		case 2:
-			$controls = $start_quick . $start_full . $continue;
-			break;
-	}
-
-	$controls .= $stop;
-
-
-	echo '<div id="crb-scanner">';
-
-	cerber_scanner_dashboard( $msg );
-
-	$d = '';
-	if ( nexus_is_valid_request() && ! nexus_is_granted( 'submit' ) ) {
-		$d = 'disabled="disabled"';
-	}
-
-	?>
-    <div id="crb-scan-area">
-        <form>
-            <table id="crb-scan-controls">
-                <tr>
-                    <td id="crb-file-controls">
-                        <input data-control="delete_file" type="button"
-                               class="button button-secondary"
-			                <?php echo $d; ?>
-                               value="<?php _e( 'Delete', 'wp-cerber' ); ?>"/>
-                        <input data-control="ignore_add_file" type="button" class="button button-secondary"
-			                <?php echo $d; ?>
-                               value="<?php _e( 'Ignore', 'wp-cerber' ); ?>"/>
-                    </td>
-                    <td>
-						<?php echo $controls; ?>
-                    </td>
-                    <!-- <td><a href="#" data-control="full-paths">Show full paths</a></td> -->
-                    <td><a href="#" class="dashicons dashicons-list-view" data-control="full-paths"
-                           title="Toggle full/relative paths"></a></td>
-                </tr>
-            </table>
-        </form>
-    </div>
-
-    <?php
-
-	echo '</div>';
-}
-
-add_action( 'wp_ajax_cerber_scan_control', 'cerber_manual_scan' );
-function cerber_manual_scan() {
-	global $cerber_db_errors;
-
-	cerber_check_ajax_permissions();
-
-	ob_start(); // Collecting possible junk warnings and notices cause we need clean JSON to be sent
-
-	$scanner     = array();
-	$console_log = array();
-	$scan_do     = '';
-
-	if ( cerber_is_http_post() && $scan_do = crb_get_post_fields( 'cerber_scan_do' ) ) {
-		$scan_do = preg_replace( '/[^a-z_\-\d]/i', '', $scan_do );
-		//$mode = ( isset( $_POST['cerber_scan_mode'] ) ) ? preg_replace( '/[^a-z_\-\d]/i', '', $_POST['cerber_scan_mode'] ) : 'quick';
-		$mode = ( $mode = crb_get_post_fields( 'cerber_scan_mode' ) ) ? preg_replace( '/[^a-z_\-\d]/i', '', $mode ) : 'quick';
-
-		$scanner = cerber_scanner( $scan_do, $mode );
-
-	}
-	else {
-		$console_log[] = 'Unknown HTTP request';
-	}
-
-	$next_do = ( ! empty( $scanner['cerber_scan_do'] ) ) ? $scanner['cerber_scan_do'] : 'stop';
-
-	if ( $cerber_db_errors ) {
-		$console_log = array_merge( $console_log, $cerber_db_errors );
-	}
-
-	$console_log[] = 'PHP MEMORY ' . @ini_get( 'memory_limit' );
-
-	$ret = array(
-		'console_log'    => $console_log,
-		'cerber_scan_do' => $next_do,
-		'cerber_scanner' => $scanner,
-		//'scan'           => cerber_get_scan(), // debug only
-	);
-
-	if ( $scan_do != 'continue_scan' ) {
-		$ret['strings'] = cerber_get_strings();
-	}
-
-	ob_end_clean();
-
-	echo json_encode( $ret );
-
-	crb_admin_stop_ajax();
-}
+const CRB_SQL_CHUNK = 10000; // @since 8.6.4 Split queries into chunks to reduce memory consumption
 
 add_action( 'plugins_loaded', function () {
-	global $cerber_db_errors;
 
 	if ( ! cerber_is_cloud_request() ) {
 		return;
@@ -296,7 +160,7 @@ add_action( 'plugins_loaded', function () {
 
 	$db_errors = array_map( function ( $err ) {
 		return substr( $err, 0, 1000 );
-	}, $cerber_db_errors );
+	}, cerber_db_get_errors() );
 
 	$ret = array(
 		'cerber_scanner' => $scanner,
@@ -324,12 +188,12 @@ add_action( 'plugins_loaded', function () {
 } );
 
 function cerber_scanner( $control, $mode ) {
-	global $cerber_db_errors, $cerber_scan_mode;
+	global $cerber_scan_mode;
 
 	if ( crb_get_settings( 'scan_debug' ) ) {
 		register_shutdown_function( function () {
 			if ( http_response_code() != 200 ) {
-				crb_scan_debug( 'SERVER ERROR! The scan is not completed.' );
+				crb_scan_debug( 'ERROR: Unexpected software errors detected. Check the web server error log.' );
 				if ( $err = error_get_last() ) {
 					crb_scan_debug( print_r( $err, 1 ) );
 				}
@@ -341,9 +205,9 @@ function cerber_scanner( $control, $mode ) {
 
 	if ( function_exists( 'wp_raise_memory_limit' ) ) {
 		if ( ! wp_raise_memory_limit( 'admin' ) ) {
-			$m = 'ERROR: Unable to raise memory limit';
-			crb_scan_debug( $m );
-			$errors[] = $m;
+			//$m = 'WARNING: Unable to raise memory limit';
+			//crb_scan_debug( $m );
+			//$errors[] = $m;
 		}
 	}
 
@@ -438,7 +302,7 @@ function cerber_scanner( $control, $mode ) {
 		$ret['cerber_scan_do'] = 'stop';
 	}
 
-	if ( $cerber_db_errors ) {
+	if ( cerber_db_get_errors() ) {
 		cerber_watchdog( true );
 	}
 
@@ -510,7 +374,8 @@ function cerber_step_scanning() {
         case 4:
 			if ( crb_get_settings( 'scan_sess' ) ) {
 				$another_dir = session_save_path();
-				if ( is_dir( $another_dir ) && $result = cerber_scan_directory( $another_dir, null, '_crb_save_file_names' ) ) {
+				if ( @is_dir( $another_dir )
+				     && $result = cerber_scan_directory( $another_dir, null, '_crb_save_file_names' ) ) {
 					//$update['total']['folders'] += $result[0];
 				}
 				$update['total']['files'] = cerber_get_num_files( $scan['id'] );
@@ -518,28 +383,35 @@ function cerber_step_scanning() {
 			break;
 		case 5:
 			$x = 0;
-			if ( $result = cerber_db_get_results( 'SELECT * FROM ' . cerber_get_db_prefix() . CERBER_SCAN_TABLE . ' WHERE scan_id = ' . $scan['id'] . ' AND file_hash = ""' ) ) {
-				foreach ( $result as $row ) {
-					if ( ! cerber_add_file_info( $row ) ) {
-						cerber_log_scan_error( 'Unable to update file info. Scanning has been aborted.' );
-						$aborted = 1;
-						break;
-					}
-					if ( 0 === ( $x % 100 ) ) {
-						if ( cerber_exec_timer() ) {
-							$exceed = true;
+			//if ( $result = cerber_db_get_results( 'SELECT * FROM ' . cerber_get_db_prefix() . CERBER_SCAN_TABLE . ' WHERE scan_id = ' . $scan['id'] . ' AND file_hash = ""' ) ) {
+			$done = false;
+			while ( ! $aborted && ! $exceed && ! $done ) {
+			    // Split into several SQL requests to avoid memory exhausted error on a website with hundreds of thousands files
+				if ( $result = cerber_db_get_results( 'SELECT file_name, scan_id, file_name_hash FROM ' . cerber_get_db_prefix() . CERBER_SCAN_TABLE . ' WHERE scan_id = ' . $scan['id'] . ' AND file_hash = "" LIMIT ' . CRB_SQL_CHUNK ) ) {
+					//cerber_log_scan_error( 'CHUNK ' . count( $result ) );
+					foreach ( $result as $row ) {
+						if ( ! cerber_add_file_info( $row ) ) {
+							cerber_log_scan_error( 'Unable to update file info. Scanning has been aborted.' );
+							$aborted = 1;
 							break;
 						}
+						if ( 0 === ( $x % 100 ) ) {
+							if ( cerber_exec_timer() ) {
+								$exceed = true;
+								break;
+							}
+						}
+						$x ++;
 					}
-					$x ++;
 				}
-				// Some files might be symlinks
-				$update['total']['files']  = cerber_get_num_files( $scan['id'] );
-				$update['total']['parsed'] = cerber_db_get_var( 'SELECT COUNT(scan_id) FROM ' . cerber_get_db_prefix() . CERBER_SCAN_TABLE . ' WHERE scan_id = ' . $scan['id'] . ' AND file_type !=0' );
+				else {
+					//$aborted = 1;
+					$done = true;
+				}
 			}
-			else {
-				$aborted = 1;
-			}
+			// Some files might be symlinks
+			$update['total']['files'] = cerber_get_num_files( $scan['id'] );
+			$update['total']['parsed'] = cerber_db_get_var( 'SELECT COUNT(scan_id) FROM ' . cerber_get_db_prefix() . CERBER_SCAN_TABLE . ' WHERE scan_id = ' . $scan['id'] . ' AND file_type !=0' );
 			break;
 		case 6:
 			if ( cerber_is_check_fs() ) {
@@ -797,7 +669,7 @@ function cerber_apply_scan_policies() {
 
 			if ( $delete ) {
 			    $update = true;
-				$result = cerber_quarantine_file( 'move', $file_name, $scan['id'] );
+				$result = cerber_quarantine_file( $file_name, $scan['id'] );
 				if ( is_wp_error( $result ) ) {
 					cerber_log_scan_error( $result->get_error_message() );
 					$issue['data']['prced'] = CERBER_FDUN;
@@ -870,7 +742,7 @@ function cerber_recover_files( $package_type ) {
 				continue;
 			}
 
-			cerber_quarantine_file( 'copy', $file_name, $scan['id'] );
+			cerber_quarantine_file( $file_name, $scan['id'], false );
 
 			if ( ! @copy( $source_file, $file_name ) ) {
 				$err = error_get_last();
@@ -1323,22 +1195,18 @@ function cerber_push_issues( $section, $issues = array(), $container = '', $sec_
 			$data['name']  = $file['file_name'];
 			$data['type']  = $file['file_type'];
 
-			if ( $file['file_status'] > 0 ) {
-				$extra_issue = $file['file_status'];
-				if ( $extra_issue == $issue[0] ) {
-					$extra_issue = 0;
-				}
+			$status = crb_array_get( $file, 'file_status', 0 );
+			if ( 0 < $status && $status != $issue[0] ) {
+				$extra_issue = $status;
 			}
 
-			// Is file can be deleted safely
+			// Can the file be deleted safely?
 
 			$allowed = 0;
-			if ( $file['file_type'] != CERBER_FT_CONF ) {
-				if ( ! empty( $file['fd_allowed'] ) ) {
-					if ( cerber_can_be_deleted( $file['file_name'] ) ) {
-						$allowed = 1;
-					}
-				}
+			if ( $file['file_type'] != CERBER_FT_CONF
+			     && ! empty( $file['fd_allowed'] )
+			     && true === cerber_can_be_deleted( $file['file_name'] ) ) {
+				$allowed = 1;
 			}
 
 			$data['fd_allowed'] = $allowed;
@@ -1598,7 +1466,7 @@ function cerber_get_issue_label( $id = null ) {
 		CERBER_DIR => __( 'Suspicious directives found', 'wp-cerber' ),
 		CERBER_UXT => __( 'Unwanted file extension', 'wp-cerber' ),
 
-		50         => __( 'Content has been modified', 'wp-cerber' ), // Previous scan
+		CERBER_MOD => __( 'Content has been modified', 'wp-cerber' ), // Previous scan
 		CERBER_NEW => __( 'New file', 'wp-cerber' ),
 
 		CERBER_FDUN => __( 'Unable to delete', 'wp-cerber' ),
@@ -1740,7 +1608,7 @@ function cerber_verify_plugins() {
 					continue;
 				}
 
-				$short_name = cerber_get_short_name( $local_file );
+				$short_name = cerber_get_short_name( $local_file['file_name'], $local_file['file_type'] );
 
 				if ( empty( $local_file['file_hash'] ) ) {
 					$issues[] = array( 11, $short_name, 'file' => $local_file );
@@ -1805,7 +1673,7 @@ function cerber_verify_plugins() {
 
 		if ( $vuln ) {
 			foreach ( $vuln as $v ) {
-				$issues[] = array( CERBER_VULN, $v['n'].'. '.$v['f'] );
+				$issues[] = array( CERBER_VULN, $v['vu_info'] );
 			}
 		}
 
@@ -1854,7 +1722,7 @@ function cerber_verify_plugin( $plugin_folder, $plugin_data ) {
 
 		$hash_url = null;
 
-		if ( in_array( $plugin_folder, array( 'wp-cerber', 'wp-cerber-buddypress' ) ) ) {
+		if ( in_array( $plugin_folder, array( 'wp-cerber', 'wp-cerber-buddypress', 'wp-cerber-cloudflare-addon', 'jetflow' ) ) ) {
 			$hash_url = 'https://my.wpcerber.com/downloads/checksums/' . $plugin_folder . '/' . $plugin_data['Version'] . '.json';
 		}
 
@@ -2050,10 +1918,21 @@ function cerber_process_files(){
 	}*/
 
 	$in = '0';
+	$remain = 0;
 
-	if ( !$files = cerber_db_get_results( 'SELECT * FROM ' . cerber_get_db_prefix() . CERBER_SCAN_TABLE .
-	                                      ' WHERE scan_id = ' . $scan['id'] . ' AND scan_status IN ('.$in.')' ) ) {
+/*	if ( ! $files = cerber_db_get_results( 'SELECT * FROM ' . cerber_get_db_prefix() . CERBER_SCAN_TABLE .
+	                                       ' WHERE scan_id = ' . $scan['id'] . ' AND scan_status IN (' . $in . ')' ) ) {
 		return 0;
+	}
+*/
+
+	if ( ! $files = cerber_db_get_results( 'SELECT * FROM ' . cerber_get_db_prefix() . CERBER_SCAN_TABLE .
+	                                       ' WHERE scan_id = ' . $scan['id'] . ' AND scan_status IN (' . $in . ') LIMIT ' . CRB_SQL_CHUNK ) ) {
+		return 0;
+	}
+
+	if ( count( $files ) >= CRB_SQL_CHUNK ) {
+		$remain = 1;
 	}
 
 	// Plugins data -------------------
@@ -2084,7 +1963,6 @@ function cerber_process_files(){
 	$can_be_deleted = array( CERBER_FT_UPLOAD, CERBER_FT_CNT, CERBER_FT_OTHER, CERBER_FT_LNG );
 
 	$issues = array();
-	$remain = 0;
 
 	// Prevent hanging
 	if ( $f = cerber_get_set( CRB_LAST_FILE, 0, false ) ) {
@@ -2252,7 +2130,7 @@ function cerber_process_files(){
 				}
 			}
 			else {
-				$short_name = cerber_get_short_name( $file );
+				$short_name = cerber_get_short_name( $file['file_name'], $file['file_type'] );
 			}
 
 			// Is file can be deleted?
@@ -2313,7 +2191,7 @@ function cerber_inspect_file( $file_name = '' ) {
 		return cerber_inspect_htaccess( $file_name );
 	}
 
-	if ( ! cerber_check_extension( $file_name, array( 'php', 'inc', 'phtm', 'phtml', 'phps', 'php2', 'php3', 'php4', 'php5', 'php6', 'php7' ) ) ) {
+	if ( ! cerber_check_extension( $file_name, array( 'php', 'phtm', 'phtml', 'phps', 'php2', 'php3', 'php4', 'php5', 'php6', 'php7', 'inc' ) ) ) {
 		$php = false;
 
 		if ( $cerber_scan_mode == 'full' ) {
@@ -2365,7 +2243,7 @@ function cerber_inspect_php( $file_name = '' ) {
 
 	$important = array( T_STRING, T_EVAL );
 
-	$tokens = token_get_all( $content );
+	$tokens = @token_get_all( $content );
 	unset( $content );
 	if ( ! $tokens ) {
 		return array( 'severity' => 0 ); // weird
@@ -2897,7 +2775,7 @@ function cerber_verify_files( $hash_data, $field = 'file_hash', $local_prefix = 
 			continue;
 		}
 
-		$short_name = cerber_get_short_name( $local_file );
+		$short_name = cerber_get_short_name( $local_file['file_name'], $local_file['file_type'] );
 
 		if ( empty( $local_file[ $field ] ) ) {
 			$issues[] = array( 11, $short_name, 'file' => $local_file );
@@ -3196,7 +3074,7 @@ function cerber_obtain_hash( $url, $nocache = false ) {
 	}
 
 	if ( ! empty( $ret['curl_error'] ) ) {
-		$err               = '#' . curl_errno( $curl ) . ' ' . $ret['curl_error'] . ' for URL: ' . $url;
+		$err = '#' . curl_errno( $curl ) . ' ' . $ret['curl_error'] . ' while attempting to retrieve: ' . $url;
 		$ret['curl_error'] = $err;
 	}
 
@@ -3306,7 +3184,10 @@ function cerber_is_htaccess( $file_name ) {
 }
 
 function cerber_is_dropin( $file_name ) {
-	$dropins = _get_dropins();
+	static $dropins;
+	if ( ! $dropins ) {
+		$dropins = _get_dropins();
+	}
 	if ( isset( $dropins[ basename( $file_name ) ] ) ) {
 		if ( cerber_get_content_dir() == dirname( $file_name ) ) {
 			return true;
@@ -3465,7 +3346,7 @@ function cerber_get_prev_scan_id( $scan_id = 0 ) {
 	$prev_id = 0;
 	foreach ( $scans as $item ) {
 		$scan = unserialize( $item['the_value'] );
-		if ( $scan['mode'] == $cerber_scan_mode ) {
+		if ( $scan['finished'] && $scan['mode'] == $cerber_scan_mode ) {
 			$prev_id = $scan['id'];
 			break;
 		}
@@ -3476,9 +3357,9 @@ function cerber_get_prev_scan_id( $scan_id = 0 ) {
 
 function cerber_cmp_scans( $prev_id, $scan_id ) {
 
-	$p_files = cerber_db_get_results( 'SELECT file_name_hash, file_hash, file_md5, file_size FROM ' . cerber_get_db_prefix() . CERBER_SCAN_TABLE . ' WHERE scan_id = ' . $prev_id);
+	$p_files = cerber_db_get_results( 'SELECT file_name, file_name_hash, file_hash, file_md5, file_size FROM ' . cerber_get_db_prefix() . CERBER_SCAN_TABLE . ' WHERE scan_id = ' . $prev_id);
 
-	$n_files = cerber_db_get_results( 'SELECT file_name_hash, file_hash, file_md5, file_size FROM ' . cerber_get_db_prefix() . CERBER_SCAN_TABLE . ' WHERE scan_id = ' . $scan_id);
+	$n_files = cerber_db_get_results( 'SELECT file_name, file_name_hash, file_hash, file_md5, file_size FROM ' . cerber_get_db_prefix() . CERBER_SCAN_TABLE . ' WHERE scan_id = ' . $scan_id);
 
 	if ( ! $p_files || ! $n_files ) {
 		return 0;
@@ -3499,15 +3380,28 @@ function cerber_cmp_scans( $prev_id, $scan_id ) {
 
 	$update = array();
 	foreach ( $new_files as $key => $file ) {
-		$status = 0;
+		$status    = 0;
 		if ( ! isset( $prev_files[ $key ] ) ) {
 			if ( $inew ) {
-				$status = CERBER_NEW;
+				if ( $inew != 2 ) {
+					if ( cerber_detect_exec_extension( $file['file_name'] ) ) {
+						$status = CERBER_NEW;
+					}
+				}
+				else {
+					$status = CERBER_NEW;
+				}
 			}
 		}
-        elseif ( $imod ) {
+		elseif ( $imod ) {
 			$status = cerber_cmp_files( $prev_files[ $key ], $new_files[ $key ] );
+			if ( $status && ( $imod != 2 ) ) {
+				if ( ! cerber_detect_exec_extension( $file['file_name'] ) ) {
+					$status = 0;
+				}
+			}
 		}
+
 		if ( $status > 0 ) {
 			$update[ $key ] = $status;
 		}
@@ -3529,16 +3423,16 @@ function cerber_cmp_scans( $prev_id, $scan_id ) {
 function cerber_cmp_files( $prev, $new ) {
 	if ( ! empty( $prev['file_hash'] ) && ! empty( $new['file_hash'] ) ) {
 		if ( $prev['file_hash'] != $new['file_hash'] ) {
-			return 50;
+			return CERBER_MOD;
 		}
 	}
     elseif ( ! empty( $prev['file_md5'] ) && ! empty( $new['file_md5'] ) ) {
 		if ( $prev['file_md5'] != $new['file_md5'] ) {
-			return 50;
+			return CERBER_MOD;
 		}
 	}
     elseif ( $prev['file_size'] != $new['file_size'] ) {
-		return 50;
+		return CERBER_MOD;
 	}
 
 	return 0;
@@ -3565,17 +3459,28 @@ function cerber_scan_directory( $root, $pattern = null, $function ) {
 
 	// Must be excluded
 	if ( $exclude === null ) {
-		$exclude = crb_get_settings( 'scan_exclude' );
-		if ( ! $exclude ) {
-			$exclude = array();
+		$list = crb_get_settings( 'scan_exclude' );
+		if ( ! $list || ! is_array( $list ) ) {
+			$list = array();
 		}
+
 		$d = cerber_get_the_folder();
 		if ( is_dir( $d ) ) {
-			$exclude[] = $d;
+			$list[] = $d;
 		}
-		$exclude   = array_map( function ( $item ) {
+
+		$exclude = array();
+		foreach ( $list as $dir ) {
+			if ( ! is_dir( $dir ) ) {
+				continue;
+			}
+
+			$exclude[] = rtrim( $dir, '/\\' );
+		}
+
+		/*$exclude   = array_map( function ( $item ) {
 			return rtrim( $item, '/\\' );
-		}, $exclude );
+		}, $exclude );*/
 	}
 
 	if ( ! $pattern ) {
@@ -3641,7 +3546,7 @@ function cerber_scan_directory( $root, $pattern = null, $function ) {
  */
 function cerber_glob_brace( $dir, $patterns, $flags = 0 ) {
 
-	if ( $patterns{0} != '{' ) { // No GLOB_BRACE is needed
+	if ( $patterns[0] != '{' ) { // No GLOB_BRACE is needed
 		return glob( $dir . $patterns, $flags );
 	}
 
@@ -3893,13 +3798,15 @@ function cerber_array_merge_recurively( $a1, $a2 ) {
 	return $a1;
 }
 
-function cerber_get_short_name( $file_row ) {
-	if ( ! $file_row ) {
+//function cerber_get_short_name( $file_row ) {
+function cerber_get_short_name( $file_name, $file_type ) {
+	if ( ! $file_name || ! $file_type ) {
 		return '';
 	}
-	$file_name = $file_row['file_name'];
+	//$file_name = $file_row['file_name'];
 	$len = null;
-	switch ( $file_row['file_type'] ) {
+	//switch ( $file_row['file_type'] ) {
+	switch ( $file_type ) {
 		case CERBER_FT_PLUGIN:
 			$len = mb_strlen( cerber_get_plugins_dir() );
 			break;
@@ -3930,310 +3837,7 @@ function cerber_get_short_name( $file_row ) {
 	return $ret;
 }
 
-function cerber_scanner_dashboard( $msg = '' ) {
-	?>
-    <div id="crb-scan-display">
-        <div id="crb-the-table">
-            <div class="crb-scan-info scan-tile">
-                <table>
-                    <tr>
-                        <td><?php _e( 'Started', 'wp-cerber' ); ?></td>
-                        <td id="crb-started" data-init="-">-</td>
-                    </tr>
-                    <tr>
-                        <td><?php _e( 'Finished', 'wp-cerber' ); ?></td>
-                        <td id="crb-finished" data-init="-">-</td>
-                    </tr>
-                    <tr>
-                        <td><?php _e( 'Duration', 'wp-cerber' ); ?></td>
-                        <td id="crb-duration" data-init="-">-</td>
-                    </tr>
-                    <tr>
-                        <td><?php _e( 'Performance', 'wp-cerber' ); ?></td>
-                        <td id="crb-performance" data-init="-">-</td>
-                    </tr>
-                    <tr>
-                        <td>Mode</td>
-                        <td id="crb-smode" data-init="-">-</td>
-                    </tr>
-                </table>
-            </div>
-            <div class="crb-scan-info scan-tile">
-                <table>
-                    <tr>
-                        <td><?php _e( 'Vulnerabilities', 'wp-cerber' ); ?></td>
-                        <td id="crb-numbers-4" data-init="-">-</td>
-                    </tr>
-                    <tr>
-                        <td><?php _e( 'New files', 'wp-cerber' ); ?></td>
-                        <td id="crb-numbers-51" data-init="-">-</td>
-                    </tr>
-                    <tr>
-                        <td><?php _e( 'Changed files', 'wp-cerber' ); ?></td>
-                        <td id="crb-numbers-50" data-init="-">-</td>
-                    </tr>
-                    <tr>
-                        <td><?php _e( 'Unwanted extensions', 'wp-cerber' ); ?></td>
-                        <td id="crb-numbers-30" data-init="-">-</td>
-                    </tr>
-                    <tr>
-                        <td><?php _e( 'Unattended files', 'wp-cerber' ); ?></td>
-                        <td id="crb-numbers-18" data-init="-">-</td>
-                    </tr>
-                </table>
-            </div>
-            <div class="scan-tile">
-                <div><p><span id="crb-scanned-files" data-init="-">0</span> / <span id="crb-total-files"
-                                                                                    data-init="-">0</span>
-                    </p>
-                    <p><?php echo __( 'Scanned', 'wp-cerber' ) . ' / ' . __( 'Files to scan', 'wp-cerber' ); ?></p>
-                </div>
-            </div>
-
-            <div class="scan-tile">
-                <div><p><span id="crb-critical" data-init="-">0</span> / <span id="crb-warning" data-init="-">0</span>
-                    </p>
-                    <p><?php _e( 'Critical issues', 'wp-cerber' ); ?> / <?php _e( 'Issues total', 'wp-cerber' ); ?></p>
-                </div>
-            </div>
-
-        </div>
-
-        <div id="crb-scan-progress">
-            <div>
-                <div id="the-scan-bar"></div>
-            </div>
-        </div>
-
-        <p id="crb-scan-message"><?php echo $msg; ?></p>
-
-    </div>
-    <div id="crb-scan-details">
-        <table class="crb-table" id="crb-browse-files">
-			<?php
-			$rows = array();
-			$rows[] = '<tr class="crb-scan-container" id="crb-wordpress" style=""><td colspan="6">WordPress</td></tr>';
-			$rows[] = '<tr class="crb-scan-container" id="crb-muplugins" style=""><td colspan="6">Must use plugins</td></tr>';
-			$rows[] = '<tr class="crb-scan-container" id="crb-dropins" style=""><td colspan="6">Drop-ins</td></tr>';
-			$rows[] = '<tr class="crb-scan-container" id="crb-plugins" style=""><td colspan="6">Plugins</td></tr>';
-
-			/*
-			$plugins = get_plugins();
-			foreach ( $plugins as $plugin ) {
-				$rows[] = '<tr class="crb-scan-section" id="' . sha1( $plugin['Name'] ) . '" style="display:none;"></tr>';
-			}
-			*/
-			$rows[] = '<tr class="crb-scan-container" id="crb-themes" style=""><td colspan="6">Themes</td></tr>';
-
-			/*$themes = wp_get_themes();
-			foreach ( $themes as $theme_folder => $theme ) {
-				$rows[] = '<tr class="crb-scan-section" id="' . sha1( $theme->get( 'Name' ) ) . '" style="display:none;"></tr>';
-			}*/
-
-			$rows[] = '<tr class="crb-scan-container" id="crb-uploads" style=""><td colspan="6">Uploads folder</td></tr>';
-			$rows[] = '<tr class="crb-scan-container" id="crb-unattended" style=""><td colspan="6">Unattended files</td></tr>';
-			echo implode("\n",$rows);
-			?>
-        </table>
-    </div>
-
-	<?php
-
-	cerber_ref_upload_form();
-}
-
-function cerber_scanner_dashboardold( $msg = '' ) {
-	?>
-    <div id="crb-scan-display">
-        <div id="" class="scan-tile">
-            <table>
-                <tr><td>Started</td><td id="crb-started" data-init="-">-</td></tr>
-                <tr><td>Finished</td><td id="crb-finished" data-init="-">-</td></tr>
-                <tr><td>Duration</td><td id="crb-duration" data-init="-">-</td></tr>
-                <tr><td>Performance</td><td id="crb-performance" data-init="-">-</td></tr>
-                <tr><td>Mode</td><td id="crb-smode" data-init="-">-</td></tr>
-            </table>
-        </div>
-        <div class="scan-tile">
-            <div><p id="crb-total-files" data-init="-">0</p>
-                <p><?php _e( 'Files to scan', 'wp-cerber' ); ?></p></div>
-        </div>
-        <div class="scan-tile">
-            <div><p><span id="crb-scanned-files" data-init="-">0</span><span id="crb-scanned-percentage" data-init=""></span></p>
-                <p>Scanned</p></div>
-        </div>
-        <div class="scan-tile">
-            <div><p id="crb-critical" data-init="-">0</p>
-                <p><?php _e( 'Critical issues', 'wp-cerber' ); ?></p></div>
-        </div>
-        <div class="scan-tile">
-            <div><p id="crb-warning" data-init="-">0</p>
-                <p><?php _e( 'Issues total', 'wp-cerber' ); ?></p></div>
-        </div>
-        <div id="crb-scan-progress">
-            <div>
-                <div id="the-scan-bar"></div>
-            </div>
-        </div>
-
-        <p id="crb-scan-message"><?php echo $msg; ?></p>
-
-    </div>
-    <div id="crb-scan-details">
-        <table class="crb-table" id="crb-browse-files">
-			<?php
-			$rows = array();
-			$rows[] = '<tr class="crb-scan-container" id="crb-wordpress" style=""><td colspan="6">WordPress</td></tr>';
-			$rows[] = '<tr class="crb-scan-container" id="crb-muplugins" style=""><td colspan="6">Must use plugins</td></tr>';
-			$rows[] = '<tr class="crb-scan-container" id="crb-dropins" style=""><td colspan="6">Drop-ins</td></tr>';
-			$rows[] = '<tr class="crb-scan-container" id="crb-plugins" style=""><td colspan="6">Plugins</td></tr>';
-
-			/*
-			$plugins = get_plugins();
-			foreach ( $plugins as $plugin ) {
-				$rows[] = '<tr class="crb-scan-section" id="' . sha1( $plugin['Name'] ) . '" style="display:none;"></tr>';
-			}
-			*/
-			$rows[] = '<tr class="crb-scan-container" id="crb-themes" style=""><td colspan="6">Themes</td></tr>';
-
-			/*$themes = wp_get_themes();
-			foreach ( $themes as $theme_folder => $theme ) {
-				$rows[] = '<tr class="crb-scan-section" id="' . sha1( $theme->get( 'Name' ) ) . '" style="display:none;"></tr>';
-			}*/
-
-			$rows[] = '<tr class="crb-scan-container" id="crb-uploads" style=""><td colspan="6">Uploads folder</td></tr>';
-			$rows[] = '<tr class="crb-scan-container" id="crb-unattended" style=""><td colspan="6">Unattended files</td></tr>';
-			echo implode("\n",$rows);
-			?>
-        </table>
-    </div>
-
-	<?php
-
-	cerber_ref_upload_form();
-}
-
-/**
- * Finalizes current AJAX request and sends data to the client
- *
- * @param $data array
- */
-function cerber_end_ajax( $data = array() ) {
-	global $cerber_db_errors;
-
-	if ( ! $data ) {
-		$data = array();
-	}
-
-	if ( ! $cerber_db_errors ) {
-		$data['OK'] = 'OK!';
-	}
-
-	$data['cerber_db_errors'] = $cerber_db_errors;
-
-	echo json_encode( $data );
-
-	if ( ! nexus_is_valid_request() ) {
-		wp_die();
-	}
-}
-
-function crb_admin_stop_ajax( $msg = '' ) {
-	if ( $msg ) {
-		echo $msg;
-	}
-	if ( ! nexus_is_valid_request() ) {
-		//wp_die();
-		exit;
-	}
-}
-
-
-
 // ======================================================================================================
-
-
-
-function cerber_ref_upload_form() {
-	?>
-    <div id="crb-ref-upload-dialog" style="display: none;">
-        <p><?php _e( 'We have not found any integrity data to verify', 'wp-cerber' ); ?> <span
-                    id="ref-section-name"></span>.</p>
-        <p><?php _e( "You have to upload a ZIP archive from which you've installed it. This enables the security scanner to verify the integrity of the code and detect malware.", 'wp-cerber' ); ?></p>
-        <p><?php echo sprintf( __( 'Maximum upload file size: %s.'), esc_html(size_format(wp_max_upload_size()))); ?></p>
-        <form enctype="multipart/form-data">
-            <input type="file" name="refile" id="refile" required="required" accept=".zip">
-            <input type="submit" name="submit" value="<?php _e( 'Upload file', 'wp-cerber' ); ?>"
-                   class="button button-primary">
-            <ul style="list-style: none;">
-                <li style="display:none;" class="crb-status-msg">Uploading the file, please wait&#8230;</li>
-                <li style="display:none;" class="crb-status-msg">Processing the file, please wait&#8230;</li>
-            </ul>
-        </form>
-    </div>
-
-    <?php
-}
-
-/**
- * Upload a reference ZIP archive for a theme or a plugin
- *
- */
-add_action( 'wp_ajax_cerber_ref_upload', function () {
-
-	cerber_check_ajax_permissions();
-
-	//ob_start(); // Collecting possible junk warnings and notices cause we need clean JSON to be sent
-
-	$error = '';
-
-	$folder = cerber_get_tmp_file_folder();
-	if ( is_wp_error( $folder ) ) {
-		cerber_end_ajax( array( 'error' => $folder->get_error_message() ) );
-	}
-
-	if ( isset( $_FILES['refile'] ) ) {
-
-		// Step 1, saving file
-
-		if ( ! is_uploaded_file( $_FILES['refile']['tmp_name'] ) ) {
-			$error = 'Unable to read uploaded file';
-		}
-
-		if ( ! cerber_check_extension( $_FILES['refile']['name'], array( 'zip' ) ) ) {
-			$error = 'Incorrect file format';
-		}
-
-		if ( cerber_detect_exec_extension( $_FILES['refile']['name'] ) ) {
-			$error = 'Incorrect file format';
-		}
-
-		if ( false !== strpos( $_FILES['refile']['name'], '/' ) ) {
-			$error = 'Incorrect filename';
-		}
-
-		if ( $error ) {
-			cerber_end_ajax( array( 'error' => $error ) );
-		}
-
-		if ( false === @move_uploaded_file( $_FILES['refile']['tmp_name'], $folder . $_FILES['refile']['name'] ) ) {
-			cerber_end_ajax( array( 'error' => 'Unable to copy file to ' . $folder ) );
-		}
-
-	}
-	else {
-
-		// Step 2, creating hash
-
-		$result = cerber_need_for_hash();
-		if ( is_wp_error( $result ) ) {
-			cerber_end_ajax( array( 'error' => $result->get_error_message() ) );
-		}
-	}
-
-	cerber_end_ajax();
-
-} );
 
 // Process a manually installed/upgraded plugin/theme, part 1
 add_filter( 'wp_insert_attachment_data', function ( $data, $postarr ) {
@@ -4296,7 +3900,10 @@ function cerber_scheduled_hash( $zip_file = '' ) {
  */
 function cerber_need_for_hash( $zip_file = '', $delete = true, $expires = 0 ) {
 	$folder     = cerber_get_tmp_file_folder();
-	$zip_folder = $folder . 'zip' . DIRECTORY_SEPARATOR;
+	$tmp_folder1 = $folder . 'zip' . DIRECTORY_SEPARATOR;
+	$tmp_folder2 = $folder . 'nested_zip' . DIRECTORY_SEPARATOR;
+
+	crb_raise_limits();
 
 	if ( ! $zip_file ) {
 		if ( ! $files = glob( $folder . '*.zip' ) ) {
@@ -4313,6 +3920,7 @@ function cerber_need_for_hash( $zip_file = '', $delete = true, $expires = 0 ) {
 	}
 
 	$fs = cerber_init_wp_filesystem();
+	$result = true;
 
 	foreach ( $files as $zip_file ) {
 
@@ -4320,68 +3928,123 @@ function cerber_need_for_hash( $zip_file = '', $delete = true, $expires = 0 ) {
 			continue;
 		}
 
-		if ( file_exists( $zip_folder ) && ! $fs->delete( $zip_folder, true ) ) {
-			return new WP_Error( 'cerber-zip', 'Unable to clean up temporary zip folder ' . $zip_folder );
-		}
+		crb_scan_debug( 'Processing ZIP: ' . basename( $zip_file ) );
 
-		$result = cerber_unzip( $zip_file, $zip_folder );
+		$result = crb_hash_maker( $zip_file, $tmp_folder1, false, $expires );
+
+		if ( is_wp_error( $result ) ) {
+
+			crb_scan_debug( 'Processing ZIP: ' . $result->get_error_message() );
+
+		    // It's possible that there is a nested ZIP archive
+
+			if ( $nested_zip_list = glob( $tmp_folder1 . '*.zip' ) ) {
+
+			    crb_scan_debug( 'Processing ZIP: trying to find the reference code in the nested zip archive' );
+
+				foreach ( $nested_zip_list as $nested_zip ) {
+					$result = crb_hash_maker( $nested_zip, $tmp_folder2, true, $expires );
+					if ( ! is_wp_error( $result ) ) {
+						break; // Yay, we found it!
+					}
+				}
+			}
+
+		}
+		else {
+			crb_scan_debug( 'Processing ZIP: ' . basename( $zip_file ) . ' - OK!' );
+		}
 
 		if ( $delete ) {
 			unlink( $zip_file );
 		}
 
 		if ( is_wp_error( $result ) ) {
-			return new WP_Error( 'cerber-zip', 'Unable to unzip file ' . $zip_file . ' ' . $result->get_error_message() );
+			break;
 		}
 
-		if ( ! $obj = cerber_detect_object( $zip_folder ) ) {
-			return new WP_Error( 'cerber-file', 'File ' . basename( $zip_file ) . ' can not be used. Proper program code not found or version mismatch. Please upload another file.' );
-		}
-
-		$dir = $obj['src'] . DIRECTORY_SEPARATOR;
-		$len = mb_strlen( $dir );
-
-		global $the_file_list;
-		$the_file_list = array();
-
-		cerber_scan_directory( $dir, null, function ($list){
-		    global $the_file_list;
-			$the_file_list = array_merge( $the_file_list, $list );
-        } );
-
-		if ( empty( $the_file_list ) ) {
-			return new WP_Error( 'cerber-dir', 'No files found in ' . $zip_file );
-		}
-
-		$hash = array();
-
-		foreach ( $the_file_list as $file_name ) {
-			$hash[ mb_substr( $file_name, $len ) ] = hash_file( 'sha256', $file_name );
-		}
-
-		if ( !$obj['single'] ) {
-			$b = $obj['src'];
-		}
-		else {
-			$b = $obj['file'];
-		}
-
-		//$key = $obj['type'] . sha1( $obj['name'] . basename( $obj['src'] ) );
-		$key = $obj['type'] . sha1( $obj['name'] . basename( $b ) );
-
-        if ( ! cerber_update_set( $key, array(
-			'name' => $obj['name'],
-			'ver'  => $obj['ver'],
-			'hash' => $hash,
-			'time' => time()
-		), 0, true, $expires )
-		) {
-			return new WP_Error( 'cerber-zip', 'Database error occurred while saving hash' );
-		}
 	}
 
-	$fs->delete( $zip_folder, true );
-    unset($the_file_list);
+	$fs->delete( $tmp_folder1, true );
+	$fs->delete( $tmp_folder2, true );
+
+	crb_scan_debug( 'Processing ZIP: Completed' );
+
+	return $result;
+}
+
+/**
+ * @param string $zip_file ZIP file to process
+ * @param string $zip_folder Temporary folder for unpacking ZIP
+ * @param bool $delete If true, the temp folder will be deleted afterward
+ * @param int $expires HASH expiration time, Unix timestamp, 0 = never
+ *
+ * @return bool|WP_Error
+ */
+function crb_hash_maker( $zip_file, $zip_folder, $delete = true, $expires = 0 ) {
+
+    $fs = cerber_init_wp_filesystem();
+
+	if ( file_exists( $zip_folder ) && ! $fs->delete( $zip_folder, true ) ) {
+		return new WP_Error( 'cerber-zip', 'Unable to clean up temporary zip folder ' . $zip_folder );
+	}
+
+	$result = cerber_unzip( $zip_file, $zip_folder );
+
+	if ( is_wp_error( $result ) ) {
+		return new WP_Error( 'cerber-zip', 'Unable to unzip file ' . $zip_file . ' ' . $result->get_error_message() );
+	}
+
+	if ( ! $obj = cerber_detect_object( $zip_folder ) ) {
+		return new WP_Error( 'cerber-file', 'File ' . basename( $zip_file ) . ' cannot be used. Proper program code not found or version mismatch. Please upload another file.' );
+	}
+
+	$dir = $obj['src'] . DIRECTORY_SEPARATOR;
+	$len = mb_strlen( $dir );
+
+	global $the_file_list;
+	$the_file_list = array();
+
+	cerber_scan_directory( $dir, null, function ($list){
+		global $the_file_list;
+		$the_file_list = array_merge( $the_file_list, $list );
+	} );
+
+	if ( empty( $the_file_list ) ) {
+		return new WP_Error( 'cerber-dir', 'No files found in ' . $zip_file );
+	}
+
+	$hash = array();
+
+	foreach ( $the_file_list as $file_name ) {
+		$hash[ mb_substr( $file_name, $len ) ] = hash_file( 'sha256', $file_name );
+	}
+
+	if ( !$obj['single'] ) {
+		$b = $obj['src'];
+	}
+	else {
+		$b = $obj['file'];
+	}
+
+	//$key = $obj['type'] . sha1( $obj['name'] . basename( $obj['src'] ) );
+	$key = $obj['type'] . sha1( $obj['name'] . basename( $b ) );
+
+	if ( ! cerber_update_set( $key, array(
+		'name' => $obj['name'],
+		'ver'  => $obj['ver'],
+		'hash' => $hash,
+		'time' => time()
+	), 0, true, $expires )
+	) {
+		return new WP_Error( 'cerber-zip', 'Database error occurred while saving hash' );
+	}
+
+	if ( $delete ) {
+		$fs->delete( $zip_folder, true );
+	}
+
+	unset( $the_file_list );
 
 	return true;
 }
@@ -4519,36 +4182,37 @@ function cerber_lock_the_folder( $folder ) {
 	return false;
 }
 
+/**
+ * @param $file
+ * @since 8.6.1
+ *
+ * @return bool
+ */
+function cerber_set_writable( $file ) {
+	static $chmod_file, $chmod_dir;
+
+	if ( ! $chmod_file ) {
+		$chmod_file = ( fileperms( ABSPATH . 'index.php' ) & 0777 | 0644 );
+	}
+	if ( ! $chmod_dir ) {
+		$chmod_dir = ( fileperms( ABSPATH ) & 0777 | 0755 );
+	}
+
+	if ( @is_file( $file ) ) {
+		return @chmod( $file, $chmod_file );
+	}
+    elseif ( @is_dir( $file ) ) {
+		return @chmod( $file, $chmod_dir );
+	}
+
+	return false;
+}
+
 function cerber_unzip( $file_name, $folder ) {
 	cerber_init_wp_filesystem();
 
 	return unzip_file( $file_name, $folder );
 
-}
-
-/**
- * @return WP_Error|WP_Filesystem_Direct
- */
-function cerber_init_wp_filesystem() {
-	global $wp_filesystem;
-
-	if ( $wp_filesystem instanceof WP_Filesystem_Direct ) { // @since 8.1.5
-		return $wp_filesystem;
-	}
-
-	require_once( ABSPATH . 'wp-admin/includes/file.php' );
-
-	add_filter( 'filesystem_method', '__ret_direct' );
-	if ( ! WP_Filesystem() ) {
-		return new WP_Error( 'cerber-file', 'Unable to init WP_Filesystem' );
-	}
-	remove_filter( 'filesystem_method', '__ret_direct' );
-
-	return $wp_filesystem;
-}
-
-function __ret_direct() {
-	return 'direct';
 }
 
 function cerber_detect_object( $folder = '' ) {
@@ -4666,304 +4330,138 @@ function cerber_check_theme_data( $folder ) {
 }
 
 /**
- * File viewer, server side AJAX
+ * @param int $first
+ * @param int $last
+ * @param int $filter_scan
  *
- */
-add_action( 'wp_ajax_cerber_view_file', function () {
-
-	cerber_check_ajax_permissions();
-
-	$get       = crb_get_query_params();
-	$file_name = $get['file'];
-
-	if ( ! @is_file( $file_name ) ) {
-		crb_admin_stop_ajax( 'I/O Error' );
-
-		return;
-	}
-
-	$file_size = filesize( $file_name );
-
-	if ( $file_size > 8000000 ) {
-		crb_admin_stop_ajax( 'Error: This file is too large to display.' );
-
-		return;
-	}
-
-	if ( $file_size <= 0 ) {
-		crb_admin_stop_ajax( 'The file is empty.' );
-
-		return;
-	}
-
-	$scan_id = absint( $get['scan_id'] );
-
-	$the_file = cerber_db_get_row( 'SELECT * FROM ' . cerber_get_db_prefix() . CERBER_SCAN_TABLE . ' WHERE scan_id = ' . $scan_id . ' AND file_name = "' . $file_name . '"' );
-
-	if ( ! $the_file ) {
-		crb_admin_stop_ajax( __( 'File access error. Possibly scan results are outdated. Please run Quick or Full Scan.', 'wp-cerber' )  );
-
-		return;
-	}
-
-	if ( ! $source = file_get_contents( $file_name ) ) {
-		crb_admin_stop_ajax( 'Error: Unable to load file.' );
-
-		return;
-	}
-
-	$source = htmlspecialchars( $source, ENT_SUBSTITUTE );
-
-	if ( ! $source ) {
-		$source = 'Unable to display the contents of the file. This file contains non-printable characters.';
-	}
-
-	if ( cerber_detect_exec_extension( $file_name )
-	     || cerber_check_extension( $file_name, array( 'js', 'css', 'inc' ) )
-	     || cerber_is_htaccess( $file_name )
-	) {
-		$paint = true;
-	}
-	else {
-		$paint = false;
-	}
-
-	$overlay = '';
-	if ( $paint ) {
-		$overlay = '<div id="crb-overlay">Loading, please wait...</div>';
-	}
-
-	$sh_url   = plugin_dir_url( __FILE__ ) . 'assets/sh/';
-	$sheight  = absint( $get['sheight'] ) - 100; // highlighter is un-responsible, so we need tell him the real height
-	$c_height = absint( $get['sheight'] );
-
-	?>
-    <!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <script type="text/javascript" src="<?php echo $sh_url ?>scripts/shCore.js"></script>
-        <script type="text/javascript" src="<?php echo $sh_url; ?>scripts/shBrushPhp.js"></script>
-        <link href="<?php echo $sh_url; ?>styles/shCore.css" rel="stylesheet" type="text/css" />
-        <link href="<?php echo $sh_url; ?>styles/shThemeDefault.css" rel="stylesheet" type="text/css" />
-        <style type="text/css" media="all">
-            body {
-                overflow: hidden;
-                font-family: 'Roboto', sans-serif;
-                font-size: 14px;
-            }
-
-            #crb-overlay {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                text-align: center;
-                background-color: #fff;
-                position: fixed;
-                width: 100%;
-                height: 100%
-                z-index: 2;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-            }
-
-            #crb-issue {
-                border-left: 3px solid crimson;
-                background-color: #eee;
-                padding: 1em;
-                overflow: auto;
-            }
-
-            #crb-file-content {
-            <?php
-            if (!$paint) {
-                echo '
-                max-height: '.$sheight .'px;
-                overflow: auto;
-                padding: 15px;
-                ';
-            }
-            else {
-                echo 'overflow: hidden;';
-            }
-            ?>
-            }
-
-            .syntaxhighlighter {
-                max-height: <?php echo $sheight; ?>px;
-            }
-
-            .syntaxhighlighter code {
-                font-family: Menlo, Consolas, Monaco, monospace !important;
-                font-size: 13px !important;
-            }
-
-            .syntaxhighlighter .gutter .line{
-                border-right: 3px solid #c7c7c7 !important;
-            }
-
-        </style>
-    </head>
-
-    <body>
-
-	<?php
-
-	echo $overlay;
-
-	echo '<pre id="crb-file-content" class="brush: php; toolbar: false;">' . $source . '</pre>';
-
-	if ( $the_file ) {
-		echo '<div id="crb-issue">Issue: ' . cerber_get_issue_label( $the_file['scan_status'] ) . '</div>';
-	}
-
-	if ( $paint ) :
-		?>
-
-        <script type="text/javascript">
-            SyntaxHighlighter.defaults["highlight"];
-            SyntaxHighlighter.all();
-            function crb_waitUntilRender() {
-                var overlay = document.getElementById("crb-overlay").style.visibility = "hidden";
-            }
-            var intervalID = setInterval(crb_waitUntilRender, 200);
-
-
-        </script>
-
-		<?php
-
-	endif;
-
-	?>
-
-    </body>
-    </html>
-
-	<?php
-
-	crb_admin_stop_ajax();
-
-} );
-
-
-/**
- * Deleting files, server side AJAX
+ * @return array|WP_Error
  *
+ * @since 8.6.4
  */
-add_action( 'wp_ajax_cerber_scan_bulk_files', function () {
-
-	cerber_check_ajax_permissions();
-
-	$post  = crb_get_post_fields();
-
-	if ( empty( $post['files'] ) || empty( $post['scan_id'] ) ) {
-		crb_admin_stop_ajax( 'Error!' );
-
-		return;
+function cerber_quarantine_get_files( $first = 0, $last = null, $filter_scan = null ) {
+	$folder = cerber_get_the_folder( true );
+	if ( is_wp_error( $folder ) ) {
+		return $folder;
 	}
 
-	$scan_id = absint( $post['scan_id'] );
+	$list = array();
+	$count = 0;
+	$scan_list = array();
 
-	if ( ! cerber_get_scan( $scan_id ) ) {
-		crb_admin_stop_ajax( 'Error!' );
-
-		return;
+	if ( ! $dirs = glob( $folder . 'quarantine' . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR ) ) {
+		return array( $list, $count, $scan_list );
 	}
 
-	$operation = $post['scan_file_operation'];
-
-	if ( ( ! $ignore = cerber_get_set( 'ignore-list' ) ) || ! is_array( $ignore ) ) {
-		$ignore = array();
-	}
-
-	global $crb_list;
-	$crb_list = array();
-	$i = 0;
-	$errors = array();
-	$time = time();
-	$user_id = get_current_user_id();
-
-	foreach ( $post['files'] as $file_name ) {
-
-		if ( ! is_file( $file_name ) ) {
-			continue;
-		}
-
-		$the_file = cerber_db_get_row( 'SELECT * FROM ' . cerber_get_db_prefix() . CERBER_SCAN_TABLE . ' WHERE scan_id = ' . $scan_id . ' AND file_name = "' . $file_name . '"', MYSQL_FETCH_OBJECT );
-		if ( ! $the_file || ! is_file( $the_file->file_name ) ) {
-			$errors[] = 'Unknown file: '.$file_name;
-			continue;
-		}
-
-		switch ( $operation ) {
-			case 'delete_file':
-				$result = cerber_quarantine_file( 'move', $file_name, $scan_id );
-				break;
-			case 'ignore_add_file':
-				$ignore[ $the_file->file_name_hash ] = array(
-					$the_file->file_name,
-					@hash_file( 'sha256', $the_file->file_name ),
-					$user_id,
-					$time,
-				);
-				$result = true;
-				break;
-		}
-
-		if ( is_wp_error( $result ) ) {
-			$errors[] = $result->get_error_message();
-		}
-        elseif ( ! $result ) {
-			$errors[] = 'Unknown error 55';
-		}
-		else {
-			$i ++;
-			$crb_list[] = $file_name;
-		}
-
-	}
-
-	if ( $operation == 'ignore_add_file' ) {
-	    // Update the last scan results to keep it up to date and avoid user confusing
-		if ( $scan = cerber_get_scan() ) {
-			$scan['issues'] = crb_issue_filer( $scan['issues'], function ( $file_name ) {
-			    global $crb_list;
-				if ( in_array( $file_name, $crb_list ) ) {
-					return false;
+	foreach ( $dirs as $dir ) {
+		$f = $dir . '/.restore';
+		$scan_id = basename( $dir );
+		$inc = false;
+		if ( file_exists( $f ) && $handle = @fopen( $f, "r" ) ) {
+			$ln = 0;
+			$included = array();
+			while ( ( $line = fgets( $handle ) ) !== false ) {
+				$ln ++;
+				if ( $ln <= 4 || empty( $line ) ) {
+					continue;
 				}
-				return true;
-			});
-			cerber_update_scan( $scan );
+				$line = trim( $line );
+				if ( empty( $line ) ) {
+					continue;
+				}
+				$v = crb_parse_qline( $dir, $line );
+				if ( $v ) {
+					if ( in_array( $v['qfile'], $included ) ) {
+						continue; // Prevent listing the same file several times
+					}
+					$inc = true;
+					if ( ! $filter_scan || $filter_scan == $scan_id ) {
+						if ( $count >= $first && ( ! $last || $count <= $last ) ) {
+							$v['scan_id'] = $scan_id;
+							$list[] = $v;
+							$included[] = $v['qfile'];
+						}
+						$count ++;
+					}
+					else {
+						continue; // skip the rest of the lines
+					}
+				}
+			}
+			if ( ! feof( $handle ) ) {
+				echo "Error: unexpected I/O Error";
+			}
+			fclose( $handle );
 		}
-		if ( ! cerber_update_set( 'ignore-list', $ignore ) ) {
-			$errors [] = 'Unable to update the ignore list';
+		if ( $inc ) {
+			$scan_list[] = $scan_id;
 		}
 	}
 
-	crb_scan_debug( $errors );
+	return array( $list, $count, $scan_list );
+}
 
-	cerber_end_ajax( array( 'errors' => $errors, 'number' => $i, 'processed' => $crb_list ) );
+function crb_parse_qline( $dir, $line ) {
+	if ( ! $line
+	     || ! strpos( $line, '|' )
+	     || ! strpos( $line, '=>' ) ) {
+		return false;
+	}
+	list( $date, $info ) = explode( '|', $line );
+	list( $qfile, $source ) = explode( '=>', $info );
+	$date = trim( $date );
+	$qfile = trim( $qfile );
+	$source = trim( $source );
+	if ( ! $qfile ) {
+		return false;
+	}
+	$fname = $dir . '/' . $qfile;
+	if ( ! @is_file( $fname ) ) {
+		return false;
+	}
+	$size = @filesize( $fname );
+	$size = ( is_numeric( $size ) ) ? $size : 0;
+	//$sdir   = dirname( $source ) . DIRECTORY_SEPARATOR;
+	//$can    = ( file_exists( $sdir ) ) ? true : false;
+	//$can = ( file_exists( $source ) ) ? false : true;
 
-});
+	$ret = array(
+		'date'   => $date,
+		'size'   => crb_size_format( $size ),
+		'qfile'  => $qfile,
+		'source' => $source,
+		//'sdir'   => $sdir,
+		//'can'    => $can
+		'can'    => true
+	);
+
+	return $ret;
+}
+
 /**
  * Move files to the quarantine folder
  *
- * @param $action string 'move' or 'copy'
  * @param string $file_name
  * @param integer $scan_id
+ * @param bool $move true to delete the file in its original location @since 8.6.1
  *
  * @return bool|WP_Error
  */
-function cerber_quarantine_file( $action, $file_name, $scan_id ) {
+function cerber_quarantine_file( $file_name, $scan_id, $move = true ) {
 	static $folder;
 
 	$scan_id = absint( $scan_id );
+
 	if ( ! is_file( $file_name ) || ! $scan_id ) {
 		return false;
 	}
-	if ( $action == 'move' && ! cerber_can_be_deleted( $file_name, true ) ) {
-		return new WP_Error( 'cerber-del', "This file can't be deleted: ". $file_name );
+
+	if ( $move ) {
+		$can = cerber_can_be_deleted( $file_name, true );
+
+		if ( is_wp_error( $can ) ) {
+			return $can;
+			//return new WP_Error( 'cerber-del', "This file can't be deleted: " . $file_name );
+		}
 	}
 
 	if ( $folder === null ) {
@@ -5000,7 +4498,7 @@ function cerber_quarantine_file( $action, $file_name, $scan_id ) {
 		fwrite( $f, 'Information for restoring files.' . PHP_EOL
 		            . 'Deletion date | Deleted file => Original file to copy to restore.' . PHP_EOL
 		            . '-----------------------------------------------------------------'
-		            . PHP_EOL . `` );
+		            . PHP_EOL );
 	}
 	else {
 		if ( ! $f = fopen( $restore, 'a' ) ) {
@@ -5018,59 +4516,101 @@ function cerber_quarantine_file( $action, $file_name, $scan_id ) {
 		}
 	}
 
-	if ( $action == 'move' ) {
-		if ( ! @rename( $file_name, $new_name ) ) {
-			return new WP_Error( 'cerber-quar', 'Unable to move file to the quarantine: ' . $file_name . '. Check the file folder permissions.' );
+	if ( ! crb_move_copy( $file_name, $new_name, $move ) ) {
+		$dir = dirname( $file_name );
+
+		if ( $move ) {
+			$msg = 'Unable to move file to the quarantine: ' . $file_name . '. Check permissions (owner) of this folder: ' . $dir;
 		}
-	}
-	else {
-		if ( ! @copy( $file_name, $new_name ) ) {
-			return new WP_Error( 'cerber-quar', 'Unable to copy file to the quarantine: ' . $file_name . '. Check the file folder permissions.' );
+		else {
+			$msg = 'Unable to copy file to the quarantine: ' . $file_name . '. Check permissions (owner) of this folder: ' . $dir;
 		}
+
+		return new WP_Error( 'cerber-quar-fail', $msg );
 	}
 
 	// Save restoring info
-	fwrite( $f, PHP_EOL . cerber_date( time() ) . ' | ' . basename( $new_name ) . ' => ' . $file_name );
+	//fwrite( $f, PHP_EOL . cerber_date( time(), false ) . ' | ' . basename( $new_name ) . ' => ' . $file_name );
+	static $gmt_offset;
+	if ( ! isset( $gmt_offset ) ) {
+		$gmt_offset = get_option( 'gmt_offset' ) * 3600;
+	}
+	fwrite( $f, PHP_EOL . date( 'Y-m-d H:i:s', time() + $gmt_offset ) . ' | ' . basename( $new_name ) . ' => ' . $file_name );
 	fclose( $f );
+
+	crb_qr_total_update( 1 );
 
 	return true;
 }
 
+// @since 8.6.1
+function crb_move_copy( $file_name, $new_name, $move = true ) {
+	$abort = false;
+	do {
+		if ( $move ) {
+			$ok = @rename( $file_name, $new_name );
+		}
+		else {
+			$ok = @copy( $file_name, $new_name );
+		}
+
+		if ( $ok ) {
+			return true;
+		}
+
+		if ( $abort ) {
+			return false;
+		}
+
+		if ( ! crb_get_settings( 'scan_chmod' ) ) {
+			return false;
+		}
+
+		cerber_set_writable( dirname( $file_name ) );
+		cerber_set_writable( $file_name );
+		$abort = true;
+
+	} while ( true );
+}
+
 /**
- * Some files can't be deleted...
+ * Some files cannot be deleted
  *
  * @param $file_name
  * @param bool $check_inclusion
  *
- * @return bool
+ * @return true|WP_Error true if a file can be safely deleted
  */
 function cerber_can_be_deleted( $file_name, $check_inclusion = false ) {
-	static $abspath;
 
 	if ( ! file_exists( $file_name ) || ! is_file( $file_name ) || is_link( $file_name ) ) {
-		return false;
+		return new WP_Error( 'cerber_no_file', 'This file cannot be deleted because it doesn\'t exist: ' . $file_name );
+		//return false;
 	}
 
 	if ( cerber_is_htaccess( $file_name ) || cerber_is_dropin( $file_name ) ) {
-		return false;
+		return new WP_Error( 'cerber_file_not_allowed', 'This file is not allowed to be deleted: ' . $file_name );
+		//return false;
 	}
 
 	if ( $check_inclusion && in_array( $file_name, get_included_files() ) ) {
-		return false;
+		return new WP_Error( 'cerber_file_active', 'This file cannot be deleted because it \'s loaded and in use: ' . $file_name );
+		//return false;
 	}
 
 	if ( basename( $file_name ) == 'wp-config.php' ) {
-		if ( $abspath !== null ) {
-			$abspath = cerber_get_abspath();
-		}
+		$abspath = cerber_get_abspath();
 		$file_name = cerber_normal_path( $file_name );
 
-		if ( $file_name == $abspath . 'wp-config.php' ) {
-			return false;
+		if ( ( $file_name == $abspath . 'wp-config.php' )
+		     || ( ! file_exists( $abspath . 'wp-config.php' ) && $file_name == dirname( $abspath ) . DIRECTORY_SEPARATOR . 'wp-config.php' ) ) {
+
+			return new WP_Error( 'cerber_file_not_allowed', 'This file is not allowed to be deleted: ' . $file_name );
+			//return false;
 		}
-		if ( ! file_exists( $abspath . 'wp-config.php' ) && $file_name == dirname( $abspath ) . DIRECTORY_SEPARATOR . 'wp-config.php' ) {
+		/*if ( ! file_exists( $abspath . 'wp-config.php' ) && $file_name == dirname( $abspath ) . DIRECTORY_SEPARATOR . 'wp-config.php' ) {
 			return false;
-		}
+		}*/
 	}
 
 	return true;
@@ -5147,24 +4687,6 @@ function cerber_is_cloud_request() {
 
     return $ret;
 }
-
-
-// TODO: !debug, remove from production!
-/*
-add_action( 'init', function () {
-	if ( ! empty( $_GET['scan-report'] ) && is_user_logged_in() ) {
-		$scan   = cerber_get_scan();
-		$report = cerber_scan_report( $scan );
-		if ( ! $report ) {
-			echo 'Nothing to report';
-		}
-		echo $report;
-		print_r($scan);
-		//cerber_send_email( 'scan', $report );
-		die();
-	}
-} );
-*/
 
 /**
  * Creates a user report
@@ -5386,7 +4908,7 @@ function cerber_scan_report( $scan ) {
 
 
 	// Some KPI numbers
-	$inc = array( CERBER_VULN, CERBER_NEW, 50, 18, 30 );
+	$inc = array( CERBER_VULN, CERBER_NEW, CERBER_MOD, CERBER_USF, CERBER_UXT );
 	foreach ( $inc as $id ) {
 		if ( isset( $scan['numbers'][ $id ] ) ) {
 			$css = '';
@@ -5531,66 +5053,59 @@ function cerber_check_vulnerabilities( $plugin_slug, $plugin ) {
  * @return array|bool|WP_Error
  */
 function cerber_get_vulnerabilities( $plugin_slug, $plugin ) {
-	$ret = false;
 
-	$key = 'crb_vuln_' . sha1( $plugin_slug );
-	$vu = cerber_get_set( $key );
-
-	if ( ! $vu ) {
-		crb_scan_debug( 'Retrieving vulnerabilities for ' . $plugin_slug );
-
-		if ( ! $json = @file_get_contents( CERBER_VULNDB_API . $plugin_slug ) ) {
-			cerber_update_set( $key, array( 'negative_result' ), null, true, time() + 3600 );
-
-			return new WP_Error( 'network_error', 'Unable to get the list of vulnerabilities' );
-		}
-
-		if ( ! $vu = json_decode( $json, true ) ) {
-			if ( JSON_ERROR_NONE != json_last_error() ) {
-				return new WP_Error( 'json_error', json_last_error_msg() );
-			}
-
-			return $ret;
-		}
-
-		cerber_update_set( $key, $vu, null, true, time() + 8 * 3600 );
+	if ( ! lab_lab() ) {
+		return false;
 	}
 
-	if ( isset( $vu['negative_result'] ) ) {
+	$key = '_crb_vu_plugins';
+	$vu_list = cerber_get_set( $key );
+
+	if ( ! $vu_list
+	     || ( ! isset( $vu_list['plugins'][ $plugin_slug ] ) && ! isset( $vu_list['cloud_error'] ) ) ) {
+		crb_scan_debug( 'Getting vulnerability data from the cloud.' );
+
+		$plugins = array_keys( get_plugins() );
+		array_walk( $plugins, function ( &$e ) {
+			$e = dirname( $e );
+		} );
+		$plugins = array_filter( $plugins, function ( $e ) {
+			return ( false === strpos( $e, '.' ) );
+		} );
+
+		if ( ! $vu_list = lab_api_send_request( array(
+			'get_vu_list' => array(
+				'plugins' => $plugins,
+			)
+		), 'vu_list' ) ) {
+			$vu_list = array( 'cloud_error' => 1 );
+			$t  = 120; // Network error
+		}
+		else {
+			$t = 3600; // OK
+		}
+
+		cerber_update_set( $key, $vu_list, null, true, time() + $t );
+	}
+
+	if ( isset( $vu_list['cloud_error'] ) ) {
 		return new WP_Error( 'network_error', 'Unable to get the list of vulnerabilities' );
 	}
 
-	$v_list = false;
+	$ret = array();
+	$lst = crb_array_get( $vu_list['plugins'], $plugin_slug );
 
-	if ( !empty( $vu[ $plugin_slug ]['vulnerabilities'] ) ) {
-		$v_list = $vu[ $plugin_slug ]['vulnerabilities'];
-	}
-
-	if ( ! is_array( $v_list ) ) {
+	if ( empty( $lst ) ) {
 		return $ret;
 	}
 
-	$ret = array();
-	foreach ( $v_list as $v ) {
-		$r = array();
+	foreach ( $lst as $v ) {
 		if ( version_compare( $v['fixed_in'], $plugin['Version'], '>' ) ) {
-			$r['n'] = $v['title'];
-			$r['l'] = 'https://wpvulndb.com/vulnerabilities/' . $v['id'] . '/';
-			$r['t'] = "Type: ".$v['vuln_type'];
-			$r['p'] = 'Published: ' . date( get_option( 'date_format' ), strtotime( $v['published_date'] ) );
-			$r['f'] = "Fixed in version: " . $v['fixed_in'];
-			if ( ! empty( $v['references']['url'] ) ) {
-				$r['r'] = $v['references']['url'];
-			}
-		}
-		if ( ! empty( $r ) ) {
-			$ret[] = $r; //implode( '<br/>', $r );
+			$ret[] = array(
+				'vu_info' => $v['short_desc'] . ' ' . 'Fixed in version: ' . $v['fixed_in']
+			);
 		}
 	}
-
-	/*if ( ! empty( $report ) ) {
-		$ret = '<h3 style="color:#FF0000">Vulnerability found!</h3>You need to update this plugin immediately! <ol><li>' . implode( '</li><li>', $report ) . '</li></ol><p>Information provided by <a href="https://wpvulndb.com/">WPScan Vulnerability Database</a></p>';
-	}*/
 
 	return $ret;
 }
@@ -5657,330 +5172,10 @@ function cerber_make_numbers( &$update = array(), &$scan = array() ) {
 	}
 }
 
-function cerber_show_quarantine() {
-
-	$folder = cerber_get_the_folder( true );
-	if ( is_wp_error( $folder ) ) {
-		echo $folder->get_error_message();
-
-		return;
-	}
-
-	$no_files = __( 'There are no files in the quarantine at the moment.', 'wp-cerber' );
-	$per_page = crb_admin_get_per_page();
-	$first    = ( cerber_get_pn() - 1 ) * $per_page;
-	$last     = $first + $per_page;
-	$list     = array();
-
-	$get = crb_get_query_params();
-	$filter_scan = intval( crb_array_get( $get, 'scan' ) );
-	//$dirs = array( $folder . 'quarantine' . DIRECTORY_SEPARATOR . absint( $_GET['scan'] ));
-	if ( ! $dirs = glob( $folder . 'quarantine' . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR ) ) {
-		echo $no_files;
-
-		return;
-	}
-
-	$scan_list = array();
-	$count = 0;
-	foreach ( $dirs as $dir ) {
-		$f           = $dir . '/.restore';
-		$scan_id     = basename( $dir );
-		$inc = false;
-		if ( file_exists( $f ) && $handle = @fopen( $f, "r" ) ) {
-			$ln = 0;
-			$included = array();
-			while ( ( $line = fgets( $handle ) ) !== false ) {
-				$ln ++;
-				if ( $ln <= 4 || empty( $line ) ) {
-					continue;
-				}
-				$line = trim( $line );
-				if ( empty( $line ) ) {
-					continue;
-				}
-				$v = crb_parse_qline( $dir, $line );
-				if ( $v ) {
-					if ( in_array( $v['qfile'], $included ) ) {
-						continue; // Prevent listing the same file several times
-					}
-					$inc = true;
-					if ( ! $filter_scan || $filter_scan == $scan_id ) {
-						if ( $count >= $first && $count <= $last ) {
-							$v['scan_id'] = $scan_id;
-							$list[]       = $v;
-							$included[]   = $v['qfile'];
-						}
-						$count ++;
-					}
-					else {
-						continue; // skip the rest of the lines
-					}
-				}
-			}
-			if ( ! feof( $handle ) ) {
-				echo "Error: unexpected I/O Error";
-			}
-			fclose( $handle );
-		}
-		if ( $inc ) {
-			$scan_list[] = $scan_id;
-		}
-	}
-
-	if ( ! $list ) {
-		if ( ! $filter_scan ) {
-			echo $no_files;
-		}
-		else {
-			echo __( 'No files match the specified filter.', 'wp-cerber' ) . ' <a href="' . cerber_admin_link( 'scan_quarantine' ) . '">' . __( 'Click here to see the full list of files', 'wp-cerber' ) . '</a>.';
-		}
-
-		return;
-	}
-
-	//echo nl2br( print_r( $list, 1 ) );
-
-	$rows     = array();
-	$ofs = get_option( 'gmt_offset' ) * 3600;
-	$confirm = ' onclick="return confirm(\'' . __( 'Are you sure?', 'wp-cerber' ) . '\');"';
-
-	foreach ( $list as $file ) {
-		$p = array(
-			'cerber_admin_do' => 'scan_tegrity',
-			'crb_scan_id'     => $file['scan_id'],
-			'crb_file_id'     => $file['qfile']
-		);
-
-		$p['crb_scan_adm'] = 'delete';
-		$delete = '<a ' . $confirm . ' href="' . cerber_admin_link_add( $p ) . '">' . __( 'Delete permanently', 'wp-cerber' ) . '</a>';
-
-		$p['crb_scan_adm'] = 'restore';
-		$restore = ( ! $file['can'] ) ? '' : ' | <a ' . $confirm . ' href="' . cerber_admin_link_add( $p ) . '">' . __( 'Restore', 'wp-cerber' ) . '</a>';
-
-		$moved   = strtotime( $file['date'] ) - $ofs;
-		$will    = cerber_auto_date( $file['scan_id'] + DAY_IN_SECONDS * crb_get_settings( 'scan_qcleanup' ) );
-		$rows[] = '<td><span title="' . cerber_date( $file['scan_id'] ) . '">' . cerber_auto_date( $file['scan_id'] ) . '</span></td><td><span title="' . cerber_date( $moved ) . '">' . cerber_auto_date( $moved ) . '</span></td><td>' . $will . '</td><td>' . $file['size'] . '</td><td>' . $file['source'] . '</td><td style="white-space: pre;">' . $delete . $restore . '</td>';
-	}
-
-	$heading = array(
-		__( 'Scanned', 'wp-cerber' ),
-		__( 'Moved to quarantine', 'wp-cerber' ),
-		__( 'Automatic deletion', 'wp-cerber' ),
-		__( 'Size', 'wp-cerber' ),
-		__( 'File', 'wp-cerber' ),
-		__( 'Action', 'wp-cerber' ),
-	);
-
-
-	$titles = '<tr><th>' . implode( '</th><th>', $heading ) . '</th></tr>';
-
-	$table = '<table class="widefat crb-table cerber-margin"><thead>' . $titles . '</thead><tfoot>' . $titles . '</tfoot>' . implode( '</tr><tr>', $rows ) . '</tr></table>';
-
-	$table .= cerber_page_navi( $count, $per_page );
-
-	$filter = '';
-	if ( count( $scan_list ) > 1 ) {
-		krsort( $scan_list );
-		$list = array( 0 => __( 'All scans', 'wp-cerber' ) );
-		foreach ( $scan_list as $s ) {
-			$list[ $s ] = cerber_date( $s );
-		}
-		$filter = '<div style="text-align: right; margin-bottom: 1em;"><form style="width: auto;" action="">' . cerber_select( 'scan', $list, $filter_scan ) . ' <input value="Filter" class="button" type="submit"><input name="page" value="cerber-integrity" type="hidden"><input name="tab" value="scan_quarantine" type="hidden"></form></div>';
-	}
-
-	echo $filter.$table;
-}
-
-function cerber_quarantine_do( $what, $scan_id, $qfile ) {
-	$scan_id = absint( $scan_id );
-	if ( ! $scan_id ) {
-		cerber_admin_notice( 'Error: Wrong scan parameters.' );
-
-		return;
-	}
-	//$dir = cerber_get_the_folder() . 'quarantine' . DIRECTORY_SEPARATOR . $scan_id;
-	$dir = cerber_get_the_folder( true );
-	if ( is_wp_error( $dir ) ) {
-		cerber_admin_notice( $dir->get_error_message() );
-
-		return;
-	}
-
-	$dir .= 'quarantine' . DIRECTORY_SEPARATOR . $scan_id;
-
-	$file   = $dir . DIRECTORY_SEPARATOR . $qfile;
-	if ( ! @is_file( $file ) || is_link( $file ) ) {
-		cerber_admin_notice( 'Error: No file to process' );
-
-		return;
-	}
-
-	$rst = $dir . '/.restore';
-	if ( ! file_exists( $rst ) || ! $handle = @fopen( $rst, 'r' ) ) {
-		cerber_admin_notice( 'Error: A restore registry file is corrupt or missing.' );
-
-		return;
-	}
-
-	$data = null;
-	while ( ( $line = fgets( $handle ) ) !== false ) {
-		if ( $p = crb_parse_qline( $dir, $line ) ) {
-			if ( $p['qfile'] == $qfile ) {
-			    $data = $p;
-				break;
-			}
-		}
-	}
-
-	if ( ! $data ) {
-		cerber_admin_notice( 'Error: No information about this file. Unable to proceed.' );
-
-		return;
-	}
-
-	$err = null;
-	$msg = null;
-	switch ( $what ) {
-		case 'delete':
-			if ( unlink( $file ) ) {
-				$msg = __( 'The file has been deleted permanently.', 'wp-cerber' );
-			}
-			else {
-				$err = 'Unable to delete the file: ' . $file;
-			}
-			break;
-		case 'restore':
-			if ( $data['can'] ) {
-				$target_dir = dirname( $data['source'] );
-				if ( ! file_exists( $target_dir ) && ! mkdir( $target_dir, 0755, true ) ) {
-					$err = 'Unable to create the folder <b>' . $target_dir . '</b>. Check permissions of parent folders.';
-				}
-				if ( ! $err ) {
-					if ( @rename( $file, $data['source'] ) ) {
-						$msg = __( 'The file has been restored to its original location.', 'wp-cerber' );
-					}
-					else {
-						$err = 'A file error occurred while restoring the file. Check permissions of folders.';
-					}
-				}
-			}
-			else {
-				$err = 'This file cannot be restored and needs to be manually copied. <p>See instructions in this file: ' . $rst . '</p>';
-			}
-			break;
-	}
-	if ( $err ) {
-		cerber_admin_notice( __( 'ERROR:', 'wp-cerber' ) . ' ' . $err );
-	}
-	if ( $msg ) {
-		cerber_admin_message( $msg );
-	}
-}
-
-function cerber_show_ignore() {
-
-    // For translators
-	__( 'Apply', 'wp-cerber' );
-	__( 'Remove from the list', 'wp-cerber' );
-	__( 'User Insights', 'wp-cerber' );
-	__( 'Traffic Insights', 'wp-cerber' );
-	__( 'Activity Insights', 'wp-cerber' );
-
-	$no_files = __( 'The list is empty.', 'wp-cerber' );
-	$per_page = crb_admin_get_per_page();
-	$first    = ( cerber_get_pn() - 1 ) * $per_page;
-
-	if ( ! $list = cerber_get_set( 'ignore-list' ) ) {
-		echo $no_files;
-
-		return;
-	}
-
-	$count = count( $list );
-	$list = array_slice( $list, $first, $per_page );
-
-	$rows     = array();
-	$confirm = ' onclick="return confirm(\'' . __( 'Are you sure?', 'wp-cerber' ) . '\');"';
-
-	foreach ( $list as $key => $file ) {
-
-		$delete = '<a ' . $confirm . ' href="' . cerber_admin_link_add( array(
-				'cerber_admin_do' => 'scan_tegrity',
-				'crb_scan_adm' => 'remove_ignore',
-				'crb_file_id'  => $key
-			) ) . '">' . __( 'Remove from the list', 'wp-cerber' ) . '</a>';
-
-		$rows[]  = '<td>' . cerber_date( $file[3] ) . '</td><td>' . $file[0] . '</td><td style="white-space: pre;">'.$delete . '</td>';
-	}
-
-	$heading = array(
-		__( 'Added', 'wp-cerber' ),
-		__( 'File', 'wp-cerber' ),
-		__( 'Action', 'wp-cerber' ),
-	);
-
-
-	$titles = '<tr><th>' . implode( '</th><th>', $heading ) . '</th></tr>';
-
-	$table = '<table class="widefat crb-table cerber-margin"><thead>' . $titles . '</thead><tfoot>' . $titles . '</tfoot>' . implode( '</tr><tr>', $rows ) . '</tr></table>';
-
-	$table .= cerber_page_navi( $count, $per_page );
-
-	echo $table;
-}
-
-function crb_remove_ignore( $id ) {
-	if ( ! $list = cerber_get_set( 'ignore-list' ) ) {
-		return false;
-	}
-	if ( ! isset( $list[ $id ] ) ) {
-		return false;
-	}
-
-	unset( $list[ $id ] );
-
-	return cerber_update_set( 'ignore-list', $list );
-
-}
-
-function crb_parse_qline( $dir, $line ) {
-	list( $date, $info ) = explode( '|', $line );
-	list( $qfile, $source ) = explode( '=>', $info );
-	$date = trim( $date );
-	$qfile = trim( $qfile );
-	$source = trim( $source );
-	if ( ! $qfile ) {
-		return false;
-	}
-	$fname = $dir . '/' . $qfile;
-	if ( ! @is_file( $fname ) ) {
-		return false;
-	}
-	$size   = @filesize( $fname );
-	$size   = ( is_numeric( $size ) ) ? $size : 0;
-	//$sdir   = dirname( $source ) . DIRECTORY_SEPARATOR;
-	//$can    = ( file_exists( $sdir ) ) ? true : false;
-    //$can = ( file_exists( $source ) ) ? false : true;
-
-	$ret = array(
-		'date'   => $date,
-		'size'   => crb_size_format( $size ),
-		'qfile'  => $qfile,
-		'source' => $source,
-		//'sdir'   => $sdir,
-		//'can'    => $can
-		'can'    => true
-	);
-
-	return $ret;
-}
-
 function crb_scan_debug( $msg ) {
-	global $cerber_db_errors;
 
 	if ( crb_get_settings( 'scan_debug' ) ) {
-		cerber_diag_log( $cerber_db_errors, 'Scanner' );
+		cerber_diag_log( cerber_db_get_errors( true ), 'Scanner' );
 		cerber_diag_log( $msg, 'Scanner' );
 	}
 }
@@ -6011,4 +5206,28 @@ function crb_issue_filer( $list, $function ) {
 	}
 	//$response['issues'] = $filtered;
 	return $filtered;
+}
+
+function crb_qr_total_update( $diff ) {
+	if ( ! $numq = cerber_get_set( 'quarantined_total', null, false ) ) {
+		$numq = 0;
+	}
+	$numq = $numq + $diff;
+	if ( $numq < 0 ) {
+		$numq = 0;
+	}
+
+	cerber_update_set( 'quarantined_total', $numq, null, false );
+}
+
+function _crb_qr_total_sync( $total = null ) {
+	if ( ! $total ) {
+		$q = cerber_quarantine_get_files();
+		if ( is_wp_error( $q ) ) {
+			return;
+		}
+		$total = $q[1];
+	}
+
+	cerber_update_set( 'quarantined_total', $total, null, false );
 }

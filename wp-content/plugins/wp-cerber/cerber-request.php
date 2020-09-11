@@ -9,6 +9,11 @@ final class CRB_Request {
 	private static $sub_folder = null; // Without trailing slash and site domain
 	private static $the_path = null;
 
+	/**
+	 * Returns clean "Request URI" without trailing slash and GET parameters
+	 *
+	 * @return string
+	 */
 	static function URI() {
 		if ( isset( self::$clean_uri ) ) {
 			return self::$clean_uri;
@@ -48,7 +53,9 @@ final class CRB_Request {
 			return;
 		}
 
-		$site_url = cerber_get_site_url(); // Including the path to WP files and stuff
+		list( self::$site_root, self::$sub_folder ) = crb_parse_site_url();
+
+		/*$site_url = cerber_get_site_url(); // Including the path to WP files and stuff
 		$p1       = strpos( $site_url, '//' );
 		$p2       = strpos( $site_url, '/', $p1 + 2 );
 		if ( $p2 !== false ) {
@@ -58,7 +65,7 @@ final class CRB_Request {
 		else {
 			self::$site_root  = $site_url;
 			self::$sub_folder = '';
-		}
+		}*/
 
 	}
 

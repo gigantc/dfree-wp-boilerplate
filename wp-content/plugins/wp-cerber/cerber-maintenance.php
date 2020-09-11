@@ -1,7 +1,7 @@
 <?php
 /*
-	Copyright (C) 2015-19 CERBER TECH INC., https://cerber.tech
-	Copyright (C) 2015-19 CERBER TECH INC., https://wpcerber.com
+	Copyright (C) 2015-20 CERBER TECH INC., https://cerber.tech
+	Copyright (C) 2015-20 CERBER TECH INC., https://wpcerber.com
 
     Licenced under the GNU GPL.
 
@@ -239,14 +239,12 @@ class CRB_Upgrader_Skin extends WP_Upgrader_Skin {
      * Saves results for further usage instead of flushing it to a user browser
 	 *
 	 */
-	public function feedback( $string ) {
+	public function feedback( $string, ...$args ) { // Variadic functions requires PHP 5.6
 		if ( isset( $this->upgrader->strings[ $string ] ) ) {
 			$string = $this->upgrader->strings[ $string ];
 		}
 
 		if ( strpos( $string, '%' ) !== false ) {
-			$args = func_get_args();
-			$args = array_splice( $args, 1 );
 			if ( $args ) {
 				$args   = array_map( 'strip_tags', $args );
 				$args   = array_map( 'esc_html', $args );

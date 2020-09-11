@@ -1,12 +1,13 @@
 /**
- *	Copyright (C) 2015-19 CERBER TECH INC., https://wpcerber.com
+ *	Copyright (C) 2015-20 CERBER TECH INC., https://wpcerber.com
  */
 jQuery(document).ready(function ($) {
 
-    /* Select2 */
-    var crb_admin = $('#crb-admin');
+    let crb_admin = $('#crb-admin');
 
-    var crb_se2 = crb_admin.find('.crb-select2-ajax');
+    /* Select2 */
+
+    var crb_se2 = crb_admin.find('select.crb-select2-ajax');
     if (crb_se2.length) {
         crb_se2.select2({
             allowClear: true,
@@ -33,19 +34,31 @@ jQuery(document).ready(function ($) {
         });
     }
 
-    crb_se2 = crb_admin.find('.crb-select2');
+    crb_se2 = crb_admin.find('select.crb-select2');
     if (crb_se2.length) {
-        crb_se2.select2();
+        crb_se2.select2({
+            /*width: 'resolve',*/
+            /*selectOnClose: true*/
+        });
     }
 
-    //crb_se2 = crb_admin.find('#crb-select2-tags');
-    crb_se2 = $('#crb-select2-tags');
+    crb_se2 = crb_admin.find('select.crb-select2-tags');
     if (crb_se2.length) {
         crb_se2.select2({
             tags: true,
             allowClear: true
         });
     }
+
+    /* UI utils */
+
+    crb_admin.on('click', '.crb-opener', function (event) {
+        let target = $(this).data('target');
+        if (target) {
+            $('#'+target).slideToggle(200);
+        }
+    });
+
 
     /* WP Comments page */
     var comtable = 'table.wp-list-table.comments';
@@ -107,25 +120,26 @@ jQuery(document).ready(function ($) {
         $.post(ajaxurl, {
                 action: 'cerber_ajax',
                 acl_delete: $(this).data('ip'),
+                slice: $(this).closest('[data-acl-slice]').data('acl-slice'),
                 ajax_nonce: crb_ajax_nonce
             },
-            onDeleteSuccess
+            onDeleteResponse,
+            'json'
         );
         /*$(this).parent().parent().fadeOut(500);*/
         /* $(this).closest("tr").FadeOut(500); */
     });
-    function onDeleteSuccess(server_data) {
-        var cerber_response = $.parseJSON(server_data);
-        $('.delete_entry[data-ip="' + cerber_response['deleted_ip'] + '"]').parent().parent().fadeOut(300);
+
+    function onDeleteResponse(server_response) {
+        if (typeof server_response.error !== 'undefined') {
+            alert(server_response.error);
+        }
+        else {
+            $('.delete_entry[data-ip="' + server_response.deleted_ip + '"]').parent().parent().fadeOut(300);
+        }
     }
 
-    //
-
-    /*
-     $('#add-acl-black').submit(function( event ) {
-     $(this).find('[name="add_acl_B"]').val($(this).find("button:focus").val());
-     });
-     */
+    // ----------------------
 
     $(".cerber-dismiss").click(function () {
         $(this).closest('.cerber-msg').fadeOut(500);
@@ -154,7 +168,11 @@ jQuery(document).ready(function ($) {
 
     var crb_traffic = $('#crb-traffic');
 
-    crb_traffic.find('tr.crb-toggle td.crb-request').click(function () {
+    crb_traffic.find('tr.crb-toggle td.crb-request').click(function (event) {
+        //alert(event.target.tagName);
+        if ($(event.target).data('no-js') === 1) {
+            return;
+        }
         var request_details = $(this).parent().next();
         //request_details.slideToggle(100);
         request_details.toggle();
@@ -224,13 +242,13 @@ jQuery(document).ready(function ($) {
     // Add UTM
 
     $('div#crb-admin').on('click', 'a', function (event) {
-        var link = $(this).attr('href');
+        let link = $(this).attr('href');
         if (link.startsWith('https://wpcerber.com') && !link.includes('wp-admin')) {
-            var url_char = '?';
+            let url_char = '?';
             if (link.includes('?')) {
                 url_char = '&';
             }
-            $(this).attr('href', link + url_char + 'utm_source=wp_plugin');
+            $(this).attr('href', link + url_char + 'utm_source=wp_plugin&culoc=' + crb_user_locale);
         }
     });
 
@@ -271,7 +289,6 @@ jQuery(document).ready(function ($) {
         $.magnificPopup.close();
         event.preventDefault();
     });
-
 
     // GEO
 

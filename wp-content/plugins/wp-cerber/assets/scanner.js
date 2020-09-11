@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) 2015-19 CERBER TECH INC., https://wpcerber.com
+ *	Copyright (C) 2015-20 CERBER TECH INC., https://wpcerber.com
  */
 jQuery(document).ready(function ($) {
 
@@ -20,12 +20,13 @@ jQuery(document).ready(function ($) {
     var crb_scan_requests = 0;
     var crb_server_errors = 0;
 
+    var crb_scan_display = $("#crb-scan-display");
     var crb_scan_controls = $('#crb-scan-controls');
     var crb_file_controls = $('#crb-file-controls');
+    var crb_scan_filter = $('#crb-scan-filter');
 
     var crb_scan_details = $('#crb-scan-details');
     var crb_scan_progress = $('#crb-scan-progress');
-    //var crb_scan_bar = crb_scan_progress.find('div');
     var crb_scan_bar = crb_scan_progress.find('#the-scan-bar');
 
     var crb_scan_message = $("#crb-scan-message");
@@ -33,8 +34,12 @@ jQuery(document).ready(function ($) {
 
     var crb_txt_strings = [];
     var crb_the_file;
+    var crb_row_id = 0; // For local parent -> child relationship
 
-    cerber_scan_load_data();
+    if (crb_admin_page === 'cerber-integrity'
+        && (crb_admin_tab === '' || crb_admin_tab === 'scan_main')) {
+        cerber_scan_load_data();
+    }
 
     crb_scan_controls.find(':button,a').click(function (event) {
         var operation = $(event.target).data('control');
@@ -82,12 +87,15 @@ jQuery(document).ready(function ($) {
         crb_issues_counter = [0, 0, 0, 0];
         crb_issues_total = 0;
 
-        $('#crb-scan-display').find('[data-init]').each(function () {
+        crb_scan_display.find('[data-init]').each(function () {
             $(this).html($(this).data('init'));
         });
-        $('#crb-scan-details').find('[data-init]').each(function () {
+
+        crb_scan_filter.find('.crb-scan-flon').removeClass('crb-scan-flon');
+
+        /*$('#crb-scan-details').find('[data-init]').each(function () {
             $(this).html($(this).data('init'));
-        });
+        });*/
 
         crb_scan_message.slideDown().html(crb_scan_msg_steps[0]);
         cerber_update_bar(true);
@@ -197,9 +205,10 @@ jQuery(document).ready(function ($) {
         $("#crb-smode").html(smode);
 
         $.each(scanner_data.numbers, function (type, value) {
-            var e = document.getElementById("crb-numbers-" + type);
-            if (e) {
-                $(e).text(value);
+            var e = $('#crb-numbers-' + type);
+            if (e.length) {
+                e.find('.crb-scan-number').html(value);
+                e.find('span').addClass('crb-scan-flon');
             }
         });
 
@@ -222,7 +231,7 @@ jQuery(document).ready(function ($) {
             issues = scanner_data.issues;
         }
 
-        $.each(issues, function (section_id, section) {
+        $.each(issues, function (section_id, section_data) {
             var the_items = [];
 
             if (!this.issues.length) {
@@ -231,33 +240,36 @@ jQuery(document).ready(function ($) {
 
             // Avoid JS undefined error with an old data set
             var vul_list;
-            if (typeof section.sec_details !== 'undefined') {
-                vul_list = section.sec_details.vul_list;
+            if (typeof section_data.sec_details !== 'undefined') {
+                vul_list = section_data.sec_details.vul_list;
             }
 
-            var section_name = section.name;
-            var setype = section.setype;
+            var section_name = section_data.name;
+            var setype = section_data.setype;
 
             var section_header_class = 'crb-scan-section';
-            if (section.container) {
-                section_header_class = section_header_class + ' section-' + section.container;
+            if (section_data.container) {
+                section_header_class = section_header_class + ' section-' + section_data.container;
             }
 
             var section_items = [];
-            //var section_header = '';
             var issue_type_id, f_name, isize, itime, full_name;
             var risk;
             var rbox;
             var name_classes;
             var version;
 
-            var section_header = '<tr id="' + section_id + '" class="' + section_header_class + '" data-section-name="' + section_name + '" data-setype="' + setype + '"><td></td><td colspan = 5><span>' + section_name + '</span></td></tr>';
-            //var section_header = '';
+            var target_section = crb_scan_browser.find('#' + section_id);
+
+            var parent_section_id  = (target_section.length ? target_section.data('row-id') : crb_row_id);
+
+            var section_header = '<tr id="' + section_id + '" class="' + section_header_class + '" data-row-id="' + crb_row_id + '" data-section-name="' + section_name + '" data-setype="' + setype + '"><td></td><td colspan = 5><span>' + section_name + '</span></td></tr>';
 
             $.each(this.issues, function (index, single_issue) {
                 issue_type_id = single_issue[0];
                 f_name = single_issue[1];
                 risk = single_issue[2];
+                var extra_issue = (single_issue[3] ? single_issue[3] : 0 );
 
                 isize = '';
                 if (single_issue.data.size) {
@@ -304,22 +316,21 @@ jQuery(document).ready(function ($) {
                     if (vul_list) {
                         $.each(vul_list, function (index, vuln) {
                             //under += '<i style="font-size: 125%; vertical-align: middle; margin-left: -2px;" class="crb-icon crb-icon-bxs-error-circle"></i> ' + vuln.n + '. Please update the plugins as soon as possible.<br/>';
-                            under += vuln.n + '. ' + vuln.f + '<br/>';
+                            under += vuln.vu_info + '<br/>';
                         });
                         //under += 'Please update the plugins as soon as possible.<br/>';
                         under = '<p class="crb-list-vlnb">' + under + '</p>';
                     }
 
-                    section_header = '<tr id="' + section_id + '" class="' + section_header_class + '" data-section-name="' + section_name + '" data-setype="' + setype + '"><td></td><td colspan = 5><span>' + section_name + '</span>' + extra + under + '</td></tr>';
+                    section_header = '<tr id="' + section_id + '" class="' + section_header_class + '" data-row-id="' + crb_row_id + '" data-section-name="' + section_name + '" data-setype="' + setype + '"><td></td><td colspan = 5><span>' + section_name + '</span>' + extra + under + '</td></tr>';
                 }
                 else {
                     // Single file issue ----------------
                     rbox = '';
                     if (single_issue.data.fd_allowed) {
-                        //rbox = '<input type="checkbox" name="" data-file_name="' + full_name + '">';
                         rbox = '<input type="checkbox">';
                     }
-                    section_items.push('<tr class="crb-item-file" data-itype="' + issue_type_id + '" data-file_name="' + full_name + '"><td>' + rbox + '</td><td data-short="' + f_name + '" class="' + name_classes + '">' + f_name + '</td><td>' + cerber_get_issue_txt(index, single_issue) + '</td><td class="risk' + risk + '"><span>' + crb_scan_msg_risks[risk] + '</span></td><td>' + isize + '</td><td>' + itime + '</td></tr>');
+                    section_items.push('<tr class="crb-item-file" data-prid="' + parent_section_id + '" data-itype="' + issue_type_id + '" data-iextra="' + extra_issue + '" data-file_name="' + full_name + '"><td>' + rbox + '</td><td data-short="' + f_name + '" class="' + name_classes + '">' + f_name + '</td><td>' + cerber_get_issue_txt(index, single_issue) + '</td><td class="risk' + risk + '"><span>' + crb_scan_msg_risks[risk] + '</span></td><td>' + isize + '</td><td>' + itime + '</td></tr>');
                 }
 
                 crb_issues_counter[risk]++;
@@ -328,14 +339,13 @@ jQuery(document).ready(function ($) {
                 }
             });
 
-            var section = crb_scan_browser.find('#' + section_id);
-
-            if (section.length) {
-                section.after(section_items);
+            if (target_section.length) {
+                target_section.after(section_items);
             }
             else {
                 section_items.unshift(section_header);
                 $.merge(the_items, section_items);
+                crb_row_id++;
             }
 
             if (the_items) {
@@ -392,12 +402,12 @@ jQuery(document).ready(function ($) {
 
         if (scanner_data.errors && scanner_data.errors.length) {
             scanner_data.errors.forEach(function (item, index) {
-                console.error('WP CERBER SCANNER ERROR: ' + item);
+                console.error('WP CERBER SCANNER: ' + item);
             });
         }
         if (crb_response.console_log && crb_response.console_log.length) {
             crb_response.console_log.forEach(function (item) {
-                console.log('WP CERBER: ' + item);
+                console.log('WP CERBER SCANNER: ' + item);
             });
         }
     }
@@ -614,6 +624,46 @@ jQuery(document).ready(function ($) {
             });
         }
     }
+
+
+    // Filtering
+
+    crb_scan_filter.on('click', 'span', function (event) {
+        if (!$(this).hasClass('crb-scan-flon')) {
+            return;
+        }
+
+        var all_rows = crb_scan_browser.find('tr');
+        all_rows.hide();
+
+        // Single issues
+        var show_issues = $(this).data('itype-list');
+        if (typeof show_issues !== 'undefined') {
+            $(show_issues).each(function (index, value) {
+                var filtered_rows = all_rows.filter('.crb-item-file').filter('[data-itype=' + value + '],[data-iextra=' + value + ']');
+                filtered_rows.show();
+                filtered_rows.each(function () {
+                    $(this).prevAll('.crb-scan-section').first().show();
+                });
+            });
+        }
+
+        // Whole sections
+        var show_sections = $(this).data('setype-list');
+        if (typeof show_sections !== 'undefined') {
+            $(show_sections).each(function (index, value) {
+                var filtered_sections = all_rows.filter('.crb-scan-section[data-setype=' + value + ']');
+                filtered_sections.show();
+                filtered_sections.each(function () {
+                    // All rows in the section
+                    $(this).nextAll('.crb-item-file[data-prid=' + $(this).data('row-id') + ']').show();
+                });
+            });
+        }
+
+    });
+
+    // Popups for an issue
 
     crb_scan_browser.on('click', 'a', function (event) {
         var issue = $(this).data('itype');

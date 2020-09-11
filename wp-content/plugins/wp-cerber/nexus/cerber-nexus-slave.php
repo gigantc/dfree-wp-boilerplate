@@ -1,7 +1,7 @@
 <?php
 /*
-	Copyright (C) 2015-19 CERBER TECH INC., https://cerber.tech
-	Copyright (C) 2015-19 CERBER TECH INC., https://wpcerber.com
+	Copyright (C) 2015-20 CERBER TECH INC., https://cerber.tech
+	Copyright (C) 2015-20 CERBER TECH INC., https://wpcerber.com
 
     Licenced under the GNU GPL.
 
@@ -32,6 +32,8 @@
 */
 
 if ( ! defined( 'WPINC' ) ) { exit; }
+
+require_once( dirname( cerber_plugin_file() ) . '/cerber-maintenance.php' );
 
 add_action( 'plugins_loaded', function () {
 	if ( ! $key = cerber_get_get( 'cerber_magic_key', '[\d\w\-_]+' ) ) {
@@ -112,13 +114,14 @@ class CRB_Master {
 	/**
 	 * @param integer|string $key
 	 * @param mixed $default
+	 * @param $pattern string REGEX pattern for value validation, UTF is not supported
 	 *
 	 * @return mixed
 	 */
-	final function get_post_fields( $key = null, $default = false ) {
+	final function get_post_fields( $key = null, $default = false, $pattern = ''  ) {
 		if ( ! empty( $this->payload['data']['post'] ) ) {
 			if ( $key ) {
-				return crb_array_get( $this->payload['data']['post'], $key, $default );
+				return crb_array_get( $this->payload['data']['post'], $key, $default, $pattern );
 			}
 
 			return $this->payload['data']['post'];
@@ -150,32 +153,18 @@ function nexus_slave_process() {
 	}
 
 	@ini_set( 'display_errors', 0 );
-	@set_time_limit( 180 );
-	@ini_set( 'max_execution_time', 180 );
 	@ignore_user_abort( true );
+	crb_raise_limits();
+
 	cerber_update_set( 'processing_master_request', 1, 0, false, time() + 120 );
-
-	/*
-	if ( function_exists( 'cerber_mode' ) ) {
-		nexus_diag_log( '+++++++++++++++++++++++++++++++++++++' );
-	}
-	nexus_diag_log( 'CGM ' . cerber_get_mode() );
-	nexus_diag_log( 'CGS' . crb_get_settings( 'boot-mode' ) );
-	if (defined('CERBER_MODE')) {
-		nexus_diag_log( 'CONSTA! ' .CERBER_MODE);
-	}
-	nexus_diag_log('===='.print_r(get_included_files(),1));
-
-	//cerber_check_environment();
-
-	*/
 
 	nexus_diag_log( 'Parsing request...' );
 
 	$crb_master = nexus_request_data();
 
 	if ( is_wp_error( $crb_master->error ) ) {
-		nexus_diag_log( $crb_master->error );
+		nexus_diag_log( 'ERROR: ' . $crb_master->error->get_error_message() );
+
 		exit;
 	}
 
@@ -297,6 +286,8 @@ function nexus_prepare_responce() {
 
 	switch ( $master->type ) {
 		case 'get_page':
+			CRB_Addons::load_active();
+
 			return array(
 				'html' => nexus_render_admin_page( $master->page, $master->tab ),
 				//'o'    => get_option( 'gmt_offset' ),
@@ -304,6 +295,8 @@ function nexus_prepare_responce() {
 			);
 			break;
 		case 'submit':
+			CRB_Addons::load_active();
+
 			if ( $master->get_post_fields( 'option_page' ) ) { // True WP setting page
 				return nexus_process_wp_settings_form( $master->get_post_fields() );
 			}
@@ -426,21 +419,21 @@ function nexus_sw_upgrade() {
  */
 function nexus_process_wp_settings_form( $form ) {
 	if ( ! $page = crb_array_get( $form, 'option_page' ) ) {
-		return new WP_Error( 'unknown_option', 'Unknown admin page' );
+		return new WP_Error( 'unknown_option', 'Unable to identify settings page' );
 	}
 	if ( ! wp_verify_nonce( crb_array_get( $form, '_wpnonce' ), $page . '-options' ) ) {
 		return new WP_Error( 'nonce_failed', 'Nonce verification failed' );
 	}
+
 	$wp_option = 'cerber-' . cerber_get_wp_option_id( $page );
-	if ( ! in_array( $wp_option, cerber_get_setting_list() ) ) {
-		return new WP_Error( 'unknown_option', 'Unknown plugin setting' );
+	if ( ! isset( $form[ $wp_option ] ) ) {
+		return new WP_Error( 'no_value', 'Setting fields are not set' );
 	}
-	if ( ! $new_values = crb_array_get( $form, $wp_option ) ) {
-		return new WP_Error( 'no_value', 'New value not found' );
-	}
+
+	$new_values = crb_array_get( $form, $wp_option );
 	nexus_diag_log( 'Updating ' . $wp_option . ' option' );
-	update_site_option( $wp_option, $new_values );
-	cerber_admin_message( __( 'Settings saved', 'wp-cerber' ) );
+	cerber_update_site_option( $wp_option, $new_values );
+	cerber_admin_message( __( 'Settings updated', 'wp-cerber' ) );
 
 	return '';
 }
@@ -470,7 +463,7 @@ function nexus_net_send_responce( $payload ) {
 	$response = json_encode( array(
 		'payload'  => $payload,
 		'extra'    => array(
-			'versions' => array( CERBER_VER, cerber_get_wp_version(), PHP_MAJOR_VERSION, PHP_MINOR_VERSION, PHP_RELEASE_VERSION, PHP_OS )
+			'versions' => array( CERBER_VER, cerber_get_wp_version(), PHP_MAJOR_VERSION, PHP_MINOR_VERSION, PHP_RELEASE_VERSION, PHP_OS, lab_lab( 2 ) )
 		),
 		'echo'     => $hash,
 		'p_time'   => $processing,
@@ -593,10 +586,8 @@ function nexus_get_numbers() {
 	$numbers['themes']     = crb_get_themes();
 	$numbers['gmt']        = get_option( 'gmt_offset' );
 	$numbers['tz']         = get_option( 'timezone_string' );
-	$numbers['pro']        = lab_lab( true );
 
 	return $numbers;
-	//return array( 'updates' => $updates, 'scan' => $scan );
 }
 
 // We have to use our own "user id"
