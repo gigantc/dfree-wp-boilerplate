@@ -28,7 +28,7 @@ function my_plugin_block_categories( $categories, $post ) {
               'slug' => 'block-home',
               'title' => __( 'Home', 'block-home' ),
               'icon'  => 'admin-home',
-          )
+          ),
           array(
             'slug' => 'block-basic',
             'title' => __( 'Basic', 'block-basic' ),
