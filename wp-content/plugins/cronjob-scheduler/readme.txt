@@ -3,8 +3,8 @@ Contributors: chrispage1
 Tags: task,scheduler,automation,cron,cronjob
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=6FVZN7BBHGR2S&lc=GB&item_name=WordPress%20Plugins%20%2d%20Cronjob%20Scheduler&no_note=0&cn=Add%20special%20instructions%20to%20the%20seller%3a&no_shipping=1&currency_code=GBP&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted
 Requires at least: 3.5.1
-Tested up to: 4.9.1
-Stable tag: 1.30
+Tested up to: 5.4.1
+Stable tag: 1.40.1
 Plugin URI: http://wordpress.org/plugins/cronjob-scheduler/
 License: GNU v3
 License URI: http://www.gnu.org/licenses/gpl.html
@@ -13,9 +13,15 @@ Cronjob Scheduler allows you to automate regular tasks and actions within your W
 
 == Description ==
 = Cronjob Scheduler =
-Cronjob Scheduler allows you to create custom WordPress tasks that are automatically triggered on a schedule you define. The motivation behind building this plugin was out of frustration with other similar plugins that claim to do the same thing.
 
-Cronjob Scheduler allows you to run frequent tasks reliably and timely without anyone having to visit your site, all you need is at least 1 action and a Unix Crontab schedule!
+Cronjob Scheduler allows you to create custom WordPress tasks that are automatically triggered on a schedule you define.
+Cronjob Scheduler does not overwrite WordPress's existing scheduling functionality, which it and plugins use for a number of internal tasks.
+Instead, it simply replaces the standard WordPress mechanism which triggers them with a more reliable one from your operating system.
+In addition, it helps improve your site speed by making the server handle recurring tasks, rather than unsuspecting visitors...
+
+The motivation behind building this plugin was out of frustration with other similar plugins that claim to do the same thing.
+
+Cronjob Scheduler allows you to run frequent tasks reliably and timely without anyone having to visit your site at all. All you need is at least 1 action and a Unix Crontab schedule!
 
 = About =
 
@@ -57,6 +63,12 @@ Sure, just go to the Cronjob Scheduler interface and hit the `Run` button agains
 3. The process of creating a new scheduled task
 
 == Changelog ==
+
+= 1.40.1 =
+Removed session_start() fixing site health bug.
+
+= 1.40 =
+Project refactoring, added clause where action may show as not existing.
 
 = 1.30 =
 Addressed timezone bugs and updated latest version plugin is compatible with

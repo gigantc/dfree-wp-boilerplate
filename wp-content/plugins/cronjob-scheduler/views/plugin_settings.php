@@ -32,7 +32,13 @@
                             onclick="this.focus(); this.select()" /></pre>
                         </td>
                         <td class="column">
-                            <?php echo (has_action($attributes['hook']) ? 'Yes' : '<strong style="color: #FF0000">No</strong>') ?>
+                            <?=has_action($attributes['hook'])
+                                ? 'Yes'
+                                : '<strong style="color: #ffbf00">No<abbr title="If this is a plugin action, or core' .
+                                ' WordPress functionality, the action may exist but cannot be found by Cronjob ' .
+                                'Scheduler. This should be taken as an indicator only."
+                                style="font-weight: normal; color: black; padding-left: 3px;">*</abbr></strong>'
+                            ?>
                         </td>
                         <td class="column">
                             <?php echo esc_html($attributes['display_name']) ?><br /><small>
@@ -85,7 +91,15 @@
         </table>
     </form>
 
-    <h2>Action Template</h2>
+    <h2 style="margin-top: 20px; padding-left: 0;">Action doesn't exist?</h2>
+
+    <p>
+        If you have actions that are showing 'No' in the 'Action Exists' column, don't panic!
+        Many popular plugins will create actions in a slightly different way and Cron Job
+        scheduler cannot see them and will report “No” in this column. This is not a cause for concern.
+    </p>
+
+    <h2 style="margin-top: 20px; padding-left: 0;">Action Template</h2>
     <p>
         You can use the template below to create a new cron action.  In the example, the Cron Action
         would  be called <span style="font-family: monospace">my_cronjob_action</span>

@@ -7,19 +7,13 @@
             <?php echo $this->load_view('right_column'); ?>
 
             <div id="postbox-container-2" class="postbox-container">
-
-                <!-- /* output any notifications */
-                $this->output_notifications(); -->
-
-                <?php /* begin actual page contents */ ?>
-                <?php if(!$this->cron_configured()): ?>
-                    <?php /* plugin misconfigured page */ ?>
-                    <?php $this->load_view('plugin_misconfigured') ?>
-                <?php else: ?>
-                    <?php /* plugin settings page */ ?>
-                    <?php $this->load_view('plugin_settings') ?>
-                <?php endif; ?>
-                <?php /* end actual page contents */ ?>
+                <?php
+                    if (!$this->cron_configured()) {
+                        $this->load_view('plugin_misconfigured');
+                    } else {
+                        $this->load_view('plugin_settings');
+                    }
+                ?>
             </div>
         </div>
     </div>
