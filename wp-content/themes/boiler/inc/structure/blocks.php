@@ -16,6 +16,34 @@ function my_acf_block_render_callback( $block ) {
   }
 }
 
+//create custom block categories
+function my_plugin_block_categories( $categories, $post ) {
+  // if ( $post->post_type !== 'post' ) {
+  //     return $categories;
+  // }
+  return array_merge(
+      $categories,
+      array(
+          array(
+              'slug' => 'block-home',
+              'title' => __( 'Home', 'block-home' ),
+              'icon'  => 'admin-home',
+          )
+          array(
+            'slug' => 'block-basic',
+            'title' => __( 'Basic', 'block-basic' ),
+            'icon'  => 'edit',
+          ),
+          array(
+            'slug' => 'block-layout',
+            'title' => __( 'Layout', 'block-layout' ),
+            'icon'  => 'welcome-widgets-menus',
+          ),
+      )
+  );
+}
+add_filter( 'block_categories', 'my_plugin_block_categories', 10, 2 );
+
 
 
 //add only blocks that are needed
@@ -23,8 +51,10 @@ function acf_allowed_block_types( $allowed_blocks ) {
 
   //all default block types set
   $blocks = array(
-    'acf/splash-page',
-    'acf/callout-with-icons'
+    'acf/basic-headline',
+    'acf/basic-text',
+    'acf/basic-list',
+    'acf/basic-wysiwyg'
   );
 
 
@@ -49,27 +79,49 @@ function my_acf_init() {
   
   // check function exists
   if( function_exists('acf_register_block') ) {
-    
-    // register a home hero block
+
+    // register a basic headline block
     acf_register_block(array(
-      'name'        => 'splash-page',
-      'title'       => __('Splash Page'),
-      'description'   => __('The full temp splash page'),
+      'name'        => 'basic-headline',
+      'title'       => __('Simple Headline'),
+      'description'   => __('a simple headline element'),
       'render_callback' => 'my_acf_block_render_callback',
-      'category'      => 'layout',
-      'icon'        => '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="water" class="svg-inline--fa fa-water fa-w-18" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path fill="currentColor" d="M562.1 383.9c-21.5-2.4-42.1-10.5-57.9-22.9-14.1-11.1-34.2-11.3-48.2 0-37.9 30.4-107.2 30.4-145.7-1.5-13.5-11.2-33-9.1-46.7 1.8-38 30.1-106.9 30-145.2-1.7-13.5-11.2-33.3-8.9-47.1 2-15.5 12.2-36 20.1-57.7 22.4-7.9.8-13.6 7.8-13.6 15.7v32.2c0 9.1 7.6 16.8 16.7 16 28.8-2.5 56.1-11.4 79.4-25.9 56.5 34.6 137 34.1 192 0 56.5 34.6 137 34.1 192 0 23.3 14.2 50.9 23.3 79.1 25.8 9.1.8 16.7-6.9 16.7-16v-31.6c.1-8-5.7-15.4-13.8-16.3zm0-144c-21.5-2.4-42.1-10.5-57.9-22.9-14.1-11.1-34.2-11.3-48.2 0-37.9 30.4-107.2 30.4-145.7-1.5-13.5-11.2-33-9.1-46.7 1.8-38 30.1-106.9 30-145.2-1.7-13.5-11.2-33.3-8.9-47.1 2-15.5 12.2-36 20.1-57.7 22.4-7.9.8-13.6 7.8-13.6 15.7v32.2c0 9.1 7.6 16.8 16.7 16 28.8-2.5 56.1-11.4 79.4-25.9 56.5 34.6 137 34.1 192 0 56.5 34.6 137 34.1 192 0 23.3 14.2 50.9 23.3 79.1 25.8 9.1.8 16.7-6.9 16.7-16v-31.6c.1-8-5.7-15.4-13.8-16.3zm0-144C540.6 93.4 520 85.4 504.2 73 490.1 61.9 470 61.7 456 73c-37.9 30.4-107.2 30.4-145.7-1.5-13.5-11.2-33-9.1-46.7 1.8-38 30.1-106.9 30-145.2-1.7-13.5-11.2-33.3-8.9-47.1 2-15.5 12.2-36 20.1-57.7 22.4-7.9.8-13.6 7.8-13.6 15.7v32.2c0 9.1 7.6 16.8 16.7 16 28.8-2.5 56.1-11.4 79.4-25.9 56.5 34.6 137 34.1 192 0 56.5 34.6 137 34.1 192 0 23.3 14.2 50.9 23.3 79.1 25.8 9.1.8 16.7-6.9 16.7-16v-31.6c.1-8-5.7-15.4-13.8-16.3z"></path></svg>',
-      'keywords'      => array( 'splash', 'home', 'temp' ),
+      'category'      => 'block-basic',
+      'icon'        => '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="heading" class="svg-inline--fa fa-heading fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M448 96v320h32a16 16 0 0 1 16 16v32a16 16 0 0 1-16 16H320a16 16 0 0 1-16-16v-32a16 16 0 0 1 16-16h32V288H160v128h32a16 16 0 0 1 16 16v32a16 16 0 0 1-16 16H32a16 16 0 0 1-16-16v-32a16 16 0 0 1 16-16h32V96H32a16 16 0 0 1-16-16V48a16 16 0 0 1 16-16h160a16 16 0 0 1 16 16v32a16 16 0 0 1-16 16h-32v128h192V96h-32a16 16 0 0 1-16-16V48a16 16 0 0 1 16-16h160a16 16 0 0 1 16 16v32a16 16 0 0 1-16 16z"></path></svg>',
+      'keywords'      => array( 'basic', 'headline'),
     ));
 
-    // register a home hero callout gallery block with icons
+    // register a basic text block
     acf_register_block(array(
-      'name'        => 'callout-with-icons',
-      'title'       => __('Callout Gallery With Icons'),
-      'description'   => __('A Callout Gallery Block with Icons'),
+      'name'        => 'basic-text',
+      'title'       => __('Simple Text'),
+      'description'   => __('a simple text block element'),
       'render_callback' => 'my_acf_block_render_callback',
-      'category'      => 'layout',
-      'icon'        => 'images-alt',
-      'keywords'      => array( 'callout', 'gallery', 'icons', 'home' ),
+      'category'      => 'block-basic',
+      'icon'        => '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="text-size" class="svg-inline--fa fa-text-size fa-w-20" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M624 32H272a16 16 0 0 0-16 16v96a16 16 0 0 0 16 16h32a16 16 0 0 0 16-16v-32h88v304h-40a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16v-32a16 16 0 0 0-16-16h-40V112h88v32a16 16 0 0 0 16 16h32a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM304 224H16a16 16 0 0 0-16 16v64a16 16 0 0 0 16 16h32a16 16 0 0 0 16-16v-16h56v128H96a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h128a16 16 0 0 0 16-16v-32a16 16 0 0 0-16-16h-24V288h56v16a16 16 0 0 0 16 16h32a16 16 0 0 0 16-16v-64a16 16 0 0 0-16-16z"></path></svg>',
+      'keywords'      => array( 'basic', 'text'),
+    ));
+
+    // register a basic text list block
+    acf_register_block(array(
+      'name'        => 'basic-list',
+      'title'       => __('Simple List'),
+      'description'   => __('a simple bullet list element'),
+      'render_callback' => 'my_acf_block_render_callback',
+      'category'      => 'block-basic',
+      'icon'        => '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="list" class="svg-inline--fa fa-list fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M80 368H16a16 16 0 0 0-16 16v64a16 16 0 0 0 16 16h64a16 16 0 0 0 16-16v-64a16 16 0 0 0-16-16zm0-320H16A16 16 0 0 0 0 64v64a16 16 0 0 0 16 16h64a16 16 0 0 0 16-16V64a16 16 0 0 0-16-16zm0 160H16a16 16 0 0 0-16 16v64a16 16 0 0 0 16 16h64a16 16 0 0 0 16-16v-64a16 16 0 0 0-16-16zm416 176H176a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h320a16 16 0 0 0 16-16v-32a16 16 0 0 0-16-16zm0-320H176a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h320a16 16 0 0 0 16-16V80a16 16 0 0 0-16-16zm0 160H176a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h320a16 16 0 0 0 16-16v-32a16 16 0 0 0-16-16z"></path></svg>',
+      'keywords'      => array( 'basic', 'list'),
+    ));
+
+    // register a basic Wysiwyg editor
+    acf_register_block(array(
+      'name'        => 'basic-wysiwyg',
+      'title'       => __('Wysiwyg Editor'),
+      'description'   => __('a simple Wysiwyg element'),
+      'render_callback' => 'my_acf_block_render_callback',
+      'category'      => 'block-basic',
+      'icon'        => '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="superscript" class="svg-inline--fa fa-superscript fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M496 160h-16V16a16 16 0 0 0-16-16h-48a16 16 0 0 0-14.29 8.83l-16 32A16 16 0 0 0 400 64h16v96h-16a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h96a16 16 0 0 0 16-16v-32a16 16 0 0 0-16-16zM336 64h-67a16 16 0 0 0-13.14 6.87l-79.9 115-79.9-115A16 16 0 0 0 83 64H16A16 16 0 0 0 0 80v48a16 16 0 0 0 16 16h33.48l77.81 112-77.81 112H16a16 16 0 0 0-16 16v48a16 16 0 0 0 16 16h67a16 16 0 0 0 13.14-6.87l79.9-115 79.9 115A16 16 0 0 0 269 448h67a16 16 0 0 0 16-16v-48a16 16 0 0 0-16-16h-33.48l-77.81-112 77.81-112H336a16 16 0 0 0 16-16V80a16 16 0 0 0-16-16z"></path></svg>',
+      'keywords'      => array( 'basic', 'wysiwyg'),
     ));
 
 
