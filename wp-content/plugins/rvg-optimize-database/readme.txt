@@ -9,9 +9,9 @@ Author: CAGE Web Design | Rolf van Gelder, Eindhoven, The Netherlands
 Contributors: cageehv
 Requires at least: 2.8
 Requires PHP: 5.0
-Tested up to: 5.2.2
-Stable tag: 4.8.3
-Version: 4.8.3
+Tested up to: 5.4.1
+Stable tag: 5.0.1
+Version: 5.0.1
 License: GPLv2 or later
 
 == Description ==
@@ -111,6 +111,33 @@ http://cagewebdev.com/category/news-tech-art/wordpress/
 * If you run the plugin from any of the sites, it will cleanup ALL the sites in the network!
 
 == Changelog ==
+= 5.0.1 [09/10/2020] =
+* BUG FIX: Deletion of Duplicated Postmeta entries deactivated
+
+= 5.0 [08/14/2020] =
+* New: Deletion of Duplicated Postmeta entries
+
+= 4.9.1 [05/17/2020] =
+* BUG FIX: Fixed a bug for deleting orphans
+
+= 4.9 [04/10/2020] =
+* NEW: Deletion of orphaned term relationships
+
+= 4.8.8 [12/02/2019] =
+* BUG FIX: Fixed an (innocent) warning (while cleaning)
+
+= 4.8.7 [09/28/2019] =
+* BUG FIX: Bug fix for 'Delete revisions older than'
+
+= 4.8.6 [09/22/2019] =
+* BUG FIX: Some bug fixes + other minor changes
+
+= 4.8.5 [09/19/2019] =
+* BUG FIX: Logging bug fixed
+
+= 4.8.4 [09/07/2019] =
+* CHANGE: Improved performance
+
 = 4.8.3 [09/01/2019] =
 * BUG FIX: Scheduler bug fixed
 

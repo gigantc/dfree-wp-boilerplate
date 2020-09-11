@@ -8,7 +8,7 @@
 <?php
 if (isset($_POST['info_update'])) {
 	// SAVE SETTINGS
-	check_admin_referer('odb_action', 'odb_nonce');	
+	check_admin_referer('odb_action', 'odb_nonce');
 
 	$current_datetime = Date('YmdHis');
 	$current_date     = substr($current_datetime, 0, 8);
@@ -218,6 +218,9 @@ $cb_optimize_innodb = ($this->odb_rvg_options['optimize_innodb']  == "Y") ? $c :
 
 // DISPLAY HEADER
 $this->odb_displayer_obj->display_header();
+
+// GET THE DATABASE TABLES
+$odb_tables = $this->odb_utilities_obj->odb_get_tables();	
 
 // DISPLAY FORM
 echo '
@@ -462,16 +465,16 @@ echo '
               <div id="odb-options-tables-wrapper">
 ';
 
-for ($i=0; $i<count($this->odb_tables); $i++) {
+for ($i=0; $i<count($odb_tables); $i++) {
 	$class = '';
 	for($j=0; $j<count($this->odb_ms_prefixes); $j++)
-		if(substr($this->odb_tables[$i][0], 0, strlen($this->odb_ms_prefixes[$j])) == $this->odb_ms_prefixes[$j]) $class = ' odb-wp-table';
+		if(substr($odb_tables[$i][0], 0, strlen($this->odb_ms_prefixes[$j])) == $this->odb_ms_prefixes[$j]) $class = ' odb-wp-table';
 	$cb_checked = '';
-	if(isset($this->odb_rvg_excluded_tabs[$this->odb_tables[$i][0]])) $cb_checked = ' checked';			
+	if(isset($this->odb_rvg_excluded_tabs[$odb_tables[$i][0]])) $cb_checked = ' checked';			
 ?>
-	  <div class="odb-options-table<?php echo $class;?>" title="<?php echo $this->odb_tables[$i][0];?>">
-		<input id="cb_<?php echo $this->odb_tables[$i][0];?>" name="cb_<?php echo $this->odb_tables[$i][0];?>" type="checkbox" value="1"<?php echo $cb_checked; ?>>
-		<?php echo $this->odb_tables[$i][0];?></div>
+	  <div class="odb-options-table<?php echo $class;?>" title="<?php echo $odb_tables[$i][0];?>">
+		<input id="cb_<?php echo $odb_tables[$i][0];?>" name="cb_<?php echo $odb_tables[$i][0];?>" type="checkbox" value="1"<?php echo $cb_checked; ?>>
+		<?php echo $odb_tables[$i][0];?></div>
 <?php
 }
 

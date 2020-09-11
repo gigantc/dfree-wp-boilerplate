@@ -1,7 +1,7 @@
 <?php
 /**
  * @package Optimize Database after Deleting Revisions
- * @version 4.8.3
+ * @version 5.0.1
  */
 /*
 Plugin Name: Optimize Database after Deleting Revisions
@@ -10,7 +10,7 @@ Description: Optimizes the Wordpress Database after Cleaning it out
 Author: CAGE Web Design | Rolf van Gelder, Eindhoven, The Netherlands
 Author URI: http://cagewebdev.com
 Network: True
-Version: 4.8.3
+Version: 5.0.1
 */
 
 /********************************************************************************************
@@ -28,8 +28,8 @@ $odb_class = new OptimizeDatabase();
 
 class OptimizeDatabase {
 	// VERSION
-	var $odb_version           = '4.8.3';
-	var $odb_release_date      = '09/01/2019';
+	var $odb_version           = '5.0.1';
+	var $odb_release_date      = '09/10/2020';
 
 	// PLUGIN OPTIONS
 	var $odb_rvg_options       = array();
@@ -135,9 +135,6 @@ class OptimizeDatabase {
 		
 		// INITIALIZE WORDPRESS HOOKS
 		$this->odb_init_hooks();
-		
-		// GET THE DATABASE TABLES
-		$this->odb_tables = $this->odb_utilities_obj->odb_get_tables();
 			
 		// GET EXCLUDED TABLES FROM SETTINGS
 		$this->odb_rvg_excluded_tabs = $this->odb_multisite_obj->odb_ms_get_option('odb_rvg_excluded_tabs');
