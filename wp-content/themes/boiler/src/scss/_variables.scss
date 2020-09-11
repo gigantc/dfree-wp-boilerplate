@@ -1,5 +1,5 @@
 // VARIABLES -----------------------
-$em-base: 16px !default;
+$rem-base: 10px !default;
 
 
 // COLORS -----------------------
@@ -15,6 +15,10 @@ $roboto: 'Roboto', sans-serif;
 // MIXINS -----------------------
 @mixin breakpoint($size) { 
  @media screen and (max-width: $size) { @content; } 
+}
+
+@mixin breakpoint-min($size) {
+  @media screen and (min-width: $size) { @content; } 
 }
 
 @mixin trans($sec){
@@ -45,22 +49,13 @@ $roboto: 'Roboto', sans-serif;
   @return $num / ($num * 0 + 1);
 }
 
-// Converts px to em passed from 'cem'
-@function convert-to-em($value, $base-value: $em-base)  {
-  $value: strip-unit($value) / strip-unit($base-value) * 1em;
-  @if ($value == 0em) { $value: 0; } // Turn 0em into 0
-  @return $value;
+// Converts px to rem
+@function calculateRem($size) {
+  $remSize: $size / $rem-base;
+  @return #{$remSize}rem;
 }
 
-// call this to convert pixels to em - even lists of px
-@function cem($values, $base-value: $em-base) {
-  $max: length($values); // Get the total number of parameters passed
-  
-  @if $max == 1 { @return convert-to-em(nth($values, 1), $base-value); }
-
-  $emValues: (); // This will eventually store the converted $values in a list
-  @for $i from 1 through $max {
-    $emValues: append($emValues, convert-to-em(nth($values, $i), $base-value));
-  }
-  @return $emValues;
+@mixin fontSize($size) {
+  font-size: $size; //Fallback in px
+  font-size: calculateRem($size);
 }
