@@ -10,7 +10,7 @@ http://codex.wordpress.org/Creating_Admin_Themes
 
 ******************************************************************/
 body.login {
-  background-color: #FFFFFF;
+  background-color: #000000;
   font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif !important;
 }
 
@@ -22,8 +22,9 @@ with the width and height.
 */
 .login h1 a {
   background: url(https://upload.wikimedia.org/wikipedia/commons/8/87/Aperture_Science_Logo.svg) no-repeat top center;
-  width: 274px;
-  height: 98px;
+  margin:100px auto 50px;
+  width: 50px;
+  height: 50px;
   text-indent: -9999px;
   overflow: hidden;
   padding-bottom: 15px;
@@ -34,8 +35,8 @@ with the width and height.
 .login form {
   margin-left: 8px;
   font-weight: normal;
-  background: #FFFFFF;
-  border: 1px solid ##FFFFFF;
+  background: #000000;
+  border: 1px solid #000000;
   border-radius: 0px;
   box-shadow: none; 
   padding:0px;
@@ -49,21 +50,24 @@ body form .input {
   width: 97%;
   padding: 20px 22px;
   margin: 2px 6px 16px 0px;
-  background: #dadada;
+  background: #000000 !important;
   outline: none;
   border: 1px solid #dadada;
   height: 43px;
+  color:#eeeeee;
 }
+
 
 .input:focus{
   outline:none;
   border: 1px solid #dadada !important;
   box-shadow: none !important;
-  background: #F5F4F4 !important;
+  background: #151414 !important;
+  color:#eeeeee;
 }
 
 .login .message {
-  border-left: 5px solid #00b9eb;
+  border-left: 5px solid #b8ddd7;
   border-bottom: 1px solid #eeeeee;
   border-top: 1px solid #eeeeee;
   border-right: 1px solid #eeeeee;
@@ -75,6 +79,7 @@ form label{
   font-style: normal;
   font-weight: 400;
   text-transform: uppercase;
+  color:#929090;
 }
 
 /*
@@ -82,8 +87,9 @@ You'll have to override some of the default styles
 but since we're referencing the id, it should be easy.
 */
 .login #wp-submit {
-  background: #00b9eb;
-  border-color: #00b9eb;
+  background: #b8ddd7;
+  border-color: #b8ddd7;
+  color:#000000;
   -webkit-box-shadow: none;
   box-shadow: none;
   cursor: pointer; 
