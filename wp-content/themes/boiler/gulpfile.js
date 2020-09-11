@@ -1,53 +1,64 @@
-// Include gulp
-var gulp = require('gulp'),
-    plumber = require('gulp-plumber'),
-    rename = require('gulp-rename');
+const { src, dest, watch, series, parallel } = require('gulp');
+const gulp = require('gulp');
 
-// Include Our Plugins
-var sass = require('gulp-sass'),
+
+/* PLUGINS */
+const sass = require('gulp-sass'),
+    browserSync = require("browser-sync").create(),
+    postcss = require("gulp-postcss"),
     sourcemaps = require('gulp-sourcemaps'),
-    cleancss = require('gulp-clean-css'),
-    autoprefixer = require('gulp-autoprefixer'),
+    cssnano = require("cssnano"),
+    autoprefixer = require("autoprefixer"),
     concat = require('gulp-concat'),
-    rename = require('gulp-rename'),
-    uglify = require('gulp-uglify');
-
-// Set up compression, prefixing, sourcemaps and destination
-gulp.task('blocks', function(){
-  gulp.src(['src/scss/blocks/*.scss'])
-    .pipe(plumber({
-      errorHandler: function (error) {
-        console.log(error.message);
-        this.emit('end');
-    }}))
-    .pipe(concat('_blocks-combined.scss'))
-    .pipe(gulp.dest('src/scss/'))
-});
+    uglify = require('gulp-uglify'),
+    plumber = require('gulp-plumber');
 
 
-gulp.task('sass', function(){
-  gulp.src(['src/scss/*.scss'])
+/* FILE PATHS */
+const files = { 
+    scssPath: 'src/scss/*.scss',
+    scriptsPath: 'src/js/*.js',
+    libsPath: 'src/js/libs/*.js',
+    blocksPath: 'src/scss/blocks/*.scss'
+}
+
+/* STYLES */
+function scssTask(){    
+    return src([files.scssPath])
     .pipe(plumber({
       errorHandler: function (error) {
         console.log(error.message);
         this.emit('end');
     }}))
     .pipe(sass())
-    .pipe(autoprefixer('last 2 versions'))
-    .pipe(cleancss())
+    .pipe(postcss([autoprefixer(), cssnano()]))
     .pipe(gulp.dest('css/'))
-});
+    .pipe(browserSync.stream());
+}
 
-gulp.task('libsjs', function(){
-  return gulp.src('src/js/libs/*.js')
-        .pipe(concat('libs.min.js'))
-        .pipe(uglify())
-        .pipe(gulp.dest('js/libs/'));
-});
+function blocksScssTask(){    
+    return src([files.blocksPath])
+    .pipe(plumber({
+      errorHandler: function (error) {
+        console.log(error.message);
+        this.emit('end');
+    }}))
+    .pipe(concat('_blocks_combined.scss'))
+    .pipe(gulp.dest('src/scss/'))
+}
 
 
-gulp.task('scripts', function(){
-  return gulp.src(['src/js/*.js'])
+/* SCRIPTS */
+function libsTask(){    
+    return src([files.libsPath])
+    .pipe(concat('libs.min.js'))
+    .pipe(uglify())
+    .pipe(gulp.dest('js/libs/'));
+}
+
+
+function scriptsTask(){    
+    return src([files.scriptsPath])
     .pipe(plumber({
       errorHandler: function (error) {
         console.log(error.message);
@@ -56,16 +67,33 @@ gulp.task('scripts', function(){
     .pipe(concat('main.min.js'))
     .pipe(uglify())
     .pipe(gulp.dest('js/'))
-});
+    .pipe(browserSync.stream());
+}
 
 
-// Watch Files For Changes
-gulp.task('watch', function() {
-    gulp.watch('src/scss/blocks/*.scss', ['blocks']),
-    gulp.watch('src/scss/**/*.scss', ['sass']),
-    gulp.watch('src/js/*.js', ['scripts']),
-    gulp.watch('src/js/libs/*.js', ['libsjs']);
-});
+/* BROWSER SYNC */
+function reload(done) {
+  browserSync.reload();
+  done();
+}
 
-// Default Task
-gulp.task('default', ['sass', 'blocks', 'libsjs', 'scripts', 'watch']);
+
+/* WATCH */
+function watchTask(){
+    browserSync.init({
+        proxy: "houseofv.test"
+    });
+    watch(
+        [files.blocksPath],
+        parallel(blocksScssTask)
+    );
+    watch(
+        [files.scssPath, files.scriptsPath, files.libsPath],
+        parallel(scssTask, libsTask, scriptsTask)
+    );
+}
+
+/* DEFAULT TASK */
+exports.default = series(
+    parallel(blocksScssTask, scssTask, libsTask, scriptsTask), 
+    watchTask);
