@@ -13,14 +13,39 @@
 add_filter( 'relevanssi_indexing_restriction', 'relevanssi_woocommerce_restriction' );
 
 /**
+ * This action solves the problems introduced by adjust_posts_count() in
+ * WooCommerce version 4.4.0.
+ */
+add_action( 'woocommerce_before_shop_loop', 'relevanssi_wc_reset_loop' );
+
+/**
+ * Resets the WC post loop in search queries.
+ *
+ * Hooks on to woocommerce_before_shop_loop.
+ */
+function relevanssi_wc_reset_loop() {
+	global $wp_query;
+	if ( $wp_query->is_search ) {
+		wc_reset_loop();
+	}
+}
+/**
  * Applies the WooCommerce product visibility filter.
  *
- * @param string $restriction The restriction clause.
- *
- * @return string The restriction clause with the WC filter added, if necessary.
+ * @param array $restriction An array with two values: 'mysql' for the MySQL
+ * query restriction to modify, 'reason' for the reason of restriction.
  */
 function relevanssi_woocommerce_restriction( $restriction ) {
-	$restriction .= relevanssi_woocommerce_indexing_filter();
+	// Backwards compatibility code for 2.8.0, remove at some point.
+	if ( is_string( $restriction ) ) {
+		$restriction = array(
+			'mysql'  => $restriction,
+			'reason' => '',
+		);
+	}
+
+	$restriction['mysql']  .= relevanssi_woocommerce_indexing_filter();
+	$restriction['reason'] .= 'WooCommerce';
 	return $restriction;
 }
 
