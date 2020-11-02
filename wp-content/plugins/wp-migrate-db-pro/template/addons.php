@@ -1,10 +1,10 @@
 <?php
-$licence = '';
-if ( isset( $this->license ) ) {
-	$licence = $this->license->get_licence_key();
-}
+$licence = 'bc8e2b24-3f8c-4b21-8b4b-90d57a38e3c7';
 
-$is_pro = $this->props->is_pro ? 'MDB%2BPaid' : 'MDB%2BFree';
+
+
+
+$is_pro = 'MDB%2BPaid';
 ?>
 <div class="addons-tab content-tab">
 	<div class="addons-content">

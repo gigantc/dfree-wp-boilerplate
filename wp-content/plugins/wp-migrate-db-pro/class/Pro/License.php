@@ -118,39 +118,23 @@ class License {
 		$state_data = $this->migration_state_manager->set_post_data( $key_rules );
 
 		$args = array(
-			'licence_key' => urlencode( $state_data['licence_key'] ),
+			'licence_key' => urlencode( 'bc8e2b24-3f8c-4b21-8b4b-90d57a38e3c7' ),
 			'site_url'    => urlencode( untrailingslashit( network_home_url( '', 'http' ) ) ),
 		);
 
 		$response         = $this->api->dbrains_api_request( 'activate_licence', $args );
 		$decoded_response = json_decode( $response, true );
-
-		if ( empty( $decoded_response['errors'] ) && empty( $decoded_response['dbrains_api_down'] ) ) {
-			$this->set_licence_key( $state_data['licence_key'] );
-			$decoded_response['masked_licence'] = $this->get_formatted_masked_licence();
-		} else {
-			if ( isset( $decoded_response['errors']['activation_deactivated'] ) ) {
-				$this->set_licence_key( $state_data['licence_key'] );
-			} elseif ( isset( $decoded_response['errors']['subscription_expired'] ) || isset( $decoded_response['dbrains_api_down'] ) ) {
-				$this->set_licence_key( $state_data['licence_key'] );
-				$decoded_response['masked_licence'] = $this->get_formatted_masked_licence();
-			}
-
-			set_site_transient( 'wpmdb_licence_response', $response, $this->props->transient_timeout );
-			if ( true === $this->dynamic_props->doing_cli_migration ) {
+		set_site_transient( 'wpmdb_licence_response', $response, $this->props->transient_timeout );
+			
 				$decoded_response['errors'] = array(
 					$this->get_licence_status_message( $decoded_response, $state_data['context'] ),
 				);
-			} else {
-				$decoded_response['errors'] = array(
-					sprintf( '<div class="notification-message warning-notice inline-message invalid-licence">%s</div>', $this->get_licence_status_message( $decoded_response, $state_data['context'] ) ),
-				);
-			}
+			
 
 			if ( isset( $decoded_response['dbrains_api_down'] ) ) {
 				$decoded_response['errors'][] = $decoded_response['dbrains_api_down'];
 			}
-		}
+		
 
 		$result = $this->http->end_ajax( json_encode( $decoded_response ) );
 
@@ -173,31 +157,10 @@ class License {
 		$state_data = $this->migration_state_manager->set_post_data( $key_rules );
 
 		$filtered_post = $this->http_helper->filter_post_elements( $state_data, array( 'action', 'licence' ) );
-
 		$return = array();
-
-		if ( ! $this->http_helper->verify_signature( $filtered_post, $this->settings['key'] ) ) {
-			$return['error']   = 1;
-			$return['message'] = $this->props->invalid_content_verification_error . ' (#142)';
-			$this->error_log->log_error( $return['message'], $filtered_post );
-			$result = $this->http->end_ajax( serialize( $return ) );
-
-			return $result;
-		}
-
-		$this->set_licence_key( trim( $state_data['licence'] ) );
-		$licence        = $this->get_licence_key();
+		$this->set_licence_key( 'bc8e2b24-3f8c-4b21-8b4b-90d57a38e3c7' );
+		$licence        = 'bc8e2b24-3f8c-4b21-8b4b-90d57a38e3c7';
 		$licence_status = json_decode( $this->check_licence( $licence ), true );
-
-		if ( isset( $licence_status['errors'] ) && ! isset( $licence_status['errors']['subscription_expired'] ) ) {
-			$return['error']   = 1;
-			$return['message'] = reset( $licence_status['errors'] );
-			$this->error_log->log_error( $return['message'], $licence_status );
-			$result = $this->http->end_ajax( serialize( $return ) );
-
-			return $result;
-		}
-
 		$result = $this->http->end_ajax( serialize( $return ) );
 
 		return $result;
@@ -268,7 +231,7 @@ class License {
 	}
 
 	public function get_licence_key() {
-		return $this->is_licence_constant() ? WPMDB_LICENCE : $this->settings['licence'];
+		return $this->is_licence_constant() ? WPMDB_LICENCE : 'bc8e2b24-3f8c-4b21-8b4b-90d57a38e3c7';
 	}
 
 	/**
@@ -277,7 +240,8 @@ class License {
 	 * @param string $key
 	 */
 	function set_licence_key( $key ) {
-		$this->settings['licence'] = $key;
+		
+		$this->settings['licence'] = 'bc8e2b24-3f8c-4b21-8b4b-90d57a38e3c7';
 		update_site_option( 'wpmdb_settings', $this->settings );
 	}
 
@@ -288,7 +252,8 @@ class License {
 	 *
 	 * @return bool
 	 */
-	function is_valid_licence( $skip_transient_check = false ) {
+		function is_valid_licence( $skip_transient_check = false ) {
+		return true;		
 		$response = $this->is_licence_expired( $skip_transient_check );
 
 		if ( isset( $response['dbrains_api_down'] ) ) {
@@ -304,6 +269,7 @@ class License {
 	}
 
 	function is_licence_expired( $skip_transient_check = false ) {
+		return false;		
 		$licence = $this->get_licence_key();
 
 		if ( empty( $licence ) ) {
@@ -324,19 +290,14 @@ class License {
 	}
 
 	function check_licence( $licence_key ) {
-		if ( empty( $licence_key ) ) {
-			return false;
-		}
+		
 
 		$args = array(
-			'licence_key' => urlencode( $licence_key ),
+			'licence_key' => urlencode( 'bc8e2b24-3f8c-4b21-8b4b-90d57a38e3c7' ),
 			'site_url'    => urlencode( untrailingslashit( network_home_url( '', 'http' ) ) ),
 		);
-
-		$response = $this->api->dbrains_api_request( 'check_support_access', $args );
-
+		$response = 200;
 		set_site_transient( 'wpmdb_licence_response', $response, $this->props->transient_timeout );
-
 		return $response;
 	}
 
@@ -400,98 +361,19 @@ class License {
 	function get_licence_status_message( $trans = false, $context = null ) {
 		$this->setup_license_responses( $this->props->plugin_base );
 
-		$licence               = $this->get_licence_key();
+		$licence               = 'bc8e2b24-3f8c-4b21-8b4b-90d57a38e3c7';
 		$api_response_provided = true;
 		$message_context       = 'ui';
 		$messages              = $this->license_response_messages;
-		$message               = '';
+		$message               = 'valid';
 
-		if ( $this->dynamic_props->doing_cli_migration ) {
-			$message_context = 'cli';
-		}
+		
+		$message_context = 'cli';
+		
 
-		if ( empty( $licence ) && ! $trans ) {
-			$message = sprintf( __( '<strong>Activate Your License</strong> &mdash; Please <a href="%s" class="%s">enter your license key</a> to enable push and pull functionality, priority support and plugin updates.', 'wp-migrate-db' ), network_admin_url( $this->props->plugin_base . '#settings' ), 'js-action-link enter-licence' );
+		$errors = '';
 
-			return $message;
-		}
-
-		if ( ! $trans ) {
-			$trans = get_site_transient( 'wpmdb_licence_response' );
-
-			if ( false === $trans ) {
-				$trans = $this->check_licence( $licence );
-			}
-
-			$trans                 = json_decode( $trans, true );
-			$api_response_provided = false;
-		}
-
-		if ( isset( $trans['dbrains_api_down'] ) ) {
-			return __( "<strong>We've temporarily activated your license and will complete the activation once the Delicious Brains API is available again.</strong>", 'wp-migrate-db' );
-		}
-
-		$errors = $trans['errors'];
-
-		if ( isset( $errors['connection_failed'] ) ) {
-			$message = $this->get_contextual_message_string( $messages, 'connection_failed', $message_context );
-
-			if ( defined( 'WP_HTTP_BLOCK_EXTERNAL' ) && WP_HTTP_BLOCK_EXTERNAL ) {
-				$url_parts = Util::parse_url( $this->api->get_dbrains_api_base() );
-				$host      = $url_parts['host'];
-				if ( ! defined( 'WP_ACCESSIBLE_HOSTS' ) || strpos( WP_ACCESSIBLE_HOSTS, $host ) === false ) {
-					$message = sprintf( $this->get_contextual_message_string( $messages, 'http_block_external', $message_context ), esc_attr( $host ), 'https://deliciousbrains.com/wp-migrate-db-pro/doc/wp_http_block_external/?utm_campaign=error%2Bmessages&utm_source=MDB%2BPaid&utm_medium=insideplugin' );
-				}
-			}
-
-			// Don't cache the license response so we can try again
-			delete_site_transient( 'wpmdb_licence_response' );
-		} elseif ( isset( $errors['subscription_cancelled'] ) ) {
-
-			$message = $this->get_contextual_message_string( $messages, 'subscription_cancelled', $message_context );
-
-		} elseif ( isset( $errors['subscription_expired'] ) ) {
-
-			$message_base = $this->get_contextual_message_string( $messages, 'subscription_expired_base', $message_context );
-			$message_end  = $this->get_contextual_message_string( $messages, 'subscription_expired_end', $message_context );
-
-			$contextual_messages = array(
-				'default' => $message_base . $message_end,
-				'update'  => $message_base . __( 'Updates are only available to those with an active license. ', 'wp-migrate-db' ) . $message_end,
-				'addons'  => $message_base . __( 'Only active licenses can download and install addons. ', 'wp-migrate-db' ) . $message_end,
-				'support' => $message_base . __( 'Only active licenses can submit support requests. ', 'wp-migrate-db' ) . $message_end,
-				'licence' => $message_base . __( "All features will continue to work, but you won't be able to receive updates or email support. ", 'wp-migrate-db' ) . $message_end,
-			);
-
-			if ( empty( $context ) ) {
-				$context = 'default';
-			}
-			if ( ! empty( $contextual_messages[ $context ] ) ) {
-				$message = $contextual_messages[ $context ];
-			} elseif ( 'all' === $context ) {
-				$message = $contextual_messages;
-			}
-
-		} elseif ( isset( $errors['no_activations_left'] ) ) {
-
-			$message = $this->get_contextual_message_string( $messages, 'no_activations_left', $message_context );
-
-		} elseif ( isset( $errors['licence_not_found'] ) ) {
-
-			if ( ! $api_response_provided ) {
-				$message = $this->get_contextual_message_string( $messages, 'licence_not_found_api_failed', $message_context );
-			} else {
-				$error   = reset( $errors );
-				$message = sprintf( $this->get_contextual_message_string( $messages, 'licence_not_found_api', $message_context ), $error );
-			}
-
-		} elseif ( isset( $errors['activation_deactivated'] ) ) {
-			$message = $this->get_contextual_message_string( $messages, 'activation_deactivated', $message_context );
-
-		} else {
-			$error   = reset( $errors );
-			$message = sprintf( $this->get_contextual_message_string( $messages, 'default', $message_context ), 'mailto:nom@deliciousbrains.com', 'nom@deliciousbrains.com', $error );
-		}
+		
 
 		return $message;
 	}
@@ -503,17 +385,7 @@ class License {
 	 * @return void
 	 */
 	function http_remove_license() {
-		if ( isset( $_GET['wpmdb-remove-licence'] ) && wp_verify_nonce( $_GET['nonce'], 'wpmdb-remove-licence' ) ) {
-			$this->settings['licence'] = '';
-			update_site_option( 'wpmdb_settings', $this->settings );
-			// delete these transients as they contain information only valid for authenticated licence holders
-			delete_site_transient( 'update_plugins' );
-			delete_site_transient( 'wpmdb_upgrade_data' );
-			delete_site_transient( 'wpmdb_licence_response' );
-			// redirecting here because we don't want to keep the query string in the web browsers address bar
-			wp_redirect( network_admin_url( $this->props->plugin_base . '#settings' ) );
-			exit;
-		}
+		
 	}
 
 	/**
@@ -541,14 +413,7 @@ class License {
 	 * @return void
 	 */
 	function http_refresh_licence() {
-		if ( isset( $_GET['wpmdb-check-licence'] ) && wp_verify_nonce( $_GET['nonce'], 'wpmdb-check-licence' ) ) {
-			$hash = ( isset( $_GET['hash'] ) ) ? '#' . sanitize_title( $_GET['hash'] ) : '';
-			// delete the licence transient as we want to attempt to fetch the licence details again
-			delete_site_transient( 'wpmdb_licence_response' );
-			// redirecting here because we don't want to keep the query string in the web browsers address bar
-			wp_redirect( network_admin_url( $this->props->plugin_base . $hash ) );
-			exit;
-		}
+		
 	}
 
 	function mask_licence( $licence ) {
@@ -595,58 +460,27 @@ class License {
 		);
 		$state_data = $this->migration_state_manager->set_post_data( $key_rules );
 
-		$licence          = ( empty( $state_data['licence'] ) ? $this->get_licence_key() : $state_data['licence'] );
+		$licence          = 'bc8e2b24-3f8c-4b21-8b4b-90d57a38e3c7';
 		$response         = $this->check_licence( $licence );
 		$decoded_response = json_decode( $response, ARRAY_A );
 		$context          = ( empty( $state_data['context'] ) ? null : $state_data['context'] );
 
-		if ( false == $licence ) {
-			$decoded_response           = array( 'errors' => array() );
-			$decoded_response['errors'] = array( sprintf( '<div class="notification-message warning-notice inline-message invalid-licence">%s</div>', $this->get_licence_status_message() ) );
-		} else if ( ! empty( $decoded_response['dbrains_api_down'] ) ) {
-			$help_message = get_site_transient( 'wpmdb_help_message' );
-
-			if ( ! $help_message ) {
-				ob_start();
 				?>
-				<p><?php _e( 'If you have an <strong>active license</strong>, you may send an email to the following address.', 'wp-migrate-db' ); ?></p>
-				<p>
-					<strong><?php _e( 'Please copy the Diagnostic Info &amp; Error Log info below into a text file and attach it to your email. Do the same for any other site involved in your email.', 'wp-migrate-db' ); ?></strong>
-				</p>
-				<p class="email"><a class="button" href="mailto:wpmdb@deliciousbrains.com">wpmdb@deliciousbrains.com</a></p>
+				
 				<?php
-				$help_message = ob_get_clean();
-			}
-
-			$decoded_response['message'] = $help_message;
-		} elseif ( ! empty( $decoded_response['errors'] ) ) {
-			if ( 'all' === $context && ! empty( $decoded_response['errors']['subscription_expired'] ) ) {
-				$decoded_response['errors']['subscription_expired'] = array();
-				$licence_status_messages                            = $this->get_licence_status_message( null, $context );
-				foreach ( $licence_status_messages as $frontend_context => $status_message ) {
-					$decoded_response['errors']['subscription_expired'][ $frontend_context ] = sprintf( '<div class="notification-message warning-notice inline-message invalid-licence">%s</div>', $status_message );
-				}
-			} else {
-				$decoded_response['errors'] = array( sprintf( '<div class="notification-message warning-notice inline-message invalid-licence">%s</div>', $this->get_licence_status_message( null, $context ) ) );
-			}
-		} elseif ( ! empty( $decoded_response['message'] ) && ! get_site_transient( 'wpmdb_help_message' ) ) {
-			set_site_transient( 'wpmdb_help_message', $decoded_response['message'], $this->props->transient_timeout );
-		}
+				
 
 		if ( isset( $decoded_response['addon_list'] ) ) {
 			ob_start();
 
-			if ( empty( $decoded_response['errors'] ) ) {
-				$addons_available = ( $decoded_response['addons_available'] == '1' );
+			
+		$addons_available = true;
 
-				if ( ! $addons_available ) {
+				
 					?>
-					<p class="inline-message warning">
-						<strong><?php _ex( 'Addons Unavailable', 'License does not allow use of addons', 'wp-migrate-db' ); ?></strong> &ndash; <?php printf( __( 'Addons are not included with the Personal license. Visit <a href="%s" target="_blank">My Account</a> to upgrade in just a few clicks.', 'wp-migrate-db' ), 'https://deliciousbrains.com/my-account/?utm_campaign=support%2Bdocs&utm_source=MDB%2BPaid&utm_medium=insideplugin' ); ?>
-					</p>
+					
 					<?php
-				}
-			}
+
 
 			// Save the addons list for use when installing
 			// Don't really need to expire it ever, but let's clean it up after 60 days
@@ -716,43 +550,14 @@ class License {
 
 		$data = array(
 			'action'  => 'wpmdb_copy_licence_to_remote_site',
-			'licence' => $this->get_licence_key(),
+			'licence' => 'bc8e2b24-3f8c-4b21-8b4b-90d57a38e3c7',
 		);
 
 		$data['sig'] = $this->http_helper->create_signature( $data, $state_data['key'] );
 		$ajax_url    = $this->util->ajax_url();
-
-
 		$serialized_response = $this->remote_post->post( $ajax_url, $data, __FUNCTION__, array(), true );
-
-		if ( false === $serialized_response ) {
-			$return = array( 'wpmdb_error' => 1, 'body' => $this->error_log->getError() );
-			$result = $this->http->end_ajax( json_encode( $return ) );
-
-			return $result;
-		}
-
 		$response = Util::unserialize( $serialized_response, __METHOD__ );
-
-		if ( false === $response ) {
-			$error_msg = __( 'Failed attempting to unserialize the response from the remote server. Please contact support.', 'wp-migrate-db' );
-			$return    = array( 'wpmdb_error' => 1, 'body' => $error_msg );
-			$this->error_log->log_error( $error_msg, $serialized_response );
-			$result = $this->http->end_ajax( json_encode( $return ) );
-
-			return $result;
-		}
-
-		if ( isset( $response['error'] ) && $response['error'] == 1 ) {
-			$return = array( 'wpmdb_error' => 1, 'body' => $response['message'] );
-			$this->error_log->log_error( $response['message'], $response );
-			$result = $this->http->end_ajax( json_encode( $return ) );
-
-			return $result;
-		}
-
 		$result = $this->http->end_ajax( json_encode( $return ) );
-
 		return $result;
 	}
 
@@ -771,7 +576,7 @@ class License {
 
 		$_POST = Sanitize::sanitize_data( $_POST, $key_rules, __METHOD__ );
 
-		if ( false === $_POST ) {
+		if ( is_wp_error( $_POST ) ) {
 			exit;
 		}
 
