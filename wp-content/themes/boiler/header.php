@@ -16,14 +16,15 @@
 <meta charset="<?php bloginfo( 'charset' ); ?>">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="apple-touch-icon" href="<?= get_template_directory_uri() ?>/apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="<?= get_template_directory_uri() ?>/favicon.svg" >
 
 <meta property="og:type" content="website" />
-<meta property="og:title" content="" />
-<meta property="og:description" content="" />
+<meta property="og:title" content="dfree boilerplate" />
+<meta property="og:description" content="A basic boilerplate that does some things." />
 <meta property="og:url" content="" />
-<meta property="og:site_name" content="" />
-<meta property="og:image" content="" />
+<meta property="og:site_name" content="dfree boilerplate" />
+<meta property="og:image" content="<?= get_template_directory_uri() ?>/tile-wide.png" />
 <meta property="og:locale" content="en_US" />
 
 

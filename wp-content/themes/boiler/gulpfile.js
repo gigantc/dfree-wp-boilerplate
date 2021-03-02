@@ -81,7 +81,7 @@ function reload(done) {
 /* WATCH */
 function watchTask(){
     browserSync.init({
-        proxy: "houseofv.test"
+        proxy: "playground.test"
     });
     watch(
         [files.blocksPath],

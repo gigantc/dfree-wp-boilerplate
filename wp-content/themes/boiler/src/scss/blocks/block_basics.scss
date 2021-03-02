@@ -38,7 +38,7 @@
     }
   }
   strong{
-    font:700 16px/24px $source;
+    font:700 16px/24px $roboto;
     color:black;
     @include breakpoint(768px){font:700 14px/22px $roboto;}
   }
