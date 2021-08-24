@@ -23,7 +23,7 @@ window.addEventListener("resize", function(){
 
 
 //returns the direct path to the theme
-getHomeUrl = () => {
+const getHomeUrl = () => {
   const href = window.location.hostname;
   console.log("getting home url");
   if(href == "boiler.test"){

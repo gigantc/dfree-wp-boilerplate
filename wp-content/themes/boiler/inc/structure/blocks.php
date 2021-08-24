@@ -73,7 +73,7 @@ function my_plugin_block_categories( $categories, $post ) {
       )
   );
 }
-add_filter( 'block_categories', 'my_plugin_block_categories', 10, 2 );
+add_filter( 'block_categories_all', 'my_plugin_block_categories', 10, 2 );
 
 
 
@@ -100,7 +100,7 @@ function acf_allowed_block_types( $allowed_blocks ) {
   return $blocks; 
 
 }
-add_filter( 'allowed_block_types', 'acf_allowed_block_types' );
+add_filter( 'allowed_block_types_all', 'acf_allowed_block_types' );
 
 
 
