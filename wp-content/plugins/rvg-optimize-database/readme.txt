@@ -9,9 +9,9 @@ Author: CAGE Web Design | Rolf van Gelder, Eindhoven, The Netherlands
 Contributors: cageehv
 Requires at least: 2.8
 Requires PHP: 5.0
-Tested up to: 5.4.1
-Stable tag: 5.0.1
-Version: 5.0.1
+Tested up to: 5.8
+Stable tag: 5.0.9
+Version: 5.0.9
 License: GPLv2 or later
 
 == Description ==
@@ -111,6 +111,30 @@ http://cagewebdev.com/category/news-tech-art/wordpress/
 * If you run the plugin from any of the sites, it will cleanup ALL the sites in the network!
 
 == Changelog ==
+= 5.0.9 [08/04/2021] =
+* BUG FIX: Syntax error corrected
+
+= 5.0.8 [08/03/2021] =
+* BUG FIX: Some performance inprovements (2nd try)
+
+= 5.0.7 [07/24/2021] =
+* BUG FIX: Changed back to v5.0.4
+
+= 5.0.6 [07/23/2021] =
+* BUG FIX: Scheduler fixed
+
+= 5.0.5 [07/20/2021] =
+* BUG FIX: Some performance inprovements
+
+= 5.0.4 [02/26/2021] =
+* BUG FIX: Field names INFORMATION_SCHEMA corrected
+
+= 5.0.3 [11/17/2020] =
+* BUG FIX: Creating log table if not exists
+
+= 5.0.2 [11/06/2020] =
+* BUG FIX: Deletion of orphaned term relationships deactivated
+
 = 5.0.1 [09/10/2020] =
 * BUG FIX: Deletion of Duplicated Postmeta entries deactivated
 

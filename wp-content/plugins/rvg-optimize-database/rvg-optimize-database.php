@@ -1,7 +1,7 @@
 <?php
 /**
  * @package Optimize Database after Deleting Revisions
- * @version 5.0.1
+ * @version 5.0.9
  */
 /*
 Plugin Name: Optimize Database after Deleting Revisions
@@ -10,7 +10,7 @@ Description: Optimizes the Wordpress Database after Cleaning it out
 Author: CAGE Web Design | Rolf van Gelder, Eindhoven, The Netherlands
 Author URI: http://cagewebdev.com
 Network: True
-Version: 5.0.1
+Version: 5.0.9
 */
 
 /********************************************************************************************
@@ -28,8 +28,8 @@ $odb_class = new OptimizeDatabase();
 
 class OptimizeDatabase {
 	// VERSION
-	var $odb_version           = '5.0.1';
-	var $odb_release_date      = '09/10/2020';
+	var $odb_version           = '5.0.9';
+	var $odb_release_date      = '08/04/2021';
 
 	// PLUGIN OPTIONS
 	var $odb_rvg_options       = array();
@@ -92,40 +92,16 @@ class OptimizeDatabase {
 	 * 	INITIALIZE PLUGIN
 	 *******************************************************************************/	
 	function odb_init() {
-		global $wpdb;
-		
 		// LOAD CLASSES
 		$this->odb_classes();
 
 		// URLS AND DIRECTORIES
 		$this->odb_urls_dirs();
 
-		// CREATE LOG TABLE (IF NOT EXISTS) - v4.6
-		$this->odb_logtable_name = $wpdb->base_prefix . 'odb_logs';
-		
-		// v4.6.3: MyISAM engine deleted
-		$sql = '
-		CREATE TABLE IF NOT EXISTS `' . $this->odb_logtable_name . '` (
-		  `odb_id`			int(11) NOT NULL AUTO_INCREMENT,
-		  `odb_timestamp`	varchar(20) NOT NULL,
-		  `odb_revisions`	int(11) NOT NULL,
-		  `odb_trash`		int(11) NOT NULL,
-		  `odb_spam`		int(11) NOT NULL,
-		  `odb_tags`		int(11) NOT NULL,
-		  `odb_transients`	int(11) NOT NULL,
-		  `odb_pingbacks`	int(11) NOT NULL,
-		  `odb_oembeds`		int(11) NOT NULL,
-		  `odb_orphans`		int(11) NOT NULL,
-		  `odb_tables`		int(11) NOT NULL,
-		  `odb_before`		varchar(20) NOT NULL,
-		  `odb_after`		varchar(20) NOT NULL,
-		  `odb_savings`		varchar(20) NOT NULL,
-		  PRIMARY KEY (`odb_id`)
-		) DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;		
-		';
-
-		// CREATE TABLE
-		$wpdb->get_results($sql);
+		// 5.0.8 THIS MAY NOT THIS MAY NOT EVEN BE NECESSARY ANYMORE
+		if ($this->odb_is_relevant_page()) {
+		    $this->odb_create_log_table();
+		}
 
 		// GET (MULTI-SITE) NETWORK INFORMATION	
 		$this->odb_multisite_obj->odb_ms_network_info();
@@ -143,8 +119,6 @@ class OptimizeDatabase {
 		$this->odb_minify = (defined('WP_DEBUG') && WP_DEBUG) ? '' : '.min';
 		
 		// LOAD STYLE SHEET (ONLY ON RELEVANT PAGES)
-		$this_page = '';
-		if(isset($_GET['page'])) $this_page = $_GET['page'];
 		// v4.0.3
 		if($this->odb_is_relevant_page()) {
 			wp_register_style('odb-style'.$this->odb_version, plugins_url('css/style'.$this->odb_minify.'.css', __FILE__));
@@ -563,8 +537,11 @@ class OptimizeDatabase {
 	 *******************************************************************************/	
 	function odb_is_relevant_page() {
 		$this_page = '';
-		if(isset($_GET['page'])) $this_page = $_GET['page'];
-		return ($this_page == 'odb_settings_page' || $this_page == 'rvg-optimize-database');
+		if(isset($_GET['page'])) {
+			$this_page = $_GET['page'];
+			return ($this_page == 'odb_settings_page' || $this_page == 'rvg-optimize-database');
+		}
+		return false;
 	} // odb_is_relevant_page()
 
 
@@ -635,12 +612,61 @@ class OptimizeDatabase {
 
 	/*******************************************************************************
 	 *
+	 * CREATE THE LOG TABLE (IF NOT EXISTS)
+	 *
+	 *******************************************************************************/
+    function odb_create_log_table() {
+        global $wpdb;
+
+        // PLUGIN RUNNING (v5.0.5)
+        $this->odb_tables = $this->odb_utilities_obj->odb_get_tables();
+
+        // CREATE LOG TABLE (IF NOT EXISTS) - v4.6
+        $this->odb_logtable_name = $wpdb->base_prefix . 'odb_logs';
+
+        $found = false;
+        for($i = 0; $i < count($this->odb_tables); $i++) {
+            if ($this->odb_tables[$i][0] == $this->odb_logtable_name) {
+                $found = true;
+            }
+        } // for($i = 0; $i < count($this->odb_tables); $i++)
+
+        // v5.0.3
+        if (!$found) {
+            $sql = '
+				CREATE TABLE IF NOT EXISTS `' . $this->odb_logtable_name . '` (
+				  `odb_id`			int(11) NOT NULL AUTO_INCREMENT,
+				  `odb_timestamp`	varchar(20) NOT NULL,
+				  `odb_revisions`	int(11) NOT NULL,
+				  `odb_trash`		int(11) NOT NULL,
+				  `odb_spam`		int(11) NOT NULL,
+				  `odb_tags`		int(11) NOT NULL,
+				  `odb_transients`	int(11) NOT NULL,
+				  `odb_pingbacks`	int(11) NOT NULL,
+				  `odb_oembeds`		int(11) NOT NULL,
+				  `odb_orphans`		int(11) NOT NULL,
+				  `odb_tables`		int(11) NOT NULL,
+				  `odb_before`		varchar(20) NOT NULL,
+				  `odb_after`		varchar(20) NOT NULL,
+				  `odb_savings`		varchar(20) NOT NULL,
+				  PRIMARY KEY (`odb_id`)
+				) DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+				';
+
+            // CREATE TABLE
+            $wpdb->query($sql);
+        } // if (!$found)
+    } // odb_create_log_table()
+
+
+	/*******************************************************************************
+	 *
 	 * 	MAIN METHOD FOR CLEANING / OPTIMIZING
 	 *
 	 *******************************************************************************/
 	function odb_start($scheduler) {
-		global $wpdb;
-		
+		$this->odb_create_log_table();
+
 		// PAGE LOAD TIMER
 		$time  = microtime();
 		$time  = explode(' ', $time);
@@ -658,7 +684,6 @@ class OptimizeDatabase {
 				// v4.6.1
 				return;
 			} else if($action == "clear_log") {
-
 				// CLEAR THE LOG TABLE
 				$this->odb_logger_obj->odb_clear_log();
 				

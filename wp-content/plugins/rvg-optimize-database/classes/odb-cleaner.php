@@ -1836,26 +1836,6 @@ function odb_confirm_delete() {
 			for ($j = 0; $j < count($results); $j++) {
 				array_push($res_arr, $results[$j]);
 			} // for ($j = 0; $j < count($results); $j++)
-			
-			// FIND TERM RELATIONSHIP ORPHANS
-			$sql = sprintf ("
-			SELECT '%s' AS site,
-				`object_id` AS ID,
-				'term relationship' AS type,
-				`name` AS post_title,
-				'' AS post_modified,
-				r.term_taxonomy_id AS term_taxonomy_id,
-				'' AS meta_key,
-				'' AS meta_value
-			  FROM %sterm_relationships r,
-			  	   %sterm_taxonomy x,
-				   %sterms t
-			 WHERE r.term_taxonomy_id = x.term_taxonomy_id
-			 AND   x.term_id = t.term_id
-			 AND   `object_id` NOT IN (SELECT ID FROM %sposts)
-			 ORDER BY `object_id`
-			", $prefix, $prefix, $prefix, $prefix, $prefix);
-			// echo $sql . '<br>';
 
 			$results = $wpdb->get_results($sql, ARRAY_A);
 			for ($j = 0; $j < count($results); $j++) {
@@ -1908,14 +1888,7 @@ function odb_confirm_delete() {
 						DELETE FROM %sposts
 						 WHERE `ID` = %d
 						", $results[$j]['site'], $results[$j]['ID']);
-					} else if ($results[$j]['type'] == 'term relationship') {
-						//print_r($results[$j]);
-						$sql = sprintf ("
-						DELETE FROM %sterm_relationships
-						 WHERE `object_id` = %d
-						   AND `term_taxonomy_id` = %d
-						 ", $results[$j]['site'], $results[$j]['ID'], $results[$j]['term_taxonomy_id']);
-					} // if ($results[$j]['type'] == 'meta')
+					} // for($j = 0; $j < count($results); $j++)
 					$wpdb->get_results($sql);
 				} // for($j = 0; $j < count($results); $j++)
 			} // if ($action == 'run_summary' || $action == 'run_detail')
@@ -1931,31 +1904,30 @@ function odb_confirm_delete() {
 	 ********************************************************************************************/
 	function odb_optimize_tables($scheduler, $action) {
 		global $odb_class, $wpdb;
-		
-		// GET THE DATABASE TABLES
-		$odb_tables = $odb_class->odb_utilities_obj->odb_get_tables();		
 
 		$cnt = 0;
-		for ($i = 0; $i < count($odb_tables); $i++) {
-			if(!isset($odb_class->odb_rvg_excluded_tabs[$odb_tables[$i][0]])) {
+		for ($i = 0; $i < count($odb_class->odb_tables); $i++) {
+			if(!isset($odb_class->odb_rvg_excluded_tabs[$odb_class->odb_tables[$i][0]])) {
 				# TABLE NOT EXCLUDED
 				$cnt++;
 
 				$sql = sprintf ("
-				SELECT engine, (data_length + index_length) AS size, table_rows
+				SELECT ENGINE, (data_length + index_length) AS size, TABLE_ROWS
 				  FROM information_schema.TABLES
 				 WHERE table_schema = '%s'
 				   AND table_name   = '%s'
-				", DB_NAME, $odb_tables[$i][0]);
+				", DB_NAME, $odb_class->odb_tables[$i][0]);
+				//echo $sql.'<br>';
 				$table_info = $wpdb->get_results($sql);
+				//print_r($table_info);
 
-				if($odb_class->odb_rvg_options["optimize_innodb"] == 'N' && strtolower($table_info[0]->engine) == 'innodb') {
+				if($odb_class->odb_rvg_options["optimize_innodb"] == 'N' && strtolower($table_info[0]->ENGINE) == 'innodb') {
 					// SKIP InnoDB tables
 					$msg = __('InnoDB table: skipped...', 'rvg-optimize-database');
 				} else {
 					// v4.6.3
-					if (@strtolower($table_info[0]->engine) == 'myisam') {
-						$result = $this->odb_optimize_myisam($odb_tables[$i][0]);
+					if (@strtolower($table_info[0]->ENGINE) == 'myisam') {
+						$result = $this->odb_optimize_myisam($odb_class->odb_tables[$i][0]);
 						$msg    = $result[0]->Msg_text;
 						if ($msg == 'OK') {
 							$msg = __('<span class="odb-optimized">TABLE OPTIMIZED</span>', 'rvg-optimize-database');
@@ -1963,30 +1935,30 @@ function odb_confirm_delete() {
 							$msg = __('Table is already up to date', 'rvg-optimize-database');
 						}
 					} else {
-						$result = $this->odb_optimize_innodb($odb_tables[$i][0]);
+						$result = $this->odb_optimize_innodb($odb_class->odb_tables[$i][0]);
 						$msg    = $result[0]->Msg_text;
 						if ($msg == 'Table is already up to date') {
 							$msg = __('Table is already up to date', 'rvg-optimize-database');
 						} else {
 							$msg = __('<span class="odb-optimized">TABLE OPTIMIZED</span>', 'rvg-optimize-database');
 						}
-					} // if (strtolower($table_info[0]->engine) == 'myisam')
-				} // if($odb_class->odb_rvg_options["optimize_innodb"] == 'N' && strtolower($table_info[0]->engine) == 'innodb')
+					} // if (strtolower($table_info[0]->ENGINE) == 'myisam')
+				} // if($odb_class->odb_rvg_options["optimize_innodb"] == 'N' && strtolower($table_info[0]->ENGINE) == 'innodb')
 				
 				if (!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail')) {
 	?>
 	<tr>
 	  <td align="right" valign="top"><?php echo $cnt?>.</td>
-	  <td valign="top" class="odb-bold"><?php echo $odb_tables[$i][0] ?></td>
+	  <td valign="top" class="odb-bold"><?php echo $odb_class->odb_tables[$i][0] ?></td>
 	  <td valign="top"><?php echo $msg ?></td>
-	  <td valign="top"><?php echo $table_info[0]->engine ?></td>
-	  <td align="right" valign="top"><?php echo $table_info[0]->table_rows ?></td>
+	  <td valign="top"><?php echo $table_info[0]->ENGINE ?></td>
+	  <td align="right" valign="top"><?php echo $table_info[0]->TABLE_ROWS ?></td>
 	  <td align="right" valign="top"><?php echo $odb_class->odb_utilities_obj->odb_format_size($table_info[0]->size) ?></td>
 	</tr>
 	<?php
 				} // if (!$scheduler && ($action == 'analyze_detail' || $action == 'run_detail'))
 			} // if(!$excluded)
-		} // for ($i = 0; $i < count($odb_tables); $i++)
+		} // for ($i = 0; $i < count($odb_class->odb_tables); $i++)
 		return $cnt;
 	} // odb_optimize_tables()
 

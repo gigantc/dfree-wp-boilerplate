@@ -387,7 +387,10 @@ echo '
                   </option>
                   <option value="monthly">
                   '.__('run optimization MONTHLY',$this->odb_txt_domain).'
-                  </option>						  	  
+                  </option>
+<!--				  <option value="fiveminutes">
+                  '.__('run optimization EVERY FIVE MINUTES',$this->odb_txt_domain).'
+                  </option>-->
                 </select>
                 <script type="text/javascript">
 					jQuery("#rvg_odb_schedule").val("'.$this->odb_rvg_options['schedule_type'].'");
