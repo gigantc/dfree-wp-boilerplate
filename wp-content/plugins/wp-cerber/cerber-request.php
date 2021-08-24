@@ -8,6 +8,11 @@ final class CRB_Request {
 	private static $site_root = null; // Without trailing slash and path (site domain or IP address)
 	private static $sub_folder = null; // Without trailing slash and site domain
 	private static $the_path = null;
+	private static $files = array();
+	private static $recursion_counter = 0; // buffer overflow attack protection
+	private static $el_counter = 0; // buffer overflow attack protection
+	private static $bad_request = false; // buffer overflow attack protection
+	private static $commenting = null; // A comment is submitted
 
 	/**
 	 * Returns clean "Request URI" without trailing slash and GET parameters
@@ -26,10 +31,10 @@ final class CRB_Request {
 	 * Cleans up and normalizes the requested URI.
 	 * Removes GET parameters and extra slashes, normalizes malformed URI.
 	 *
-	 * @since 7.9.2
 	 * @return string
+	 * @since 7.9.2
 	 */
-	static function purify() {
+	private static function purify() {
 		$uri = $_SERVER['REQUEST_URI'];
 
 		if ( $pos = strpos( $uri, '?' ) ) {
@@ -48,7 +53,6 @@ final class CRB_Request {
 	}
 
 	static function parse_site_url() {
-
 		if ( isset( self::$site_root ) ) {
 			return;
 		}
@@ -92,16 +96,18 @@ final class CRB_Request {
 
 	/**
 	 * Does requested URL start with a given string?
+	 * Safe for checking malformed URLs
 	 *
-	 * @return string
+	 * @param $str string
+	 *
+	 * @return bool
 	 */
 	static function is_url_start_with( $str ) {
 
+		$url = self::full_url_clean();
+
 		if ( substr( $str, - 1, 1 ) == '/' ) {
-			$url = rtrim( self::full_url_clean(), '/' ) . '/';
-		}
-		else {
-			$url = self::full_url_clean();
+			$url = rtrim( $url, '/' ) . '/';
 		}
 
 		if ( 0 === strpos( $url, $str ) ) {
@@ -111,16 +117,45 @@ final class CRB_Request {
 		return false;
 	}
 
+	/**
+	 * Does requested URL start with a given string?
+	 * Safe for checking malformed URLs
+	 *
+	 * @param $str string
+	 *
+	 * @return bool
+	 */
 	static function is_url_equal( $str ) {
 
+		$url = self::full_url_clean();
+
 		if ( substr( $str, - 1, 1 ) == '/' ) {
-			$url = rtrim( self::full_url_clean(), '/' ) . '/';
-		}
-		else {
-			$url = self::full_url_clean();
+			$url = rtrim( $url, '/' ) . '/';
 		}
 
-		if ($url == $str ) {
+		if ( $url == $str ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Check if the requested URI is equal to the given one. Process only non-malformed URL.
+	 * May not be used to check for a malicious URI since they can be malformed.
+	 *
+	 * @param string $slug No domain, no subfolder installation path
+	 *
+	 * @return bool True if requested URI match the given string and it's not malformed
+	 */
+	static function is_equal( $slug ) {
+		self::parse_site_url();
+		$slug = ( $slug[0] != '/' ) ? '/' . $slug : $slug;
+		$slug = self::$sub_folder . rtrim( $slug, '/' );
+		$uri = rtrim( $_SERVER['REQUEST_URI'], '/' );
+
+		if ( strlen( $slug ) === strlen( $uri )
+		     && $slug == $uri ) {
 			return true;
 		}
 
@@ -166,6 +201,49 @@ final class CRB_Request {
 		return false;
 	}
 
+	/**
+	 * WordPress search results page
+	 *
+	 * @return bool
+	 */
+	static function is_search() {
+		if ( isset( $_GET['s'] ) ) {
+			return true;
+		}
+
+		if ( self::is_start_with( '/search/' ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+
+	/**
+	 * Returns true if the request URI starts with a given string.
+	 * Suitable for malformed URI.
+	 *
+	 * @param string $str
+	 *
+	 * @return bool
+	 */
+	static function is_start_with( $str ) {
+		static $cache;
+
+		if ( ! $str ) {
+			return false;
+		}
+
+		if ( ! isset( $cache[ $str ] ) ) {
+			$len = strlen( $str );
+			$sub = substr( self::URI(), 0, $len );
+
+			$cache[ $str ] = ( $sub == $str );
+		}
+
+		return $cache[ $str ];
+	}
+
 	static function get_request_path() {
 		if ( ! isset( self::$the_path ) ) {
 			if ( ! $path = crb_array_get( $_SERVER, 'PATH_INFO' ) ) { // Like /index.php/path-to-some-page/ or rest route
@@ -190,4 +268,78 @@ final class CRB_Request {
 		return self::$request_uri;
 	}
 
+	static function get_files() {
+		if ( self::$files ) {
+			return self::$files;
+		}
+
+		if ( $_FILES ) {
+			self::parse_files( $_FILES );
+		}
+
+		return self::$files;
 	}
+
+	/**
+	 * Parser for messy $_FILES
+	 * @since 8.6.9
+	 *
+	 * @param $fields
+	 */
+	static function parse_files( $fields ) {
+		foreach ( $fields as $element ) {
+			self::$el_counter ++;
+			if ( self::$el_counter > 100 ) { // Normal forms never reach this limit
+				self::$bad_request = true;
+				return;
+			}
+			if ( ( $name = crb_array_get( $element, 'name' ) )
+			     && is_string( $name )
+			     && ( $tmp_file = crb_array_get( $element, 'tmp_name' ) )
+			     && is_string( $tmp_file )
+			     && is_file( $tmp_file ) ) {
+				self::$files[] = array( 'source_name' => $name, 'tmp_file' => $tmp_file );
+			}
+			elseif ( is_array( $element ) ) {
+				self::$recursion_counter ++;
+				if ( self::$recursion_counter > 100 ) { // Normal forms never reach this limit
+					self::$bad_request = true;
+					return;
+				}
+				self::parse_files( $element );
+			}
+		}
+	}
+
+	static function is_comment_sent() {
+		if ( ! isset( self::$commenting ) ) {
+			self::$commenting = self::_check_comment_sent();
+		}
+
+		return self::$commenting;
+	}
+
+	private static function _check_comment_sent() {
+
+		if ( ! isset( $_SERVER['REQUEST_METHOD'] )
+		     || $_SERVER['REQUEST_METHOD'] != 'POST'
+		     || empty( $_POST )
+		     || ! empty( $_GET ) ) {
+			return false;
+		}
+
+		if ( cerber_is_custom_comment() ) {
+			if ( ! empty( $_POST[ crb_get_compiled( 'custom_comm_mark' ) ] )
+			     && self::is_equal( crb_get_compiled( 'custom_comm_slug' ) ) ) {
+				return true;
+			}
+		}
+		else {
+			if ( self::is_script( '/' . WP_COMMENT_SCRIPT ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+}

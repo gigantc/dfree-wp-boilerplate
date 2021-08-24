@@ -1,15 +1,15 @@
 <?php
 /*
 	Plugin URI: https://wpcerber.com
-	Description: This is a standard boot module for WP Cerber Security & Antispam plugin. It was installed when you set the plugin initialization mode to Standard. Know more: <a href="https://wpcerber.com">wpcerber.com</a>.
+	Description: This is a boot module installed by the WP Cerber Security plugin when you set the plugin initialization mode to "Standard".
 	Author: Cerber Tech Inc.
 	Author URI: https://wpcerber.com
 	Version: 1.0
 	Text Domain: wp-cerber
 	Network: true
 
-	Copyright (C) 2015-20 CERBER TECH INC., https://cerber.tech
-	Copyright (C) 2015-20 CERBER TECH INC., https://wpcerber.com
+	Copyright (C) 2015-21 CERBER TECH INC., https://cerber.tech
+	Copyright (C) 2015-21 Markov Cregory, https://wpcerber.com
 
 	Licenced under the GNU GPL.
 

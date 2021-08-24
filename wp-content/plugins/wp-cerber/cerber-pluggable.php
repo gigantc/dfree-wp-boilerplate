@@ -1,7 +1,7 @@
 <?php
 /*
-	Copyright (C) 2015-20 CERBER TECH INC., https://cerber.tech
-	Copyright (C) 2015-20 CERBER TECH INC., https://wpcerber.com
+	Copyright (C) 2015-21 CERBER TECH INC., https://cerber.tech
+	Copyright (C) 2015-21 Markov Cregory, https://wpcerber.com
 
     Licenced under the GNU GPL.
 
@@ -52,7 +52,8 @@ if( ! function_exists( 'wp_set_password' ) ) {
 		                                    'user_activation_key' => ''
 		), array( 'ID' => $user_id ) );
 
-		wp_cache_delete( $user_id, 'users' );
+		//wp_cache_delete( $user_id, 'users' );
+		clean_user_cache( $user_id );
 
 		do_action( 'crb_after_reset', null, $user_id );
 	}

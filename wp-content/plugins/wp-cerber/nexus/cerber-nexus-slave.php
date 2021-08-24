@@ -1,7 +1,7 @@
 <?php
 /*
-	Copyright (C) 2015-20 CERBER TECH INC., https://cerber.tech
-	Copyright (C) 2015-20 CERBER TECH INC., https://wpcerber.com
+	Copyright (C) 2015-21 CERBER TECH INC., https://cerber.tech
+	Copyright (C) 2015-21 Markov Cregory, https://wpcerber.com
 
     Licenced under the GNU GPL.
 
@@ -33,7 +33,7 @@
 
 if ( ! defined( 'WPINC' ) ) { exit; }
 
-require_once( dirname( cerber_plugin_file() ) . '/cerber-maintenance.php' );
+require_once( cerber_plugin_dir() . '/cerber-maintenance.php' );
 
 add_action( 'plugins_loaded', function () {
 	if ( ! $key = cerber_get_get( 'cerber_magic_key', '[\d\w\-_]+' ) ) {
@@ -168,7 +168,7 @@ function nexus_slave_process() {
 		exit;
 	}
 
-	nexus_diag_log( 'Request is parsed, generating response...' );
+	nexus_diag_log( 'Request is OK, generating response...' );
 
 	add_filter( 'plugin_locale', function () {
 		return nexus_request_data()->locale;
@@ -520,11 +520,8 @@ function nexus_is_granted( $type = null ) {
 		if ( in_array( $action, array( 'cerber_scan_control', 'cerber_view_file' ) ) ) {
 			return true;
 		}
-		if ( $action == 'cerber_ajax' ) {
-			$fields = crb_get_request_fields();
-			if ( empty( $fields['acl_delete'] ) ) {
-				return true;
-			}
+		if ( $action == 'cerber_ajax' && ! crb_get_request_field( 'acl_delete' ) ) {
+			return true;
 		}
 	}
 

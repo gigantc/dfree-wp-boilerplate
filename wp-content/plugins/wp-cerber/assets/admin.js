@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) 2015-20 CERBER TECH INC., https://wpcerber.com
+ *	Copyright (C) 2015-21 CERBER TECH INC., https://wpcerber.com
  */
 jQuery(document).ready(function ($) {
 
@@ -65,57 +65,75 @@ jQuery(document).ready(function ($) {
 
     if (typeof crb_lab_available !== 'undefined' && crb_lab_available && $(comtable).length) {
         $(comtable + " td.column-author").each(function (index) {
-            var ip = $(this).find('a').last().text();
-            var ip_id = cerber_get_id_ip(ip);
-            //$(this).append('<p><img data-ip-id="' + ip_id + '" class="crb-no-hostname" src="' + crb_ajax_loader + '" style="float: none;"/></p>');
-            $(this).append('<p><img data-ip-id="' + ip_id + '" class="crb-no-country" src="' + crb_ajax_loader + '" style="float: none;"/></p>');
+            let ip = $(this).find('a').last().text();
+            let ip_id = cerber_get_id_ip(ip);
+            $(this).append('<p><img class="crb-ajax-load" data-ajax_group="country" data-item_id="' + ip_id + '" src="' + crb_ajax_loader + '" /></p>');
         });
-        //cerberLoadData('hostname');
-        //cerberLoadData('country');
     }
 
     /* Load IP address data with AJAX */
 
-    if ($(".crb-no-country").length) {
-        cerberLoadData('country');
+    // New
+
+    window.ajax_items = $(".crb-ajax-load");
+
+    if (ajax_items.length) {
+        cerber_ajax_data_process(ajax_items);
     }
 
-    if ($(".crb-no-hostname").length) {
-        cerberLoadData('hostname');
-    }
+    function cerber_ajax_data_process(ajax_items) {
+        let ajax_groups = [];
+        let group_items = [];
 
-    function cerberLoadData(slug) {
-        var ip_list = $(".crb-no-" + slug).map(
-            function () {
-                return $(this).data('ip-id');
+        ajax_items.each(function (index, item) {
+            let group = $(item).data('ajax_group');
+            if (crb_is_empty(group_items[group])) {
+                group_items[group] = [];
             }
-        );
-        if (ip_list.length !== 0) {
-            $.post(ajaxurl, {
-                action: 'cerber_ajax',
-                crb_ajax_slug: slug,
-                crb_ajax_list: ip_list.toArray(),
-                ajax_nonce: crb_ajax_nonce
-            }, cerberSetData);
-        }
+            group_items[group].push(item);
+            ajax_groups.push(group);
+        });
+
+        let ajax_groups_unique = ajax_groups.filter((element, index) => {
+            return ajax_groups.indexOf(element) === index;
+        });
+
+        ajax_groups_unique.forEach(function (group) {
+            let ajax_list = [];
+            group_items[group].forEach(function (item) {
+                let item_id = $(item).data('item_id');
+                if (!crb_is_empty(group_items[group])) {
+                    ajax_list.push(item_id);
+                }
+            });
+
+            if (ajax_list.length !== 0) {
+                $.post(ajaxurl, {
+                    action: 'cerber_ajax',
+                    crb_ajax_slug: group,
+                    crb_ajax_list: ajax_list,
+                    ajax_nonce: crb_ajax_nonce
+                }, cerber_ajax_data_set, 'json');
+            }
+        });
     }
 
-    function cerberSetData(server_response) {
-        var server_data = $.parseJSON(server_response);
-        if (!server_data['data']) {
-            console.log('No data loaded from server!');
+    function cerber_ajax_data_set(server_response) {
+        if (crb_is_empty(server_response['data'])) {
+            console.log('Error: No data provided by the server.');
             return;
         }
-        var data = server_data['data'];
-        var slug = server_data['slug'];
-        $(".crb-no-" + slug).each(function (index) {
-            $(this).replaceWith(data[$(this).data('ip-id')]);
+        let data = server_response['data'];
+        let group = server_response['slug'];
+
+        ajax_items.filter('[data-ajax_group="' + group + '"]').each(function () {
+            $(this).replaceWith(data[$(this).data('item_id')]);
         });
     }
 
     // ACL management
 
-    $(".acl-table .delete_entry").click(function () {
+    $(".acl-table .delete_entry").on('click', function () {
         /* if (!confirm('<?php _e('Are you sure?','wp-cerber') ?>')) return; */
         $.post(ajaxurl, {
                 action: 'cerber_ajax',
@@ -131,7 +149,7 @@ jQuery(document).ready(function ($) {
     });
 
     function onDeleteResponse(server_response) {
-        if (typeof server_response.error !== 'undefined') {
+        if (!crb_is_empty(server_response.error)) {
             alert(server_response.error);
         }
         else {
@@ -141,7 +159,7 @@ jQuery(document).ready(function ($) {
 
     // ----------------------
 
-    $(".cerber-dismiss").click(function () {
+    $(".cerber-dismiss").on('click', function () {
         $(this).closest('.cerber-msg').fadeOut(500);
 
         $.get(ajaxurl, {
@@ -153,12 +171,12 @@ jQuery(document).ready(function ($) {
         );
     });
 
-    $(".diag-text").on("keypress", function(e) {
-        e.preventDefault();
+    $(".crb-notice-dismiss").on('click', function () {
+        $(this).closest('div').fadeOut(300);
     });
 
     function cerber_get_id_ip(ip) {
-        var id = ip.replace(/\./g, '-');
+        let id = ip.replace(/\./g, '-');
         id = id.replace(/:/g, '_');
 
         return id;
@@ -166,76 +184,80 @@ jQuery(document).ready(function ($) {
 
     /* Traffic */
 
-    var crb_traffic = $('#crb-traffic');
+    let crb_traffic = $('#crb-traffic');
 
-    crb_traffic.find('tr.crb-toggle td.crb-request').click(function (event) {
+    crb_traffic.find('tr.crb-toggle td.crb-request').on('click', function (event) {
         //alert(event.target.tagName);
         if ($(event.target).data('no-js') === 1) {
             return;
         }
-        var request_details = $(this).parent().next();
-        //request_details.slideToggle(100);
+        let request_details = $(this).parent().next();
         request_details.toggle();
-        //request_details.data('session-id');
     });
 
-    crb_traffic.find('tr').mouseenter(function() {
-        $(this).find('a.crb-traffic-more').css('left','0');
+    let crb_traffic_tr = crb_traffic.find('tr');
+
+    crb_traffic_tr.on('mouseenter', function () {
+        $(this).find('a.crb-traffic-more').css('left', '0');
     });
 
-    crb_traffic.find('tr').mouseleave(function() {
-        $(this).find('a.crb-traffic-more').css('left','-9999em');
+    crb_traffic_tr.on('mouseleave', function () {
+        $(this).find('a.crb-traffic-more').css('left', '-9999em');
     });
 
-    $('#traffic-search-btn').click(function (event) {
+    $('#traffic-search-btn').on('click', function (event) {
         $('#crb-traffic-search').slideToggle(500);
     });
 
     /* Enabling conditional input setting fields */
 
-    var setting_form = $('.crb-settings');
-    setting_form.find('input,select').change(function () {
-        var enabler_id = $(this).attr('id');
-        var enabler_val;
+    let setting_form = $('.crb-settings');
+    setting_form.find('input,select').on('change', function () {
+        let enabler_id = $(this).attr('id');
+        let enabler_val;
+
         if ('checkbox' === $(this).attr('type')) {
-            if ($(this).is(':checked')) {
-                enabler_val = true;
-            }
-            else {
-                enabler_val = false;
-            }
+            enabler_val = !!$(this).is(':checked');
         }
         else {
             enabler_val = $(this).val();
         }
+
         setting_form.find('[data-enabler="' + enabler_id + '"]').each(function () {
-            var input_data = $(this).data();
-            var method;
+            let input_data = $(this).data();
+            let method = 'hide';
+
             if (typeof input_data['enabler_value'] !== "undefined") {
-                if (String(enabler_val) === String(input_data['enabler_value'])) {
-                    method = 'show';
+                let target = input_data['enabler_value'];
+                if (Array.isArray(target)) {
+                    for (let i = 0; i < target.length; i++) {
+                        if (String(enabler_val) === String(target[i])) {
+                            method = 'show';
+                            break;
+                        }
+                    }
                 }
                 else {
-                    method = 'hide';
+                    if (String(enabler_val) === String(input_data['enabler_value'])) {
+                        method = 'show';
+                    }
                 }
             }
             else {
                 if (enabler_val) {
                     method = 'show';
                 }
-                else {
-                    method = 'hide';
-                }
             }
 
-            var element = $(this).closest('tr');
+            let element = $(this).closest('tr');
+
             if (method === 'show') {
                 element.fadeIn(500);
             }
             else if (method === 'hide') {
                 element.fadeOut();
             }
-            //element[method]();
+
         });
     });
 
@@ -254,9 +276,9 @@ jQuery(document).ready(function ($) {
 
     /* Nexus Master's code */
 
-    $('#crb-nexus-sites .crb-slave-site .column-updates a').click(function (event) {
-        var slave_id = $(this).closest('tr').data('slave-id');
-        var slave_name = $(this).closest('tr').data('slave-name');
+    $('#crb-nexus-sites .crb-slave-site .column-updates a').on('click', function (event) {
+        let slave_id = $(this).closest('tr').data('slave-id');
+        let slave_name = $(this).closest('tr').data('slave-name');
 
         $.magnificPopup.open({
             items: {
@@ -265,14 +287,14 @@ jQuery(document).ready(function ($) {
             type: 'ajax',
             callbacks: {
                 parseAjax: function (server_response) {
-                    var the_response = $.parseJSON(server_response.data);
+                    let the_response = $.parseJSON(server_response.data);
                     // Note: All html MUST BE inside of "crb-popup-wrap"
                     server_response.data = '<div id="crb-popup-wrap"><div id="crb-outer"><div id="crb-inner"><h3>' + the_response['header'] + ' ' + slave_name + '</h3>' + the_response['html'] + '</div></div><p class="crb-popup-controls"><input type="button" value="OK" class="crb-mpopup-close button button-primary"></p></div>';
                 },
                 ajaxContentAdded: function() {
-                    var popup_width =  window.innerWidth * ((window.innerWidth < 800) ? 0.7 : 0.6);
+                    let popup_width =  window.innerWidth * ((window.innerWidth < 800) ? 0.7 : 0.6);
                     $('.crb-admin-mpopup .mfp-content').css('width', popup_width + 'px');
-                    var popup_height = window.innerHeight * ((window.innerHeight < 800) ? 0.7 : 0.6);
+                    let popup_height = window.innerHeight * ((window.innerHeight < 800) ? 0.7 : 0.6);
                     $('.crb-admin-mpopup #crb-inner').css('max-height', popup_height + 'px');
                 }
             },
@@ -292,7 +314,7 @@ jQuery(document).ready(function ($) {
 
     // GEO
 
-    $("form#crb-geo-rules .crb-geo-switcher").change(function () {
+    $("form#crb-geo-rules .crb-geo-switcher").on('change', function () {
         var to_show = '#crb-geo-wrap_' + $(this).data('rule-id');
         if ($(this).val() !== '---first') {
             to_show += '_' + $(this).val()
@@ -329,4 +351,87 @@ jQuery(document).ready(function ($) {
 
     cerber_highlight_text('crb-log-viewer', 'ERROR:', 200);
 
+
+
+    /* VTabs */
+
+    // Initialize the first tab
+    let form_id = $('#crb-vtabs').closest('form').attr('id');
+    let vac = crb_get_local('vtab_active' + form_id);
+    if (vac) {
+        $('#crb-vtabs [data-tab-id=' + vac + ']').addClass('active_tab');
+    }
+    else {
+        $('#crb-vtabs .tablinks').first().addClass('active_tab');
+    }
+
+    crb_init_active_tab();
+
+    function crb_init_active_tab() {
+        let active = $('#crb-vtabs .active_tab');
+        let callback = active.data('callback');
+        let tab_id = active.data('tab-id');
+        $('#tab-' + tab_id).show();
+        if (callback && (typeof window[callback] === "function")) {
+            window[callback](tab_id);
+        }
+    }
+
+    $('.tablinks').on('click', function () {
+        let tab_id = $(this).data('tab-id');
+        $('.vtabcontent').hide();
+        //$('#tab-' + tab_id).show();
+
+        $(".tablinks").removeClass('active_tab');
+        $(this).addClass("active_tab");
+
+        crb_init_active_tab();
+        crb_update_local('vtab_active' + form_id, tab_id);
+    });
+
 });
+
+/* Storage API */
+
+const crb_sprefix = 'wp_cerber_';
+
+function crb_update_local(key, value, json = false) {
+    if (json) {
+        value = JSON.stringify(value)
+    }
+
+    localStorage.setItem(crb_sprefix + key, value);
+}
+
+function crb_get_local(key, json = false) {
+    let value = localStorage.getItem(crb_sprefix + key);
+
+    if (!json) {
+        if (value == null) {
+            value = '';
+        }
+        return value;
+    }
+
+    if (value == null || value == '') {
+        return {};
+    }
+
+    return JSON.parse(value);
+}
+
+function crb_delete_local(key) {
+    localStorage.removeItem(crb_sprefix + key);
+}
+
+/* Misc */
+
+function crb_is_empty(thing) {
+    if (typeof thing === 'undefined') {
+        return true;
+    } else if (thing.length === 0) {
+        return true;
+    }
+
+    return false;
+}

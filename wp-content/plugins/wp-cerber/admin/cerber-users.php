@@ -12,7 +12,7 @@ add_action( 'personal_options', function ( $profileuser ) {
         </th>
         <td>
 			<?php
-			$cus      = cerber_get_set( 'cerber_user', $profileuser->ID );
+			$cus      = cerber_get_set( CRB_USER_SET, $profileuser->ID );
 			$selected = ( empty( $cus['tfm'] ) ) ? 0 : $cus['tfm'];
 			echo cerber_select( 'cerber_user_2fa', array(
 				0 => __( 'Determined by user role policies', 'wp-cerber' ),
@@ -68,14 +68,14 @@ add_action( 'personal_options', function ( $profileuser ) {
         <th scope="row"><?php _e( 'User Message', 'wp-cerber' ); ?></th>
         <td>
             <textarea placeholder="<?php _e( 'An optional message for this user', 'wp-cerber' ); ?>"
-                      id="crb_blocked_msg" name="crb_blocked_msg"><?php echo htmlspecialchars( $b_msg ); ?></textarea>
+                      id="crb_blocked_msg" name="crb_blocked_msg"><?php echo htmlspecialchars( $b_msg, ENT_SUBSTITUTE ); ?></textarea>
         </td>
     </tr>
     <tr class="crb_blocked_txt" style="<?php echo $dsp; ?>">
         <th scope="row"><?php _e( 'Admin Note', 'wp-cerber' ); ?></th>
         <td>
-            <textarea
-                      id="crb_blocked_note" name="crb_blocked_note"><?php echo htmlspecialchars( $b_note ); ?></textarea>
+            <textarea placeholder="<?php _e( 'It is visible only to website administrators', 'wp-cerber' ); ?>"
+                      id="crb_blocked_note" name="crb_blocked_note"><?php echo htmlspecialchars( $b_note, ENT_SUBSTITUTE ); ?></textarea>
         </td>
     </tr>
 	<?php
@@ -125,7 +125,7 @@ add_action( 'edit_user_profile_update', function ( $user_id ) {
 add_action( 'personal_options_update', 'crb_admin_user2fa' );
 
 function crb_admin_user2fa( $user_id ) {
-	$cus = cerber_get_set( 'cerber_user', $user_id );
+	$cus = cerber_get_set( CRB_USER_SET, $user_id );
 
 	if ( ! $cus || ! is_array( $cus ) ) {
 		$cus = array();
@@ -151,9 +151,9 @@ function crb_admin_user2fa( $user_id ) {
 		$cus['tfemail'] = '';
 	}
 
-	cerber_update_set( 'cerber_user', $cus, $user_id );
+	cerber_update_set( CRB_USER_SET, $cus, $user_id );
 	if ( $cus['tfm'] == 2 ) {
-		CRB_2FA::delete_2fa( $user_id );
+		CRB_2FA::delete_2fa( $user_id, true );
 	}
 }
 
@@ -196,15 +196,23 @@ add_filter( 'users_list_table_query_args', function ( $args ) {
 	return $args;
 } );
 
-function crb_format_user_name( $data ) {
-	if ( $data->first_name ) {
-		$ret = $data->first_name . ' ' . $data->last_name;
-	}
-	else {
-		$ret = $data->display_name;
+function crb_format_user_name( $user ) {
+	if ( is_integer( $user ) ) {
+		$user = get_userdata( $user );
 	}
 
-	return $ret . ' (' . $data->user_login . ')';
+	if ( ! $user ) {
+		return 'Unknown user';
+	}
+
+	if ( $user->first_name ) {
+		$ret = $user->first_name . ' ' . $user->last_name;
+	}
+	else {
+		$ret = $user->display_name;
+	}
+
+	return $ret . ' (' . $user->user_login . ')';
 }
 
 // Bulk actions
@@ -296,6 +304,9 @@ function crb_admin_role_form( $role_id, $values ) {
 
 	    foreach ( $config['fields'] as $field_id => $field ) {
 		    $pro = ( isset( $field['pro'] ) && ! lab_lab() );
+		    $hide = ( $pro && $field['pro'] == 2 ) ? 'display:none;' : '';
+
+		    $title = crb_array_get( $field, 'title', '' );
 
 		    if ( empty( $field['disabled'] ) ) {
 			    $field['disabled'] = ( crb_array_get( $field, 'disable_role' ) == $role_id );
@@ -306,46 +317,35 @@ function crb_admin_role_form( $role_id, $values ) {
 		    }
 
 		    $enabler = '';
-		    if ( isset( $field['enabler'][0] ) ) {
+		    if ( isset( $field['enabler'] ) ) {
 			    $enabler .= ' data-enabler="crb-input-' . $role_id . '[' . $field['enabler'][0] . ']" ';
-		    }
-		    if ( isset( $field['enabler'][1] ) ) {
-			    $enabler .= ' data-enabler_value="' . $field['enabler'][1] . '" ';
+
+			    if ( isset( $field['enabler'][1] ) ) {
+				    $enabler .= ' data-enabler_value="' . $field['enabler'][1] . '" ';
+			    }
 		    }
 
 		    $s = ( $pro ) ? ' color: #888; ' : '';
 
-		    // Enabling/disabling conditional inputs
-		    $enabled = true;
-		    if ( isset( $field['enabler'][0] ) ) {
-			    $enab_val = crb_array_get( $values, $field['enabler'][0], '' );
-			    if ( isset( $field['enabler'][1] ) ) {
-				    if ( $enab_val != $field['enabler'][1] ) {
-					    $enabled = false;
-				    }
-			    }
-			    else {
-				    if ( empty( $enab_val ) ) {
-					    $enabled = false;
-				    }
-			    }
+		    $tr_class = '';
+
+		    if ( isset( $field['enabler'] ) ) {
+			    $tr_class = crb_check_enabler( $field, crb_array_get( $values, $field['enabler'][0], '' ) );
 		    }
 
-		    $tr_class = ( ! $enabled ) ? ' crb-disable-this' : '';
-
 		    if ( ! empty( $field['disabled'] ) ) {
-			    $tr_class .= ' crb-disabled';
+			    $tr_class .= ' crb-disabled-colors';
 		    }
 
 		    if ( $field['type'] != 'html' ) {
 			    $value = ( ! $pro ) ? crb_array_get( $values, $field_id, '' ) : '';
-			    $html  .= '<tr class="' . $tr_class . '"><th scope="row" style="' . $s . '">' . $field['title'] . '</th><td>' . crb_admin_form_field( $field, $role_id . '[' . $field_id . ']', $value ) . '<i ' . $enabler . '></i></td></tr>';
+			    $html .= '<tr style="' . $hide . '" class="' . $tr_class . '"><th scope="row" style="' . $s . '">' . $title . '</th><td>' . crb_admin_form_field( $field, $role_id . '[' . $field_id . ']', $value ) . '<i ' . $enabler . '></i></td></tr>';
 		    }
 		    else {
-			    $t    = ( $pro && $field_id == '2fasmart' ) ? crb_admin_cool_features() : '';
-			    $html .= '<tr class="' . $tr_class . '"><td colspan="2" style="padding-left: 0; ' . $s . '">' . $t . $field['title'] . '<i ' . $enabler . '></i></td></tr>';
+			    $t = ( $pro && $field_id == '2fasmart' ) ? crb_admin_cool_features() : '';
+			    $html .= '<tr class="' . $tr_class . '"><td colspan="2" style="padding-left: 0; ' . $s . '">' . $t . $title . '<i ' . $enabler . '></i></td></tr>';
 		    }
-		}
+	    }
 
 	}
 	$html .= '</table>';
@@ -380,6 +380,14 @@ function crb_admin_form_field( $field, $name, $value, $id = '' ) {
 			break;
 		case 'select':
 			return cerber_select( $name, $field['set'], $value, '', $id, '', '', null, $atts );
+			break;
+		case 'textarea':
+			$html = '<textarea class="large-text crb-monospace" id="' . $id . '" name="' . $name . '" ' . $atts . '>' . $value . '</textarea>';
+			if ( $label ) {
+				$html .= '<br/><label class="crb-below" for="' . $id . '">' . $label . '</label>';
+			}
+
+			return $html;
 			break;
 		case 'text':
 		default:
@@ -430,8 +438,42 @@ function crb_admin_role_config() {
 			'fields' => array(
 				'auth_expire' => array(
 					'title'       => __( 'User session expiration time', 'wp-cerber' ),
+					//'label' => 'minutes',
 					'placeholder' => 'minutes',
 					'type'        => 'number',
+				),
+				'sess_limit'  => array(
+					'title' => __( 'Number of allowed concurrent user sessions', 'wp-cerber' ),
+					'type'  => 'number',
+					'pro'   => 2
+				),
+				'sess_limit_policy' => array(
+					'title' => __( 'When the limit on concurrent user sessions is reached', 'wp-cerber' ),
+					'type'  => 'select',
+					'set'   => array(
+						0 => __( 'Terminate the oldest user session on a new login', 'wp-cerber' ),
+						1 => __( 'Deny further login attempts', 'wp-cerber' ),
+					),
+					'pro'   => 2
+				),
+				'sess_limit_msg' => array(
+					//'title'     => __( 'User message', 'wp-cerber' ),
+					'label'       => __( 'Display this message if an attempt to log in is denied because the limit on concurrent user sessions has been reached', 'wp-cerber' ),
+					'type'        => 'textarea',
+					'placeholder' => __( 'You are not allowed to log in. Ask your administrator for assistance.', 'wp-cerber' ),
+					'enabler'     => array( 'sess_limit_policy', 1 ),
+					'pro'         => 2
+				),
+				'app_pwd' => array(
+					'title' => __( 'Application Passwords', 'wp-cerber' ),
+					'type'  => 'select',
+					'set'   => array(
+						0 => __( 'Use global policies', 'wp-cerber' ),
+						1 => __( 'Enabled, access to API using standard user passwords is allowed', 'wp-cerber' ),
+						2 => __( 'Enabled, no access to API using standard user passwords', 'wp-cerber' ),
+						3 => __( 'Disabled', 'wp-cerber' ),
+					),
+					'pro'   => 2
 				),
 			)
 		),
@@ -473,8 +515,14 @@ function crb_admin_role_config() {
 					'pro'     => 1
 				),
 				'2fanewua'      => array(
-					'title'   => __( 'Using a different browser or device', 'wp-cerber' ),
+					'title'   => __( 'Login from a different browser or device', 'wp-cerber' ),
 					'type'    => 'checkbox',
+					'enabler' => array( '2famode', 2 ),
+					'pro'     => 1
+				),
+				'2fasessions'       => array(
+					'title'   => __( 'If the number of concurrent user sessions is greater', 'wp-cerber' ),
+					'type'    => 'number',
 					'enabler' => array( '2famode', 2 ),
 					'pro'     => 1
 				),
@@ -487,9 +535,9 @@ function crb_admin_role_config() {
 				'2fadays'       => array(
 					'title'   => __( 'Regular time intervals (days)', 'wp-cerber' ),
 					'type'    => 'number',
-					'label'   => __( 'days interval', 'wp-cerber' ),
+					//'label'   => __( 'days interval', 'wp-cerber' ),
 					'enabler' => array( '2famode', 2 ),
-					'pro'     => 12
+					'pro'     => 1
 				),
 				'2falogins'     => array(
 					'title'   => __( 'Fixed number of logins', 'wp-cerber' ),
@@ -542,83 +590,6 @@ function crb_admin_save_role_policies( $post ) {
 	}
 }
 
-/**
- * @param array|string $sids
- * @param int $user_id
- *
- * @return int
- */
-function crb_sessions_kill( $sids, $user_id = null ) {
-	if ( ! is_super_admin() && ! nexus_is_valid_request() ) {
-		return 0;
-	}
-
-	if ( ! is_array( $sids ) ) {
-		$sids = array( $sids );
-	}
-
-	if ( ! $user_id ) {
-		$users = cerber_db_get_col( 'SELECT user_id FROM ' . cerber_get_db_prefix() . CERBER_USS_TABLE . ' WHERE wp_session_token IN ("' . implode( '","', $sids ) . '")' );
-	}
-	else {
-		$users = array( $user_id );
-	}
-
-	if ( ! $users || ! $sids ) {
-		return 0;
-	}
-
-	$kill   = array_flip( $sids );
-	$total  = 0;
-	$errors = 0;
-
-	// Prevent termination the current admin session
-	if ( wp_get_session_token() ) {
-		unset( $kill[ crb_admin_hash_token( wp_get_session_token() ) ] );
-	}
-
-	foreach ( $users as $user_id ) {
-		$count = 0;
-
-		$sessions = get_user_meta( $user_id, 'session_tokens', true );
-
-		if ( empty( $sessions ) || ! is_array( $sessions ) ) {
-			continue;
-		}
-		if ( ! $do_this = array_intersect_key( $kill, $sessions ) ) {
-			continue;
-		}
-
-		foreach ( $do_this as $key => $nothing ) {
-			unset( $sessions[ $key ] );
-			unset( $kill[ $key ] );
-			$count ++;
-		}
-
-		if ( $count ) {
-			if ( update_user_meta( $user_id, 'session_tokens', $sessions ) ) {
-				$total += $count;
-			}
-			else {
-				$errors ++;
-			}
-		}
-	}
-
-	if ( $errors ) {
-		cerber_admin_notice( 'Error: Unable to update user meta data.' );
-	}
-
-	if ( $total ) {
-		cerber_admin_message( sprintf( _n( 'Session has been terminated', '%s sessions have been terminated', $total, 'wp-cerber' ), $total ) );
-	}
-	else {
-		cerber_admin_notice( 'No sessions found.' );
-	}
-
-	return $total;
-}
-
 function crb_destroy_user_sessions( $user_id ) {
 	if ( ! $user_id || get_current_user_id() == $user_id ) {
 		return;
@@ -627,31 +598,13 @@ function crb_destroy_user_sessions( $user_id ) {
 	$manager->destroy_all();
 }
 
-/**
- * Return a "session verifier" to identify the current admin session among others admin sessions
- *
- * Copy of WP_Session_Tokens->hash_token();
- *
- * @param $token
- *
- * @return string
- */
-function crb_admin_hash_token( $token ) {
-	// If ext/hash is not present, use sha1() instead.
-	if ( function_exists( 'hash' ) ) {
-		return hash( 'sha256', $token );
-	} else {
-		return sha1( $token );
-	}
-}
-
 function crb_admin_is_current_session( $session_id ) {
 	static $st = null;
 	if ( $st === null ) {
-		$st = wp_get_session_token();
+		$st = crb_get_session_token();
 	}
 
-	return ( $session_id === crb_admin_hash_token( $st ) );
+	return ( $session_id === cerber_hash_token( $st ) );
 }
 
 function crb_admin_get_user_cell( $user_id = null, $base_url = '', $text = '', $label = '' ) {
@@ -661,15 +614,17 @@ function crb_admin_get_user_cell( $user_id = null, $base_url = '', $text = '', $
 		return '';
 	}
 
-	if ( isset( $user_cache[ $user_id ] ) ) {
+	$key = $user_id . '-' . sha1( (string) $text . ' ' . (string) $label );
 
-		return $user_cache[ $user_id ];
+	if ( isset( $user_cache[ $key ] ) ) {
+
+		return $user_cache[ $key ];
 
 	}
 
 	if ( ! $user = get_userdata( $user_id ) ) {
 		if ( ! $user_data = cerber_get_set( 'user_deleted', $user_id ) ) {
-			$user_cache[ $user_id ] = 'UID ' . $user_id;
+			$user_cache[ $key ] = 'UID ' . $user_id;
 
 			return '';
 		}
@@ -709,9 +664,9 @@ function crb_admin_get_user_cell( $user_id = null, $base_url = '', $text = '', $
 		$avatar = '';
 	}
 
-	$user_cache[ $user_id ] = '<table class="crb-avatar"><tr>' . $avatar . '<td>' . $ret . $text . '</td></tr></table>';
+	$user_cache[ $key ] = '<table class="crb-avatar"><tr>' . $avatar . '<td>' . $ret . $text . '</td></tr></table>';
 
-	return $user_cache[ $user_id ];
+	return $user_cache[ $key ];
 }
 
 function crb_admin_show_sessions() {
@@ -816,20 +771,16 @@ function crb_pdata_exporter_trf( $email_address, $page = 1 ) {
 			}
 
 			if ( isset( $what[2] ) ) {
-				if ( $row->request_fields ) {
-					$uns = unserialize( $row->request_fields );
-					if ( ! empty( $uns[1] ) ) {
-						$value['FORM_FIEDLS'] = $uns[1];
-					}
+				$fields = crb_auto_decode( $row->request_fields );
+				if ( ! empty( $fields[1] ) ) {
+					$value['FORM_FIEDLS'] = $fields[1];
 				}
 			}
 
 			if ( isset( $what[3] ) ) {
-				if ( $row->request_details ) {
-					$uns  = unserialize( $row->request_details );
-					if ( ! empty( $uns[8] ) ) {
-						$value['COOKIES'] = $uns[8];
-					}
+				$dets = crb_auto_decode( $row->request_details );
+				if ( ! empty( $dets[8] ) ) {
+					$value['COOKIES'] = $dets[8];
 				}
 			}
 
@@ -1082,7 +1033,7 @@ class CRB_Sessions_Table extends WP_List_Table {
 		}
 
 		if ( ! empty( $term ) ) {
-			echo '<div style="margin-top:15px;"><b>' . __( 'Search results for:', 'wp-cerber' ) . '</b> “' . htmlspecialchars( $term ) . '”</div>';
+			echo '<div style="margin-top:15px;"><b>' . __( 'Search results for:', 'wp-cerber' ) . '</b> “' . htmlspecialchars( $term, ENT_SUBSTITUTE ) . '”</div>';
 		}
 
 		// Pagination, part 2
@@ -1171,7 +1122,7 @@ class CRB_Sessions_Table extends WP_List_Table {
 				$ip_id   = cerber_get_id_ip( $item['ip'] );
 				$ip_info = cerber_get_ip_info( $item['ip'], true );
 				if ( ! $hostname = crb_array_get( $ip_info, 'hostname_html' ) ) {
-					$hostname = '<img data-ip-id="' . $ip_id . '" class="crb-no-hostname" src="' . $crb_ajax_loader . '" />' . "\n";
+					$hostname = crb_get_ajax_placeholder( 'hostname', $ip_id );
 				}
 				$country = ( $this->geo ) ? '<p style="">' . crb_country_html( $item['country'], $item['ip'] ) . '</p>' : '';
 

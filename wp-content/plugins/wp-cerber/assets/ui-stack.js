@@ -58,7 +58,8 @@ jQuery(document).ready(function ($) {
         let request_fields = {
             action: 'cerber_ajax',
             ajax_nonce: crb_ajax_nonce,
-            request: request_num
+            request: request_num,
+            referrer_page_url : window.location.href
         };
 
         let data_fields = jquery_object.data();
@@ -100,13 +101,19 @@ jQuery(document).ready(function ($) {
     }
 
     function uis_overlay_loader_on(area) {
-        let uis_ajax_loader = '<div class="uis_page_loader"></div>';
-        area.append(uis_ajax_loader);
-        $('.uis_page_loader').show();
+        if (0 === area.find('.uis_loader_wrapper').length) {
+            area.append('<div class="uis_loader_wrapper"><div class="uis_page_loader"></div></div>');
+        }
+        $('.uis_loader_wrapper').show();
     }
 
     function uis_overlay_loader_off(area) {
-        area.find('.uis_page_loader').remove();
+        area.find('.uis_loader_wrapper').remove();
+        area.addClass('uis_ajax_processed');
+    }
+
+    window.uis_loader_remove = function (area) {
+        uis_overlay_loader_off(area);
     }
 });
 

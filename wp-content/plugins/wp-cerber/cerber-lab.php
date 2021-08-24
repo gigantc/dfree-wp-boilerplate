@@ -2,8 +2,8 @@
 /*
 	Cerber Laboratory (cerberlab.net) specific routines.
 
-	Copyright (C) 2015-20 CERBER TECH INC., https://cerber.tech
-	Copyright (C) 2015-20 CERBER TECH INC., https://wpcerber.com
+	Copyright (C) 2015-21 CERBER TECH INC., https://cerber.tech
+	Copyright (C) 2015-21 Markov Cregory, https://wpcerber.com
 
     Licenced under the GNU GPL.
 
@@ -188,6 +188,10 @@ function lab_api_send_request( $workload = array(), $payload_key = null ) {
 		'time'     => time(),
 	);
 
+	if ( lab_lab() ) {
+		$request['site_url'] = cerber_get_site_url(); // @since 8.6.8
+	}
+
 	$ret = lab_send_request( $request );
 
 	// If something goes wrong, take the next closest node
@@ -198,7 +202,7 @@ function lab_api_send_request( $workload = array(), $payload_key = null ) {
 		lab_check_nodes(); // Recheck nodes for further requests
 	}
 
-	if ( $ret ) {
+	if ( $push && $ret ) {
 		lab_trunc_push();
 	}
 
@@ -219,9 +223,10 @@ function lab_api_send_request( $workload = array(), $payload_key = null ) {
  * @return array|bool The response of a node on the success request otherwise false on any error
  */
 function lab_send_request( $request, $node_id = null, $scheme = null ) {
-	global $node_delay;
+	global $node_delay, $cerber_lab_last_net_error, $cerber_lab_last_node_id;
 
 	$node = lab_get_node( $node_id );
+
 	if ( ! $scheme ) {
 		if ( crb_get_settings( 'cerberproto' ) ) {
 			$scheme = 'https';
@@ -254,11 +259,15 @@ function lab_send_request( $request, $node_id = null, $scheme = null ) {
 
 	$curl = @curl_init(); // @since 4.32
 	if ( ! $curl ) {
+		cerber_error_log( 'Unable to initialize cURL', 'CLOUD' );
+
 		return false;
 	}
 
+	$url = $scheme . '://' . $node[2] . '/engine/v1/';
+
 	curl_setopt_array( $curl, array(
-		CURLOPT_URL               => $scheme . '://' . $node[2] . '/engine/v1/',
+		CURLOPT_URL               => $url,
 		CURLOPT_POST              => true,
 		CURLOPT_HTTPHEADER        => $headers,
 		CURLOPT_POSTFIELDS        => $request_body,
@@ -272,9 +281,14 @@ function lab_send_request( $request, $node_id = null, $scheme = null ) {
 		CURLOPT_CAINFO            => ABSPATH . WPINC . '/certificates/ca-bundle.crt',
 	) );
 
+	cerber_diag_log( 'Sending request to: ' . $url, 'CLOUD' );
+	cerber_diag_log( 'Request body: ' . print_r( $body, 1 ), 'CLOUD' );
+
 	$start = microtime( true );
 	$data = @curl_exec( $curl );
 	$stop = microtime( true );
+
+	$cerber_lab_last_node_id = $node[0];
 
 	$node_delay = $stop - $start;
 
@@ -284,8 +298,11 @@ function lab_send_request( $request, $node_id = null, $scheme = null ) {
 	else {
 		$response['status'] = 0;
 		$code = intval( curl_getinfo( $curl, CURLINFO_HTTP_CODE ) );
-		$response['error'] = 'No connection (' . $code . ')';
-		//if (!$data) // curl_error($curl) . curl_errno($curl) );
+		$response['error'] = 'Network error occurred while connecting to the node #' . $node[0] . ' (' . $code . ')';
+		if ( $curl_err = curl_error( $curl ) ) {
+			$curl_err .= '[' . curl_errno( $curl ) . ']';
+			cerber_error_log( 'cURL => ' . $curl_err, 'CLOUD' );
+		}
 	}
 
 	curl_close( $curl );
@@ -300,7 +317,13 @@ function lab_send_request( $request, $node_id = null, $scheme = null ) {
 	) );
 
 	if ( $response['error'] ) {
+		$cerber_lab_last_net_error = $response['error'];
+		cerber_error_log( $response['error'], 'CLOUD' );
+
 		return false;
+	}
+	elseif ( defined( 'CERBER_CLOUD_DEBUG' ) ) {
+		cerber_diag_log( 'Response: ' . print_r( $response, 1 ), 'CLOUD' );
 	}
 
 	return $response;
@@ -586,13 +609,19 @@ function lab_is_cloud_ok(){
  */
 function lab_save_push( $ip, $reason_id, $details = null ) {
 	global $cerber_act_status;
+	static $done = false;
+
+	if ( $done || cerber_check_groove() ) {
+		return; // Known user
+	}
+
 	$ip = filter_var( $ip, FILTER_VALIDATE_IP );
 	if ( ! $ip || is_ip_private( $ip ) || crb_acl_is_white( $ip ) || ! ( crb_get_settings( 'cerberlab' ) || lab_lab() ) ) {
 		return;
 	}
 
 	$reason_id = absint( $reason_id );
-	if ( $reason_id == 8 || $reason_id == 9 ) {
+	if ( in_array( $reason_id, array( 708, 709, 55 ) ) ) {
 		$details = array( 'uri' => $_SERVER['REQUEST_URI'] );
 	}
 	elseif ( $reason_id == 100 ) {
@@ -602,9 +631,12 @@ function lab_save_push( $ip, $reason_id, $details = null ) {
 	if ( is_array( $details ) ) {
 		$details = serialize( $details );
 	}
+
 	$details = cerber_real_escape( $details );
 
 	cerber_db_query( 'INSERT INTO ' . CERBER_LAB_TABLE . ' (ip, reason_id, details, stamp) VALUES ("' . $ip . '",' . $reason_id . ',"' . $details . '",' . time() . ')' );
+
+	$done = true;
 }
 /**
  * Get data for lab
@@ -612,7 +644,6 @@ function lab_save_push( $ip, $reason_id, $details = null ) {
  * @return array|bool
  */
 function lab_get_push() {
-	//$result = $wpdb->get_results( 'SELECT * FROM ' . CERBER_LAB_TABLE, ARRAY_A );
 	$result = cerber_db_get_results( 'SELECT * FROM ' . CERBER_LAB_TABLE, MYSQLI_ASSOC );
 	if ( $result ) {
 		return array( 'type_1' => $result );
@@ -713,6 +744,7 @@ function lab_update_key( $lic, $expires = 0 ) {
 }
 
 function lab_validate_lic( $lic = '', &$msg = '' ) {
+	global $cerber_lab_last_net_error, $cerber_lab_last_node_id;
 
 	$msg = '';
 	$key = lab_get_key();
@@ -720,31 +752,43 @@ function lab_validate_lic( $lic = '', &$msg = '' ) {
 	if ( ! $lic ) {
 		if ( empty( $key[2] ) ) {
 			$msg = '(1)';
+
 			return false;
 		}
 		$lic = $key[2];
 	}
 
-	$request = array( 'key' => $key, 'validate' => $lic );
-	$i       = LAB_NODE_MAX;
+	$request = array(
+		'key'      => $key,
+		'validate' => $lic,
+		'version'  => CERBER_VER,
+		'site_url' => cerber_get_site_url(),
+		'multi'    => is_multisite(),
+	);
+
+	$i = LAB_NODE_MAX;
 	while ( ! ( $ret = lab_send_request( $request ) ) && $i > 0 ) {
 		$i --;
 	}
 
+	if ( ! empty( $cerber_lab_last_net_error ) ) {
+		$msg .= $cerber_lab_last_net_error;
+	}
+
 	if ( ! $ret || ! isset( $ret['response']['expires_gmt'] ) ) {
 		cerber_admin_notice( 'A network error occurred while verifying the license key. Please try again in a couple of minutes.' );
-		$msg = '(2)';
+		$msg .= '(2)';
 		$expires = 0;
 	}
 	else {
-		$msg = '(3)';
+		$msg .= '(3)';
 		$expires = absint( $ret['response']['expires_gmt'] );
 	}
 
 	lab_update_key( $lic, $expires );
 
 	if ( ! $expires ) {
-		$msg = '(4)';
+		$msg .= '(4.' . $i . '.' . $cerber_lab_last_node_id . '.' . htmlspecialchars( crb_array_get( $ret, array( 'response', 'expires_gmt' ), '@' ) ) . ')';
 
 		return false;
 	}
@@ -755,38 +799,52 @@ function lab_validate_lic( $lic = '', &$msg = '' ) {
 		return false;
 	}
 
-	$df         = get_option( 'date_format', false );
+	$df = get_option( 'date_format', false );
 	$gmt_offset = get_option( 'gmt_offset', false ) * 3600;
 
 	$msg = date_i18n( $df, $gmt_offset + $expires );
+
 	return true;
 }
 
 function lab_lab( $with_date = 0 ) {
+	static $exp;
 
-	if ( $slave = nexus_get_context() ) {
-		if ( ! $slave->site_key ) {
-			return false;
+	if ( ! isset( $exp ) ) {
+
+		if ( $slave = nexus_get_context() ) {
+			if ( ! $slave->site_key ) {
+				$exp = false;
+			}
+			else {
+				$exp = $slave->site_key;
+			}
 		}
-		$exp = $slave->site_key;
+		else {
+
+			$key = lab_get_key();
+
+			if ( empty( $key[2] ) || empty( $key[3] ) ) {
+				$exp = false;
+			}
+			else {
+				$exp = $key[3];
+			}
+		}
 	}
-	else {
 
-		$key = lab_get_key();
-
-		if ( empty( $key[2] ) || empty( $key[3] ) ) {
-			return false;
-		}
-
-		$exp = $key[3];
+	if ( ! $exp ) {
+		return false;
 	}
 
 	if ( time() > ( $exp + LAB_LICENSE_GRACE ) ) {
 		return false;
 	}
+
 	if ( ! $with_date ) {
 		return true;
 	}
+
 	if ( $with_date == 2 ) {
 		return $exp;
 	}
@@ -820,18 +878,13 @@ function lab_opt_in(){
 	}
 
 	if ( $o = get_site_option( '_lab_o' . 'pt_in_' ) ) {
-		//if ( $o[0] == 'NO' && ( $o[1] + 3600 * 24 * 30 ) > time() ) {
-		if ( ( $o[1] + 3600 * 24 * 30 ) > time() ) {
+		if ( ( $o[1] + 30 * DAY_IN_SECONDS ) > time() ) {
 			return;
 		}
 	}
 
-	//if ( $c = get_site_option( '_cerber_activated' ) ) {
-	//	$c = maybe_unserialize( $c );
-	if ( $c = cerber_get_set( '_activated' ) ) {
-		if ( ! empty( $c['time'] ) && ( $c['time'] + 3600 * 24 * 7 ) > time() ) {
-			return;
-		}
+	if ( ! crb_was_activated( WEEK_IN_SECONDS ) ) {
+		return;
 	}
 
 	$h = __('Want to make WP Cerber even more powerful?','wp-cerber');
@@ -888,6 +941,10 @@ function lab_get_country( $ip, $cache_only = true ) {
 		return false;
 	}
 
+	if ( ! is_array( $remote_country ) ) {
+		$remote_country = array();
+	}
+
 	if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
 		$ip_id = cerber_get_id_ip( $ip );
 		if ( isset( $remote_country[ $ip_id ] ) ) {
@@ -918,7 +975,7 @@ function lab_get_country( $ip, $cache_only = true ) {
 		}
 
 		if ( cerber_is_ipv4( $item ) ) {
-			$ip_long = ip2long($item);
+			$ip_long = ip2long( $item );
 			$where = ' WHERE ip_long_begin <= ' . $ip_long . ' AND ' . $ip_long . ' <= ip_long_end';
 		}
 		else {
@@ -930,30 +987,32 @@ function lab_get_country( $ip, $cache_only = true ) {
 		if ( $country ) {
 			$ret[ $ip_id ] = $country;
 		}
-		elseif (!$cache_only) {
+		elseif ( ! $cache_only ) {
 			$ask[ $ip_id ] = $item;
 		}
 	}
 
-	if ( !$cache_only && $ask ) {
+	if ( ! $cache_only && $ask ) {
 		$lab_data = lab_api_send_request( array( 'ask_cerberlab' => $ask ) );
 
 		if ( ! empty( $lab_data['response']['payload'] ) ) {
 			foreach ( $lab_data['response']['payload'] as $ip_id => $ip_data ) {
-			//foreach ( $ask as $ip_id => $ip_ask ) {
+				//foreach ( $ask as $ip_id => $ip_ask ) {
 				//if ( ! empty( $lab_data['response']['payload'][ $ip_id ] ) ) {
-					//$ip_data = $lab_data['response']['payload'][ $ip_id ];
-					lab_geo_update( $ip_data['ip'], $ip_data );
-					lab_reputation_update($ip_data['ip'] , $ip_data);
-					$ret[ $ip_id ] = $ip_data['network']['geo']['country_iso'];
+				//$ip_data = $lab_data['response']['payload'][ $ip_id ];
+				lab_geo_update( $ip_data['ip'], $ip_data );
+				lab_reputation_update( $ip_data['ip'], $ip_data );
+				$ret[ $ip_id ] = $ip_data['network']['geo']['country_iso'];
 				//}
 			}
 		}
 
 	}
 
+	$remote_country = array_merge( $remote_country, $ret );
+
 	if ( ! is_array( $ip ) && ! empty( $ret ) ) {
-		return current($ret);
+		return current( $ret );
 	}
 
 	return $ret;
@@ -972,11 +1031,15 @@ function lab_geo_update( $ip = '', $data = array() ) {
 		return;
 	}
 
+	if ( ! is_array( $remote_country ) ) {
+		$remote_country = array();
+	}
+
 	$code = substr( $data['network']['geo']['country_iso'], 0, 3 );
 	$remote_country[ cerber_get_id_ip( $ip ) ] = $code;
-	$expires = time() + absint($data['network']['geo']['country_expires']);
-	$begin = intval($data['network']['begin']);
-	$end   = intval($data['network']['end']);
+	$expires = time() + absint( $data['network']['geo']['country_expires'] );
+	$begin = intval( $data['network']['begin'] );
+	$end = intval( $data['network']['end'] );
 
 	if ( cerber_is_ipv4( $ip ) ) {
 		$where = ' WHERE ip_long_begin = ' . $begin . ' AND ip_long_end = ' . $end;
@@ -1013,7 +1076,7 @@ function lab_geo_update( $ip = '', $data = array() ) {
 }
 
 function lab_cleanup_cache() {
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! cerber_user_can_manage() ) {
 		return;
 	}
 	cerber_db_query( 'TRUNCATE TABLE ' . CERBER_LAB_NET_TABLE );

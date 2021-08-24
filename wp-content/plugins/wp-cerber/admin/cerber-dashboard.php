@@ -1,7 +1,7 @@
 <?php
 /*
-	Copyright (C) 2015-20 CERBER TECH INC., https://cerber.tech
-	Copyright (C) 2015-20 CERBER TECH INC., https://wpcerber.com
+	Copyright (C) 2015-21 CERBER TECH INC., https://cerber.tech
+	Copyright (C) 2015-21 Markov Cregory, https://wpcerber.com
 
     Licenced under the GNU GPL.
 
@@ -35,52 +35,57 @@ if ( ! defined( 'WPINC' ) ) {
 	exit;
 }
 
-require_once( dirname( __FILE__ ) . '/cerber-tools.php' );
-
 if ( ! is_multisite() ) {
 	add_action( 'admin_menu', 'cerber_admin_menu' );
+	define( 'CRB_ADMIN_CAP', 'manage_options' );
 }
 else {
 	add_action( 'network_admin_menu', 'cerber_admin_menu' );  // only network wide menu allowed in multisite mode
+	define( 'CRB_ADMIN_CAP', 'manage_network' );
 }
 
 function cerber_admin_menu() {
 
+	$position = 100;
+
 	if ( cerber_is_admin_page() ) {
 		cerber_check_environment();
+		if ( crb_get_settings( 'top_admin_menu' ) ) {
+			$position = 1;
+		}
 	}
 
-	$hook = add_menu_page( 'WP Cerber Security', 'WP Cerber', 'manage_options', 'cerber-security', 'cerber_render_admin_page', 'dashicons-shield', '100' );
+	$hook = add_menu_page( 'WP Cerber Security', 'WP Cerber', CRB_ADMIN_CAP, 'cerber-security', 'cerber_render_admin_page', 'dashicons-shield', $position );
 	add_action( 'load-' . $hook, 'crb_admin_screen_options' );
-	add_submenu_page( 'cerber-security', __( 'Cerber Dashboard', 'wp-cerber' ), __( 'Dashboard', 'wp-cerber' ), 'manage_options', 'cerber-security', 'cerber_render_admin_page' );
+	add_submenu_page( 'cerber-security', __( 'Cerber Dashboard', 'wp-cerber' ), __( 'Dashboard', 'wp-cerber' ), CRB_ADMIN_CAP, 'cerber-security', 'cerber_render_admin_page' );
 
-	$hook = add_submenu_page( 'cerber-security', __( 'Cerber Traffic Inspector', 'wp-cerber' ), __( 'Traffic Inspector', 'wp-cerber' ), 'manage_options', 'cerber-traffic', 'cerber_render_admin_page' );
+	$hook = add_submenu_page( 'cerber-security', __( 'Cerber Traffic Inspector', 'wp-cerber' ), __( 'Traffic Inspector', 'wp-cerber' ), CRB_ADMIN_CAP, 'cerber-traffic', 'cerber_render_admin_page' );
 	add_action( 'load-' . $hook, 'crb_admin_screen_options' );
 
 	if ( lab_lab() ) {
-		add_submenu_page( 'cerber-security', __( 'Cerber Data Shield Policies', 'wp-cerber' ), __( 'Data Shield', 'wp-cerber' ), 'manage_options', 'cerber-shield', 'cerber_render_admin_page' );
-		add_submenu_page( 'cerber-security', __( 'Cerber Security Rules', 'wp-cerber' ), __( 'Security Rules', 'wp-cerber' ), 'manage_options', 'cerber-rules', 'cerber_render_admin_page' );
+		add_submenu_page( 'cerber-security', __( 'Cerber Data Shield Policies', 'wp-cerber' ), __( 'Data Shield', 'wp-cerber' ), CRB_ADMIN_CAP, 'cerber-shield', 'cerber_render_admin_page' );
+		add_submenu_page( 'cerber-security', __( 'Cerber Security Rules', 'wp-cerber' ), __( 'Security Rules', 'wp-cerber' ), CRB_ADMIN_CAP, 'cerber-rules', 'cerber_render_admin_page' );
 	}
 
-	add_submenu_page( 'cerber-security', __( 'Cerber User Security', 'wp-cerber' ), __( 'User Policies', 'wp-cerber' ), 'manage_options', 'cerber-users', 'cerber_render_admin_page' );
+	add_submenu_page( 'cerber-security', __( 'Cerber User Security', 'wp-cerber' ), __( 'User Policies', 'wp-cerber' ), CRB_ADMIN_CAP, 'cerber-users', 'cerber_render_admin_page' );
 
 	if ( cerber_get_upload_dir_mu() ) {
-		$hook = add_submenu_page( 'cerber-security', 'Cerber Security: Site Integrity', __( 'Site Integrity', 'wp-cerber' ), 'manage_options', 'cerber-integrity', 'cerber_render_admin_page' );
+		$hook = add_submenu_page( 'cerber-security', 'Cerber Security: Site Integrity', __( 'Site Integrity', 'wp-cerber' ), CRB_ADMIN_CAP, 'cerber-integrity', 'cerber_render_admin_page' );
 		add_action( 'load-' . $hook, 'crb_admin_screen_options' );
 	}
 
-	add_submenu_page( 'cerber-security', __( 'Cerber anti-spam settings', 'wp-cerber' ), __( 'Anti-spam', 'wp-cerber' ), 'manage_options', 'cerber-recaptcha', 'cerber_render_admin_page' );
+	add_submenu_page( 'cerber-security', __( 'Cerber anti-spam settings', 'wp-cerber' ), __( 'Anti-spam', 'wp-cerber' ), CRB_ADMIN_CAP, 'cerber-recaptcha', 'cerber_render_admin_page' );
 
-	$hook = add_submenu_page( 'cerber-security', 'Cerber.Hub', 'Cerber.Hub', 'manage_options', 'cerber-nexus', 'nexus_admin_page' );
+	$hook = add_submenu_page( 'cerber-security', 'Cerber.Hub', 'Cerber.Hub', CRB_ADMIN_CAP, 'cerber-nexus', 'nexus_admin_page' );
 	if ( nexus_is_master() ) {
 		add_action( 'load-' . $hook, 'nexus_master_screen' );
 	}
 
 	if ( ! CRB_Addons::none() ) {
-		add_submenu_page( 'cerber-security', __( 'Add-ons', 'wp-cerber' ), __( 'Add-ons', 'wp-cerber' ), 'manage_options', CRB_ADDON_PAGE, 'cerber_render_admin_page' );
+		add_submenu_page( 'cerber-security', __( 'Add-ons', 'wp-cerber' ), __( 'Add-ons', 'wp-cerber' ), CRB_ADMIN_CAP, CRB_ADDON_PAGE, 'cerber_render_admin_page' );
 	}
 
-	add_submenu_page( 'cerber-security', __( 'Cerber tools', 'wp-cerber' ), __( 'Tools', 'wp-cerber' ), 'manage_options', 'cerber-tools', 'cerber_render_admin_page' );
+	add_submenu_page( 'cerber-security', __( 'Cerber tools', 'wp-cerber' ), __( 'Tools', 'wp-cerber' ), CRB_ADMIN_CAP, 'cerber-tools', 'cerber_render_admin_page' );
 
 }
 
@@ -159,11 +164,17 @@ function cerber_show_lockouts( $args = array(), $echo = true ) {
 
 	$per_page = ( ! empty( $args['per_page'] ) ) ? $args['per_page'] : crb_admin_get_per_page();
 	$limit = cerber_get_sql_limit( $per_page );
+	$controls = empty( $args['no_navi'] );
+	$table = '';
+	$hint = '';
 
 	if ( $rows = cerber_db_get_results( 'SELECT * FROM ' . CERBER_BLOCKS_TABLE . ' ORDER BY block_until DESC ' . $limit, MYSQL_FETCH_OBJECT ) ) {
 
-		$total    = cerber_blocked_num();
-		$list     = array();
+		if ( $controls ) {
+			$total = cerber_blocked_num();
+		}
+
+		$table_rows = array();
 		$base_url = cerber_admin_link( 'activity' );
 
 	    $remove = cerber_admin_link( crb_admin_get_tab(), null, true );
@@ -176,8 +187,8 @@ function cerber_show_lockouts( $args = array(), $echo = true ) {
 			    $hostname = $ip_info['hostname_html'];
 		    }
 		    else {
-			    $ip_id    = cerber_get_id_ip( $row->ip );
-			    $hostname = '<img data-ip-id="' . $ip_id . '" class="crb-no-hostname" src="' . $crb_ajax_loader . '" />' . "\n";
+			    $ip_id = cerber_get_id_ip( $row->ip );
+			    $hostname = crb_get_ajax_placeholder( 'hostname', $ip_id );
 		    }
 
 		    if ( lab_lab() ) {
@@ -188,8 +199,13 @@ function cerber_show_lockouts( $args = array(), $echo = true ) {
 			    $country = '';
 		    }
 
-			$list[] = '<td>' . $ip . '</td><td>' . $hostname . $country . '</td><td>' . cerber_date( $row->block_until ) . '</td><td>' . $row->reason . '</td><td><a href="' . $remove . '&cerber_admin_do=lockdel&ip=' . esc_attr( $row->ip ) . '">' . __( 'Remove', 'wp-cerber' ) . '</a></td>';
+		    //$list[] = '<td>' . $ip . '</td><td>' . $hostname . $country . '</td><td>' . cerber_date( $row->block_until ) . '</td><td>' . $row->reason . '</td><td><a href="' . $remove . '&cerber_admin_do=lockdel&ip=' . esc_attr( $row->ip ) . '">' . __( 'Remove', 'wp-cerber' ) . '</a></td>';
+		    $the_row = '<td>' . $ip . '</td><td>' . $hostname . $country . '</td><td>' . cerber_date( $row->block_until ) . '</td><td>' . $row->reason . '</td>';
+		    if ( $controls ) {
+			    $the_row .= '<td><a href="' . $remove . '&cerber_admin_do=lockdel&ip=' . esc_attr( $row->ip ) . '">' . __( 'Remove', 'wp-cerber' ) . '</a></td>';
+		    }
 
+		    $table_rows[] = $the_row;
 		}
 
 	    $heading = array(
@@ -205,32 +221,37 @@ function cerber_show_lockouts( $args = array(), $echo = true ) {
 		    unset( $heading[2] );
 	    }
 
-	    $titles = '<tr><th>' . implode( '</th><th>', $heading ) . '</th></tr>';
+		if ( $controls ) {
+			$navi = cerber_page_navi( $total, $per_page );
+			$hint = '<p>' . __( 'Click the IP address to see its activity', 'wp-cerber' ) . '</p>';
+		}
+		else {
+			$navi = '';
+			unset( $heading[5] );
+        }
 
-	    $table = '<table class="widefat crb-table cerber-margin"><thead>' . $titles . '</thead><tfoot>' . $titles . '</tfoot>' . implode( '</tr><tr>', $list ) . '</tr></table>';
+		$titles = '<tr><th>' . implode( '</th><th>', $heading ) . '</th></tr>';
 
-	    if ( empty( $args['no_navi'] ) ) {
+		$table = '<table id="crb-locked-out" class="widefat crb-table"><thead>' . $titles . '</thead><tfoot>' . $titles . '</tfoot>' . implode( '</tr><tr>', $table_rows ) . '</tr></table>' . $navi;
+
+	    /*if ( empty( $args['no_navi'] ) ) {
 		    $table .= cerber_page_navi( $total, $per_page );
-	    }
+	    }*/
 
-	    //echo '<h3>'.sprintf(__('Showing last %d records from %d','wp-cerber'),count($rows),$total).'</h3>';
-	    $showing = '<h3>' . sprintf( __( 'Showing last %d records from %d', 'wp-cerber' ), count( $rows ), $total ) . '</h3>';
-
-	    $view = '<p><b>' . __( 'Hint', 'wp-cerber' ) . ':</b> ' . __( 'To view activity, click on the IP', 'wp-cerber' ) . '</p>';
     }
     else {
-	    $table = '';
-	    $view  = '<p>' . sprintf( __( 'No lockouts at the moment. The sky is clear.', 'wp-cerber' ) ) . '</p>';
+	    $hint  = '<p>' . sprintf( __( 'No lockouts at the moment. The sky is clear.', 'wp-cerber' ) ) . '</p>';
     }
 
-	$ret = $table . '<div class="cerber-margin">' . $view . '</div>';
+	$ret = $table . '<div class="cerber-margin">' . $hint . '</div>';
 
 	if ( $echo ) {
 		echo $ret;
+
+		return;
 	}
-	else {
-		return $ret;
-	}
+
+	return $ret;
 }
 
 function cerber_block_delete( $ip ) {
@@ -390,10 +411,12 @@ function cerber_admin_ajax() {
 			$response['error'] = 'Unable to delete the entry';
 		}
 	}
-	elseif ( isset( $request['crb_ajax_slug'] ) && isset( $request['crb_ajax_list'] ) ) {
-		$slug = $request['crb_ajax_slug'];
-		$response['slug'] = $slug;
-		$list = array_unique( $request['crb_ajax_list'] );
+    elseif ( ( $slug = crb_array_get( $request, 'crb_ajax_slug' ) )
+	         && $list = crb_array_get( $request, 'crb_ajax_list' ) ) {
+
+	    $response['slug'] = $slug;
+		$list = array_unique( $list );
+	    $response_data = array();
 
 		/*
 		$list = array_map(function ($ip_id){
@@ -405,39 +428,74 @@ function cerber_admin_ajax() {
             }
 		});*/
 
-		$ip_list = array();
-		foreach ( $list as $ip_id ) {
-			if ( $ip = filter_var( cerber_get_ip_id( $ip_id ), FILTER_VALIDATE_IP ) ) {
-				$ip_list[ $ip_id ] = $ip;
-				// Set elements for frontend
-				$response['data'][ $ip_id ] = '';
-			}
-			else {
-				$response['data'][ $ip_id ] = '-';
-			}
-		}
+	    if ( $slug == 'hostname' || $slug == 'country' ) {
+		    $ip_list = array();
+		    foreach ( $list as $ip_id ) {
+			    if ( $ip = filter_var( cerber_get_ip_id( $ip_id ), FILTER_VALIDATE_IP ) ) {
+				    $ip_list[ $ip_id ] = $ip;
+				    $response_data[ $ip_id ] = '';
+			    }
+			    else {
+				    $response_data[ $ip_id ] = '-';
+			    }
+		    }
+	    }
 
-		switch ( $slug ) {
-			case 'hostname':
-				foreach ( $ip_list as $ip_id => $ip ) {
-					$ip_info                    = cerber_get_ip_info( $ip );
-					$response['data'][ $ip_id ] = $ip_info['hostname_html'];
-				}
-				break;
-			case 'country':
-				if ( $country_list = lab_get_country( $ip_list, false ) ) {
-					foreach ( $country_list as $ip_id => $country ) {
-						if ( $country ) {
-							$response['data'][ $ip_id ] = cerber_get_flag_html( $country, cerber_country_name( $country ) );
-						}
-						else {
-							$response['data'][ $ip_id ] = __( 'Unknown', 'wp-cerber' );
-						}
-					}
-				}
-				break;
-		}
+	    switch ( $slug ) {
+		    case 'hostname':
+			    foreach ( $ip_list as $ip_id => $ip ) {
+				    $ip_info = cerber_get_ip_info( $ip );
+				    $response_data[ $ip_id ] = $ip_info['hostname_html'];
+			    }
+			    break;
+		    case 'country':
+			    if ( $country_list = lab_get_country( $ip_list, false ) ) {
+				    foreach ( $country_list as $ip_id => $country ) {
+					    if ( $country ) {
+						    $response_data[ $ip_id ] = cerber_get_flag_html( $country, cerber_country_name( $country ) );
+					    }
+					    else {
+						    $response_data[ $ip_id ] = __( 'Unknown', 'wp-cerber' );
+					    }
+				    }
+			    }
+			    break;
+		    case 'cbla':
+			    $base = cerber_activity_link( array( 5 ) );
+			    foreach ( $list as $user_id ) {
+				    $row = cerber_db_get_row( 'SELECT * FROM ' . CERBER_LOG_TABLE . ' WHERE activity = 5 AND user_id = ' . absint( $user_id ) . ' ORDER BY stamp DESC LIMIT 1', MYSQL_FETCH_OBJECT );
+				    if ( $row ) {
+					    if ( $country = crb_country_html( $row->country, $row->ip, false ) ) {
+						    $country = '<br />' . $country;
+					    }
+					    else {
+						    $country = '';
+                        }
+					    $val = '<a href="' . $base . '&amp;filter_user=' . $user_id . '">' . cerber_date( $row->stamp ) . '</a>' . $country;
+				    }
+				    else {
+					    $val = __( 'Never', 'wp-cerber' );
+				    }
 
+				    $response_data[ $user_id ] = $val;
+			    }
+			    break;
+		    case 'cbfl':
+			    $base = cerber_activity_link( array( 7 ) );
+			    foreach ( $list as $user_id ) {
+				    $u = get_userdata( $user_id );
+				    $val = 0;
+				    $failed = cerber_db_get_var( 'SELECT COUNT(user_id) FROM ' . CERBER_LOG_TABLE . ' WHERE ( user_login = "' . $u->user_login . '" OR user_login = "' . $u->user_email . '" ) AND activity = 7 AND stamp > ' . ( time() - 24 * 3600 ) );
+				    if ( $failed ) {
+					    $val = '<a href="' . $base . '&amp;filter_login=' . $u->user_email . '|' . $u->user_login . '">' . $failed . '</a>';
+				    }
+
+				    $response_data[ $user_id ] = $val;
+			    }
+			    break;
+	    }
+
+	    $response['data'] = $response_data;
 	}
     elseif ( $admin && isset( $request['dismiss_info'] ) ) {
 		if ( isset( $request['button_id'] ) && ( $request['button_id'] == 'lab_ok' || $request['button_id'] == 'lab_no' ) ) {
@@ -448,9 +506,23 @@ function cerber_admin_ajax() {
 		}
 	}
     elseif ( $admin && ( $ajax_route = crb_array_get( $request, 'ajax_route' ) ) ) {
+
+		$ref_params = crb_get_referrer_params();
+
 		switch ( $ajax_route ) {
 			case 'scanner_analytics':
 				$response = cerber_generate_insights( $request['itype'] );
+				break;
+			case 'user_activity_analytics':
+				$data = crb_generate_user_insights( absint( $request['user_id'] ), $ref_params['tab'] );
+				$response = array( 'html' => $data, 'error' => '' );
+				break;
+			case 'ip_extra_info':
+				$response = cerber_ip_extra_view_ajax( $request, $ref_params );
+				break;
+			case 'ip_quick_analytics':
+				$data = crb_generate_ip_insights( $request['ip_address'], $ref_params['tab'] );
+				$response = array( 'html' => $data, 'error' => '' );
 				break;
 		}
 	}
@@ -493,6 +565,18 @@ add_action( 'wp_ajax_cerber_local_ajax', function () {
 	exit;
 } );
 
+/**
+ * @param string $group
+ * @param string $item_id
+ *
+ * @return string
+ */
+function crb_get_ajax_placeholder( $group, $item_id ) {
+	global $crb_ajax_loader;
+
+	return '<img class="crb-ajax-load" data-ajax_group="' . $group . '" data-item_id="' . $item_id . '" src="' . $crb_ajax_loader . '" />';
+}
+
 /*
  * Retrieve extended IP information
  * @since 2.2
@@ -502,7 +586,8 @@ function cerber_get_ip_info( $ip, $cache_only = false ) {
 
 	$ip_id = cerber_get_id_ip( $ip );
 
-	$ip_info = @unserialize( get_transient( $ip_id ) ); // lazy way
+	$var = get_transient( $ip_id );
+	$ip_info = crb_unserialize( $var ); // lazy way
 	if ( $cache_only  ) {
 		return $ip_info;
 	}
@@ -546,7 +631,7 @@ function cerber_admin_request( $is_post = false ) {
 	global $wpdb;
 
 	if ( ! nexus_is_valid_request()
-	     && ! current_user_can( 'manage_options' ) ) {
+	     && ! cerber_user_can_manage() ) {
 		return;
 	}
 
@@ -578,7 +663,7 @@ function cerber_admin_request( $is_post = false ) {
 					}
 					break;
 				case 'testnotify':
-					$t = crb_array_get( $get, 'type' );
+					$t = crb_array_get( $get, 'type', '', '\w+' );
 					$to = cerber_get_email( $t );
 					if ( cerber_send_email( $t ) ) {
 						cerber_admin_message( __( 'Email has been sent to', 'wp-cerber' ) . ' ' . $to );
@@ -694,8 +779,14 @@ function cerber_admin_request( $is_post = false ) {
 	        cerber_admin_message( 'Connectivity to all Cerber Lab\'s nodes has been checked. The closest node: ' . $best );
 	        cerber_safe_redirect( 'force_check_nodes' );
         }
+        elseif ( isset( $_GET['clear_up_lab_cache'] ) ) {
+	        lab_cleanup_cache();
+	        cerber_admin_message( 'The Cerber Lab cache has been cleared' );
+	        cerber_safe_redirect( 'clear_up_lab_cache' );
+        }
         elseif ( isset( $_GET['clear_up_the_cache'] ) ) {
 	        lab_cleanup_cache();
+	        cerber_delete_expired_set( true );
 	        cerber_admin_message( 'The plugin cache has been cleared' );
 	        cerber_safe_redirect( 'clear_up_the_cache' );
         }
@@ -723,17 +814,23 @@ function cerber_admin_request( $is_post = false ) {
 				case 'install_key':
 					$lic = preg_replace( "/[^A-Z0-9]/i", '', crb_array_get( $post, 'cerber_license' ) );
 					if ( ( strlen( $lic ) == LAB_KEY_LENGTH ) || empty( $lic ) ) {
+						lab_cleanup_cache();
+						cerber_delete_expired_set( true );
+
 						lab_update_key( $lic );
+
 						if ( $lic ) {
 							if ( lab_validate_lic() ) {
-								cerber_admin_message( '<b>Great! You\'ve entered a valid license key.</b><p>Now, whenever you see a green shield icon in the top right-hand corner of any Cerber\'s admin page, it means the professional version works as intended and your website is protected by Cerber Cloud Protection.</p>
-                            <p>Please use the client portal to manage subscriptions and get support at <a target="_blank" href="https://my.wpcerber.com">https://my.wpcerber.com</a></p>
-                            <p>Thanks for being our client.</p>' );
+								cerber_admin_message( '<b>Great! You have entered the valid license key.</b><p>Now, whenever you see a green shield icon in the top right-hand corner of any Cerber\'s admin page, it means the professional version works as intended, and your website is protected by WP Cerber Security Cloud.</p>
+                                    <p>Please use our client portal to manage your subscription, license keys and get support at <a target="_blank" href="https://my.wpcerber.com">https://my.wpcerber.com</a></p>
+                                    <p>Thanks for being our client.</p>' );
 							}
 							else {
 								cerber_admin_notice( 'Error! You have entered an invalid or expired license key.' );
 							}
 						}
+
+						$redirect = true;
 					}
 					break;
 			}
@@ -791,7 +888,7 @@ function crb_admin_get_tokenized_link() {
 	if ( empty( nexus_request_data()->get_params ) ) {
 		return false;
 	}
-	$key = str_shuffle( '_-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz' );
+	$key = crb_random_string( 26 );
 	if ( cerber_update_set( '_the_key_' . $key, array( 'query' => nexus_request_data()->get_params ), 1, true, time() + 60 ) ) {
 		return array( 'redirect' => true, 'redirect_url' => home_url( '?cerber_magic_key=' . $key ) );
 	}
@@ -952,45 +1049,113 @@ function cerber_send_csv_line( $values ) {
 	echo $line;
 }
 
-function crb_admin_quick_nav( $context = '' ) {
+function crb_admin_activity_nav_links( $context = '' ) {
 
-	$ac = cerber_admin_link( 'activity' );
 	$links = array();
-	$links[] = array( $ac, __( 'View all', 'wp-cerber' ) );
 
-	$labels = cerber_get_labels( 'activity' );
-
-	$set    = array( 5 );
-	foreach ( $set as $item ) {
-		//$links[] = array( cerber_admin_link( 'activity' ) . '&filter_activity=' . $item, $labels[ $item ] );
-		$links[] = array( cerber_activity_link( array( $item ) ), $labels[ $item ] );
-	}
-
-	//$links[] = array( cerber_activity_link( array( 2 ) ), __( 'User registered', 'wp-cerber' ) );
-	$links[] = array( cerber_activity_link( array( 1, 2 ) ), __( 'New users', 'wp-cerber' ) );
-	/*$links[] = array(
-		cerber_activity_link( crb_get_activity_set( 'suspicious' ) ),
-		__( 'Suspicious activity', 'wp-cerber' )
-	);*/
-
-	$links[] = array( $ac . '&amp;filter_set=1', __( 'Suspicious activity', 'wp-cerber' ) );
-
-	$links[] = array( cerber_activity_link( array( 10, 11 ) ), __( 'IP blocked', 'wp-cerber' ) );
-
-	$links[] = array( $ac . '&amp;filter_user=*', __( 'Logged in users', 'wp-cerber' ) );
-	$links[] = array( $ac . '&amp;filter_user=0', __( 'Not logged in visitors', 'wp-cerber' ) );
 	if ( ! $context ) {
-		$links[] = array( $ac . '&amp;filter_user=' . get_current_user_id(), __( 'My activity', 'wp-cerber' ) );
-		$links[] = array( $ac . '&amp;search_activity=' . cerber_get_remote_ip(), __( 'My IP', 'wp-cerber' ) );
+		$links[] = array( array(), __( 'View all', 'wp-cerber' ) );
+
+		$labels = cerber_get_labels( 'activity' );
+
+		$set = array( 5 );
+		foreach ( $set as $item ) {
+			$links[] = array( array( 'filter_activity' => $item ), $labels[ $item ] );
+		}
 	}
 
+	if ( $context == 'users' ) {
+		$links[] = array( array( 'filter_user' => '*' ), __( 'View all', 'wp-cerber' ) );
+	}
+
+	if ( $context != 'suspicious' ) {
+		$links[] = array( array( 'filter_activity' => array( 1, 2 ) ), __( 'New users', 'wp-cerber' ) );
+		$links[] = array( array( 'filter_set' => 2 ), __( 'Login issues', 'wp-cerber' ) );
+	}
+
+	if ( $context != 'users' ) {
+		if ( ! $context ) {
+			$txt = __( 'Suspicious activity', 'wp-cerber' );
+		}
+		else {
+			$txt = __( 'View all', 'wp-cerber' );
+		}
+
+		$links[] = array( array( 'filter_set' => 1 ), $txt );
+	}
+
+	if ( ! $context ) {
+		$links[] = array( array( 'filter_activity' => array( 10, 11 ) ), __( 'IP blocked', 'wp-cerber' ) );
+		$links[] = array( array( 'filter_user' => '*' ), __( 'Users', 'wp-cerber' ) );
+		$links[] = array( array( 'filter_user' => 0 ), __( 'Non-authenticated', 'wp-cerber' ) );
+		$links[] = array( array( 'filter_user' => get_current_user_id() ), __( 'My activity', 'wp-cerber' ) );
+		$links[] = array( array( 'filter_ip' => cerber_get_remote_ip() ), __( 'My IP', 'wp-cerber' ) );
+	}
+
+	return crb_make_nav_links( $links, 'activity' );
+
+}
+
+/**
+ * @param array $link_list A list of links
+ * @param string $tab Admin page tab to generated links for
+ * @param string $class CSS class
+ *
+ * @return string
+ * @since 8.8.3.2
+ */
+function crb_make_nav_links( $link_list, $tab = 'activity', $class = '' ) {
+
+	$params = crb_get_referrer_params();
+	unset( $params['page'], $params['tab'], $params['pagen'] );
+
+	$base_url = cerber_admin_link( $tab );
 	$ret = '';
-	foreach ( $links as $link ) {
-		$ret .= '<a class="crb-button-tiny" href="' . $link[0] . '">' . $link[1] . '</a> ';
+
+	foreach ( $link_list as $link ) {
+		$query_string = '';
+		$selected = false;
+		$other = $params;
+
+		if ( ! empty( $link[0] ) ) {
+			$selected = true;
+			foreach ( $link[0] as $name => $value ) {
+				if ( ! is_array( $value ) ) {
+					$query_string .= '&amp;' . $name . '=' . $value;
+					if ( crb_array_get( $params, $name ) !== (string) $value ) {
+						$selected = false;
+					}
+					else {
+						unset( $other[ $name ] );
+					}
+				}
+				else {
+					foreach ( $value as $key => $val ) {
+						$query_string .= '&amp;' . $name . '[' . $key . ']=' . $val;
+						if ( crb_array_get( $params, array( $name, $key ) ) !== (string) $val ) {
+							$selected = false;
+						}
+						else {
+							unset( $other[ $name ][ $key ] );
+						}
+					}
+				}
+			}
+		}
+
+		$other = array_filter( $other, function ( $val ) {
+			return $val === 0 || ! empty( $val );
+		} );
+
+		if ( $selected & empty( $other ) ) {
+			$ret .= '<span class="crb_selected">' . $link[1] . '</span> ';
+		}
+		else {
+			$ret .= '<a class="" href="' . $base_url . $query_string . '">' . $link[1] . '</a> ';
+		}
 	}
 
-	return '<div class="crb-quick-nav">' . $ret . '</div>';
-
+	return '<div class="crb-tag-buttons ' . $class . '">' . $ret . '</div>';
 }
 
 /*
@@ -1012,17 +1177,77 @@ function cerber_show_activity( $args = array(), $echo = true ) {
 
 	$sname = '';
 	$info  = '';
+
+	$_find = array();
+
+	if ( $filter_login ) {
+		$login = explode( '|', $filter_login );
+		if ( is_email( $login[0] ) ) {
+			$_find[] = array( 'email', $login[0] );
+		}
+		else {
+			$_find[] = array( 'login', $login[0] );
+		}
+
+		if ( isset( $login[1] ) ) {
+			if ( is_email( $login[1] ) ) {
+				$_find[] = array( 'email', $login[1] );
+			}
+			else {
+				$_find[] = array( 'login', $login[1] );
+			}
+		}
+	}
+
+	if ( $search ) {
+		if ( cerber_is_ip( $search ) ) {
+			$filter_ip = $search;
+		}
+		else {
+			if ( is_email( $search ) ) {
+				$_find[] = array( 'email', $search );
+			}
+			else {
+				$_find[] = array( 'login', $search );
+			}
+		}
+	}
+
+	if ( ! $user_id && $_find ) {
+		foreach ( $_find as $item ) {
+			if ( $user = get_user_by( $item[0], $item[1] ) ) {
+				$user_id = $user->ID;
+				break;
+			}
+		}
+	}
+
+	if ( $user_id ) {
+		$sname = crb_format_user_name( $user_id );
+		$info .= cerber_user_extra_view( $user_id );
+	}
+
 	if ( $filter_ip ) {
 		$info .= cerber_ip_extra_view( $filter_ip );
 	}
-	if ( $user_id ) {
-		list( $sname, $tmp ) = cerber_user_extra_view( $user_id );
-		$info .= $tmp;
+
+	// No cache
+	//$rows = cerber_db_get_results( $query, MYSQL_FETCH_OBJECT );
+	if ( empty( $args['no_navi'] ) ) {
+		list( $rows, $total ) = crb_q_cache_get( array( array( $query, MYSQL_FETCH_OBJECT ), array( "SELECT FOUND_ROWS()" ) ), CERBER_LOG_TABLE );
+		$total = $total[0][0];
+	}
+	else {
+		$rows = crb_q_cache_get( array( array( $query, MYSQL_FETCH_OBJECT ) ), CERBER_LOG_TABLE );
 	}
 
-	if ( $rows = cerber_db_get_results( $query, MYSQL_FETCH_OBJECT ) ) {
+	if ( $rows ) {
 
-		$total = cerber_db_get_var( "SELECT FOUND_ROWS()" );
+		if ( empty( $args['no_navi'] ) ) {
+			// No cache
+			//$total = cerber_db_get_var( "SELECT FOUND_ROWS()" );
+		}
+
 		$tbody = '';
 		$country = '';
 		$geo = lab_lab();
@@ -1073,14 +1298,14 @@ function cerber_show_activity( $args = array(), $echo = true ) {
 
 			$name = crb_admin_get_user_cell( $row->user_id, $base_url );
 
-			$username = '<a href="' . $base_url . '&amp;filter_login=' . urlencode( $row->user_login ) . '">' . $row->user_login . '</a>';
+			$username = '<a href="' . $base_url . '&amp;filter_login=' . $row->user_login . '">' . $row->user_login . '</a>';
 
 			$ip_info = cerber_get_ip_info( $row->ip, true );
 			if ( isset( $ip_info['hostname_html'] ) ) {
 				$hostname = $ip_info['hostname_html'];
 			}
 			else {
-				$hostname = '<img data-ip-id="' . $ip_id . '" class="crb-no-hostname" src="' . $crb_ajax_loader . '" />' . "\n";
+				$hostname = crb_get_ajax_placeholder( 'hostname', $ip_id );
 			}
 
 			if ( ! empty( $args['date'] ) && $args['date'] == 'ago' ) {
@@ -1098,22 +1323,29 @@ function cerber_show_activity( $args = array(), $echo = true ) {
 		}
 
 		$heading = array(
-			'<div class="crb_act_icon"></div>' . __( 'IP Address', 'wp-cerber' ),
-			__( 'Hostname', 'wp-cerber' ),
-			__( 'Country', 'wp-cerber' ),
-			__( 'Date', 'wp-cerber' ),
-			__( 'Event', 'wp-cerber' ),
-			__( 'Local User', 'wp-cerber' ),
-			__( 'Username', 'wp-cerber' )
+			'crb_ip_col'       => '<div class="crb_act_icon"></div>' . __( 'IP Address', 'wp-cerber' ),
+			'crb_hostname_col' => __( 'Hostname', 'wp-cerber' ),
+			'crb_country_col'  => __( 'Country', 'wp-cerber' ),
+			'crb_date_col'     => __( 'Date', 'wp-cerber' ),
+			'crb_event_col'    => __( 'Event', 'wp-cerber' ),
+			'crb_user_col'     => __( 'Local User', 'wp-cerber' ),
+			'crb_username_col' => __( 'Username', 'wp-cerber' )
 		);
 
 		if ( ! $geo ) {
-			unset( $heading[2] );
+			unset( $heading['crb_country_col'] );
 		}
 
-		$titles = '<tr><th>' . implode( '</th><th>', $heading ) . '</th></tr>';
+		$titles_head = '';
+		foreach ( $heading as $id => $title ) {
+			$titles_head .= '<th id="' . $id . '">' . $title . '</th>';
+		}
 
-		$table = '<table id="crb-activity" class="widefat crb-table cerber-margin"><thead>' . $titles . '</thead><tfoot>' . $titles . '</tfoot><tbody>' . $tbody . '</tbody></table>';
+		$titles_foot = '<th>' . implode( '</th><th>', $heading ) . '</th>';
+
+		$class = 'widefat crb-table cerber-margin crb-' . count( $heading ) . '-columns';
+
+		$table = '<table id="crb-activity" class="' . $class . '"><thead><tr>' . $titles_head . '</tr></thead><tfoot><tr>' . $titles_foot . '</tr></tfoot><tbody>' . $tbody . '</tbody></table>';
 
 		if ( empty( $args['no_navi'] ) ) {
 			$table .= cerber_page_navi( $total, $per_page );
@@ -1131,14 +1363,23 @@ function cerber_show_activity( $args = array(), $echo = true ) {
 		}
 	}
 	else {
-		$table = '<p class="cerber-margin">' . __( 'No activity has been logged.', 'wp-cerber' ) . '</p>';
+
+		$table = '<p class="cerber-margin">' . __( 'No activity has been logged yet.', 'wp-cerber' ) . '</p>';
+
+		$trf_params = array();
+		if ( cerber_is_ip_or_net( $search ) ) {
+			$trf_params['filter_ip'] = $search;
+		}
+		if ( $trf_params ) {
+			$table .= '<p class="cerber-margin"><a href="' . cerber_admin_link( 'traffic', $trf_params ) . '">' . __( 'Check for requests', 'wp-cerber' ) . '</a></p>';
+		}
 	}
 
 	if ( empty( $args['no_navi'] ) ) {
 
 		$display = ( $sid || $in_url ) ? '' : 'display: none;';
 
-		$filters = '<form action=""><div id="crb-activity-fields"><div>'
+		$filters = '<form action="' . cerber_activity_link() . '"><div id="crb-activity-fields"><div>'
 
 		           . crb_get_activity_dd()
 		           . cerber_select( 'filter_user', ( $user_id ) ? array( $user_id => $sname ) : array(), $user_id, 'crb-select2-ajax', '', false, esc_html__( 'Filter by registered user', 'wp-cerber' ), array( 'min_symbols' => 3 ) )
@@ -1163,9 +1404,9 @@ function cerber_show_activity( $args = array(), $echo = true ) {
 		   		   
 		   </div>
 		   		   
-		   <!-- Preserve values -->
-		   <input type="hidden" name="filter_ip" value="' . htmlspecialchars( $filter_ip ) . '" >
-		   <input type="hidden" name="filter_login" value="' . $filter_login . '" >
+		   <!-- Preserve values - not anymore @since v. 8.8.4 -->
+		   <!-- <input type="hidden" name="filter_ip" value="' . htmlspecialchars( $filter_ip ) . '" >
+		   <input type="hidden" name="filter_login" value="' . $filter_login . '" > -->
 		   
 		   <input type="hidden" name="page" value="cerber-security" >
 		   <input type="hidden" name="tab" value="activity">
@@ -1175,7 +1416,7 @@ function cerber_show_activity( $args = array(), $echo = true ) {
 
 		$top_bar = '<div id="activity-filter"><div>' . $filters . '</div><div>' . $right_links . '</div></div><br style="clear: both;">';
 
-		$ret = '<div class="cerber-margin">' . crb_admin_quick_nav(). $top_bar . $info . '</div>' . $ret;
+		$ret = '<div><div class="crb-quick-nav">' . crb_admin_activity_nav_links() . '</div>' . $top_bar . $info . '</div>' . $ret;
 	}
 
 	$ret .= $table;
@@ -1217,11 +1458,7 @@ function cerber_activity_query( $args = array() ) {
 
 	$falist = array();
 	if ( ! empty( $q->filter_set ) ) {
-		switch ( $q->filter_set ) {
-			case 1:
-				$falist = crb_get_activity_set( 'suspicious' );
-				break;
-		}
+		$falist = crb_get_filter_set( $q->filter_set );
 	}
 	elseif ( $q->filter_activity ) { // Multiple activities can be requested this way: &filter_activity[]=11&filter_activity[]=7
 		if ( is_array( $q->filter_activity ) ) {
@@ -1239,10 +1476,10 @@ function cerber_activity_query( $args = array() ) {
 	if ( $q->filter_ip ) {
 		$range = cerber_any2range( $q->filter_ip );
 		if ( is_array( $range ) ) {
-			$where[] = $wpdb->prepare( '(log.ip_long >= %d AND log.ip_long <= %d)', $range['begin'], $range['end'] );
+			$where[] = '(log.ip_long >= ' . $range['begin'] . ' AND log.ip_long <= ' . $range['end'] . ')';
 		}
         elseif ( cerber_is_ip_or_net( $q->filter_ip ) ) {
-			$where[] = $wpdb->prepare( 'log.ip = %s', $q->filter_ip );
+	        $where[] = 'log.ip = "' . $q->filter_ip . '"';
 		}
 		else {
 			$where[] = "ip = 'produce-no-result'";
@@ -1251,8 +1488,15 @@ function cerber_activity_query( $args = array() ) {
 	}
 
 	if ( $q->filter_login ) {
-		$where[] = $wpdb->prepare( 'log.user_login = %s', $q->filter_login );
-		$ret[4]  = htmlspecialchars( $q->filter_login );
+		if ( strpos( $q->filter_login, '|' ) ) {
+			$sanitize = preg_replace( '/["\'<>\/]+/', '', $q->filter_login );
+			$logins = explode( '|', $sanitize );
+			$where[] = '( log.user_login = "' . implode( '" OR log.user_login = "', $logins ) . '" )';
+		}
+		else {
+			$where[] = $wpdb->prepare( 'log.user_login = %s', $q->filter_login );
+		}
+		$ret[4] = htmlspecialchars( $q->filter_login );
 	}
 
 	/*$user_id = absint( $q->filter_user );
@@ -1279,11 +1523,7 @@ function cerber_activity_query( $args = array() ) {
 		$search = '%' . $search . '%';
 
 		$escaped = cerber_real_escape( $search );
-		$w       = array();
-		/*
-		if ( $uids = cerber_db_get_col( 'SELECT user_id FROM ' . $wpdb->usermeta . ' WHERE (meta_key = "first_name" OR meta_key = "last_name" OR meta_key = "nickname") AND meta_value LIKE "' . cerber_real_escape( $search ) . '"' ) ) {
-			$w[] = 'log.user_id IN (' . implode( ',', $uids ) . ')';
-		}*/
+		$w = array();
 		$w[] = 'log.user_login LIKE "' . $escaped . '"';
 		$w[] = 'log.ip LIKE "' . $escaped . '"';
 
@@ -1313,13 +1553,17 @@ function cerber_activity_query( $args = array() ) {
 	$per_page = ( isset( $args['per_page'] ) ) ? absint( $args['per_page'] ) : crb_admin_get_per_page();
 	$ret[1]   = $per_page;
 
+	$calc = ( empty( $args['no_navi'] ) ) ? 'SQL_CALC_FOUND_ROWS' : '';
+
 	if ( $per_page ) {
 		$limit = cerber_get_sql_limit( $per_page );
-		$ret[0] = 'SELECT SQL_CALC_FOUND_ROWS * FROM ' . CERBER_LOG_TABLE . " log {$where} ORDER BY stamp DESC {$limit}";
+		$sql = 'SELECT ' . $calc . ' * FROM ' . CERBER_LOG_TABLE . " log {$where} ORDER BY stamp DESC {$limit}";
 	}
 	else {
-		$ret[0] = 'SELECT SQL_CALC_FOUND_ROWS log.*,u.display_name,u.user_login ulogin FROM ' . CERBER_LOG_TABLE . ' log LEFT JOIN '.$wpdb->users . " u ON (log.user_id = u.ID) {$where} ORDER BY stamp DESC"; // "ORDER BY" is mandatory!
+		$sql = 'SELECT ' . $calc . '  log.*,u.display_name,u.user_login ulogin FROM ' . CERBER_LOG_TABLE . ' log LEFT JOIN ' . $wpdb->users . " u ON (log.user_id = u.ID) {$where} ORDER BY stamp DESC"; // "ORDER BY" is mandatory!
 	}
+
+	$ret[0] = $sql;
 
 	return $ret;
 }
@@ -1370,6 +1614,39 @@ function crb_admin_ip_cell( $ip, $ip_link = '', $text = '' ) {
  * Additional information about IP address
  */
 function cerber_ip_extra_view( $ip, $context = 'activity' ) {
+	if ( ! $ip || ! filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+		return '';
+	}
+
+	$html = crb_generate_ip_extra_view( $ip, $context, true );
+	$class = 'crb-extra-info';
+	$ajax = '';
+
+	if ( ! $html ) {
+		$ajax = ' data-ajax_route="ip_extra_info" data-ip="' . $ip . '"';
+		$class .= ' crb_async_content';
+		$html = UIS_LOADER_HTML;
+	}
+
+	return '<div id="crb-extra-ip-info" class="' . $class . '" ' . $ajax . '>' . $html . '</div>';
+}
+
+/**
+ * @param array $request
+ * @param array $ref_params
+ *
+ * @return array
+ */
+function cerber_ip_extra_view_ajax( $request, $ref_params ) {
+	$ip = filter_var( $request['ip'], FILTER_VALIDATE_IP );
+	$tab = $ref_params['tab'];
+
+	$ret = crb_generate_ip_extra_view( $ip, $tab );
+
+	return array( 'html' => $ret, 'error' => '' );
+}
+
+function crb_generate_ip_extra_view( $ip, $context = 'activity', $cache_only = false ) {
 
 	if ( ! $ip || ! filter_var( $ip, FILTER_VALIDATE_IP ) ) {
 		return '';
@@ -1389,25 +1666,28 @@ function cerber_ip_extra_view( $ip, $context = 'activity' ) {
 
 	$comments = ( ! empty( $row->comments ) ) ? $row->comments : '';
 
+	$ip_status = '';
+
 	if ( $acl == 'W' ) {
-		$ip_navs .= ' <span class="crb_color_green crb_ip_info_label">' . __( 'White IP Access List', 'wp-cerber' ) . '</span> ' . $comments;
+		$ip_status .= '<span title="' . $comments . '" class="crb_color_green crb_ip_info_label">' . __( 'White IP Access List', 'wp-cerber' ) . '</span>';
 	}
     elseif ( $acl == 'B' ) {
-	    $ip_navs .= ' <span class="crb_color_black crb_ip_info_label">' . __( 'Black IP Access List', 'wp-cerber' ) . '</span> ' . $comments;
+		$ip_status .= '<span title="' . $comments . '" class="crb_color_black crb_ip_info_label">' . __( 'Black IP Access List', 'wp-cerber' ) . '</span>';
 	}
+
+	$key_cache = '_cache_ipx_' . $ip . $context . (string) $acl;
 
 	if ( $block = cerber_block_check( $ip ) ) {
-		$ip_navs .= ' <span class="crb_color_blocked crb_ip_info_label">' . __( 'Locked out', 'wp-cerber' ) . '</span><span class="crb-log-status crb-status-' . $block->reason_id . '">' . $block->reason . '</span>';
+		$ip_status .= '<span class="crb_color_blocked crb_ip_info_label">' . __( 'Locked out', 'wp-cerber' ) . '</span><span class="crb-log-status crb-status-' . $block->reason_id . '">' . $block->reason . '</span>';
+		$key_cache .= '_blocked';
 	}
 
-	// Filter activity by ...
-
-	/*$labels = cerber_get_labels('activity');
-	foreach ($labels as $tag => $label) {
-		//if (in_array($tag,$falist)) $links[] = '<b>'.$label.'</b>';
-		$links[] = '<a href="'.$base_url.'&filter_activity='.$tag.'">'.$label.'</a>';
+	if ( $cache = cerber_get_set( $key_cache, null, false, true ) ) {
+		return $cache;
 	}
-	$filters = implode(' | ',$links);*/
+    elseif ( $cache_only ) {
+        return '';
+	}
 
 	$whois        = '';
 	$country      = '';
@@ -1419,17 +1699,16 @@ function cerber_ip_extra_view( $ip, $context = 'activity' ) {
 	if ( crb_get_settings( 'ip_extra' ) ) {
 		$ip_data = cerber_ip_whois_info( $ip );
 		if ( isset( $ip_data['error'] ) ) {
-			$whois = '<div id="whois">' . $ip_data['error'] . '</div>';
+			$whois = $ip_data['error'];
 		}
         elseif ( isset( $ip_data['whois'] ) ) {
-			$whois = '<div id="whois">' . $ip_data['whois'] . '</div>';
+			$whois = $ip_data['whois'];
 		}
 		if ( isset( $ip_data['country'] ) ) {
 			$country = $ip_data['country'];
 		}
 		if ( ! empty( $ip_data['data']['abuse-mailbox'] ) ) {
-			//$abuse = '<p>' . __( 'Abuse email:', 'wp-cerber' ) . ' <a href="mailto:' . $ip_data['data']['abuse-mailbox'] . '">' . $ip_data['data']['abuse-mailbox'] . '</a></p>';
-			$abuse = __( 'Abuse email:', 'wp-cerber' ) . ' <a href="mailto:' . $ip_data['data']['abuse-mailbox'] . '">' . $ip_data['data']['abuse-mailbox'] . '</a>';
+			$abuse = '<p>' . __( 'Abuse email:', 'wp-cerber' ) . ' <a href="mailto:' . $ip_data['data']['abuse-mailbox'] . '">' . $ip_data['data']['abuse-mailbox'] . '</a></p>';
 		}
 		if ( ! empty( $ip_data['data']['network'] ) ) {
 			$network = $ip_data['data']['network'];
@@ -1457,142 +1736,192 @@ function cerber_ip_extra_view( $ip, $context = 'activity' ) {
                     <input type="hidden" name="cerber_admin_do" value="add2acl">
 				    <input type="hidden" name="add_acl_comment" value="">
 				    <input type="hidden" name="acl_tag" value="B">
-				    <button type="submit" value="' . $ip . '" name="add_acl" class="button button-primary cerber-button">' . __( 'Add IP to the Black List', 'wp-cerber' ) . '</button>' .
-		        '<p>' . $net_button . '</p>' .
+				    <button type="submit" value="' . $ip . '" name="add_acl" class="crb-button-tiny">' . __( 'Add IP to the Black List', 'wp-cerber' ) . '</button>' .
+		        '<!-- <p>' . $net_button . '</p>-->' .
 		        cerber_nonce_field( 'control' ) .
 		        '</form>';
 	}
 
-	$ip_info = '<span id = "ip-address">' . $ip . '</span><span id = "ip-country">' . $country . '</span>';
+	$ip_info = '<span id="crb-ip-address">' . $ip . '</span><span id="crb-ip-country">' . $country . '</span>';
 
-	$ret = '<div class="crb-extra-info">
-		<table>
-		<tr><td id="crb_the_summary">
-		<div><div>' . $ip_info . '</div><div>' . $ip_navs . '</div></div>
-		<div><div>' . $network_info . '</div><div>' . $network_navs . '</div></div><p>' . $abuse . '</p></td><td>' . $form . '</td></tr>
-		</table>
-		</div>';
+	$ip_insights = crb_generate_ip_insights( $ip, $context );
 
-	return $ret . $whois;
+	$ret = '
+		<div class="crb_extra_info_row">
+		
+		<div id="crb_the_summary">
+		    <div><div style="white-space: nowrap;">' . $ip_info . '</div><div class="crb-nav-row">' . $ip_status . ' ' . $ip_navs . ' ' . $form . '</div></div>
+		    <div><div style="white-space: nowrap;">' . $network_info . '</div><div class="crb-nav-row">' . $network_navs . '</div></div>' . $abuse . '
+		</div>
+		<div class="crb_async_content" data-ajax_route="ip_quick_analytics" data-ip_address="' . $ip . '" data-the_active_tab="' . $context . '">' . $ip_insights . '
+		</div>
+						
+		</div>
+		
+		<div id="crb-whois-data">' . $whois . '</div>		
+		';
+
+	cerber_update_set( $key_cache, $ret, 0, false, time() + 7200, true );
+
+	return $ret;
 }
+
+/**
+ * @param string $ip
+ * @param string $tab
+ * @param false $cache_only
+ *
+ * @return string|false
+ */
+function crb_generate_ip_insights( $ip, $tab = 'activity', $cache_only = false ) {
+
+	if ( $tab != 'activity' ) {
+		$tab = 'traffic';
+	}
+
+	$result = '';
+	$links = array();
+
+	$labels = cerber_get_labels();
+
+	if ( $data = crb_q_cache_get( 'SELECT COUNT(activity) as cnt, activity FROM ' . CERBER_LOG_TABLE . ' WHERE ip = "' . $ip . '" GROUP BY activity', CERBER_LOG_TABLE, $cache_only ) ) {
+		$links[] = array( array( 'filter_ip' => $ip ), __( 'All' ) );
+		foreach ( $data as $item ) {
+			$links[] = array( array( 'filter_activity' => $item[1], 'filter_ip' => $ip ), crb_array_get( $labels, $item[1], 'Unknown' ) . ' - ' . $item[0] );
+		}
+	}
+
+	if ( $links ) {
+		$result = '<div id="crb-quick-insights">' . crb_make_nav_links( $links, $tab ) . '</div>';
+	}
+
+	if ( ! $result ) {
+		if ( $cache_only ) {
+			return false;
+		}
+
+		$result = __( 'No activity has been logged yet.', 'wp-cerber' );
+	}
+
+	return $result;
+}
+
 /**
  * Additional information about user
  */
 function cerber_user_extra_view( $user_id, $context = 'activity' ) {
 	global $wpdb;
 
+	if ( ! $u = get_userdata( $user_id ) ) {
+		return '';
+	}
+
 	$ret = '';
 	$class = '';
 
-	if ( $u = get_userdata( $user_id ) ) {
-		if ( ! is_multisite() && $u->roles ) {
-			$roles = array();
-			$wp_roles = wp_roles();
-			foreach ( $u->roles as $role ) {
-				$roles[] = $wp_roles->roles[ $role ]['name'];
-			}
-			$roles = '<span class="crb_act_role">' . implode( ', ', $roles ) . '</span>';
+	$user_info = array();
+
+	if ( ! is_multisite() && $u->roles ) {
+		$roles = array();
+		$wp_roles = wp_roles();
+		foreach ( $u->roles as $role ) {
+			$roles[] = $wp_roles->roles[ $role ]['name'];
 		}
-		else {
-			$roles = '';
-		}
-
-		if ( ! nexus_is_valid_request() ) {
-			$name = '<a href="' . get_edit_user_link( $user_id ) . '">' . $u->display_name . '</a>';
-		}
-		else {
-			$name = $u->display_name;
-		}
-
-		$name = '<span class="crb-user-name"><b>' . $name . '</b></span><p>' . $roles . '</p>';
-
-		if ( $avatar = get_avatar( $user_id, 96 ) ) {
-			$ret .= '<div>' . $avatar . '</div>';
-		}
-
-		$user_info = array();
-
-		// Registered
-		$reg  = false;
-		$time = strtotime( cerber_db_get_var( "SELECT user_registered FROM  {$wpdb->users} WHERE id = " . $user_id ) );
-		if ( $time ) {
-			$reg = cerber_auto_date( $time );
-			if ( $rm = get_user_meta( $user_id, '_crb_reg_', true ) ) {
-				if ( $rm['IP'] ) {
-					if ( $country = crb_country_html( null, $rm['IP'] ) ) {
-						$reg .= ' &nbsp; ' . $country;
-					}
-				}
-			}
-
-			$user_info[] = array( __( 'Registered', 'wp-cerber' ), $reg );
-		}
-
-
-		// Activated - BuddyPress
-		if ( $log = cerber_get_log( array( 200 ), array( 'id' => $user_id ) ) ) {
-			$acted     = $log[0];
-			$activated = cerber_auto_date( $acted->stamp );
-			if ( $country = crb_country_html( null, $acted->ip ) ) {
-				$activated .= ' &nbsp; ' . $country;
-			}
-
-			$user_info[] = array( __( 'Activated', 'wp-cerber' ), $activated );
-		}
-
-
-		// Last seen
-		$seen = '';
-		$s1 = $wpdb->get_row( 'SELECT stamp,ip FROM  ' . CERBER_TRAF_TABLE . ' WHERE user_id = ' . $user_id . ' ORDER BY stamp DESC LIMIT 1' );
-		$s2 = $wpdb->get_row( 'SELECT stamp,ip FROM  ' . CERBER_LOG_TABLE . ' WHERE user_id = ' . $user_id . ' ORDER BY stamp DESC LIMIT 1' );
-
-		$time1 = ( $s1 ) ? $s1->stamp : 0;
-		$time2 = ( $s2 ) ? $s2->stamp : 0;
-
-		$sn = ( $time1 < $time2 ) ? $s2 : $s1;
-
-		if ( $sn ) {
-			$seen = cerber_auto_date( $sn->stamp );
-			if ( $country = crb_country_html( null, $sn->ip ) ) {
-				$seen .= ' &nbsp; ' . $country;
-			}
-
-			$user_info[] = array( __( 'Last seen', 'wp-cerber' ), $seen );
-		}
-
-		if ( $usn = crb_sessions_get_num( $user_id ) ) {
-			$user_info[] = array( __( 'Active sessions', 'wp-cerber' ), '<a href="' . cerber_admin_link( 'sessions', array( 'filter_user' => $user_id ) ) . '">' . $usn . '</a>');
-		}
-
-		//$ret .= '<div>' . $name . '<p>' . __( 'Registered', 'wp-cerber' ) . ': ' . $reg . '</p>' . $seen . $activated . $sessions . '</div>';
-
-		$summary = '';
-		foreach ( $user_info as $row ) {
-			$summary .= '<div><div>' . implode( '</div><div>', $row ) . '</div></div>';
-		}
-
-		$ret .= '<div id="crb_the_summary">' . $name . $summary . '</div>';
-
-		if ( $context == 'activity' ) {
-			$link = cerber_traffic_link( array( 'filter_user' => $user_id ) );
-		}
-		else {
-			$link = ' <a class="crb-button-tiny" href="' . cerber_admin_link( 'activity', array( 'filter_user' => $user_id ) ) . '">' . __( 'Check for activities', 'wp-cerber' ) . '</a>';
-		}
-
-		if ( crb_is_user_blocked( $user_id ) ) {
-			$class = 'crb-user-blocked';
-		}
+		$roles = '<span class="crb_act_role">' . implode( ', ', $roles ) . '</span>';
+	}
+	else {
+		$roles = '';
 	}
 
-	if ( $ret ) {
-		return array(
-			crb_format_user_name( $u ),
-			'<div class="crb-extra-info ' . $class . '" id="user-extra-info">' . $ret . $link . '</div>'
+	if ( ! nexus_is_valid_request() ) {
+		$name = '<a href="' . get_edit_user_link( $user_id ) . '">' . $u->display_name . '</a>';
+	}
+	else {
+		$name = $u->display_name;
+	}
+
+	$name = '<span class="crb-user-name"><b>' . $name . '</b></span><p>' . $roles . '</p>';
+
+	if ( $context == 'activity' ) {
+		$link = cerber_traffic_link( array( 'filter_user' => $user_id ) , 2 );
+	}
+	else {
+		$link = ' <a href="' . cerber_admin_link( 'activity', array( 'filter_user' => $user_id ) ) . '">' . __( 'Check for activities', 'wp-cerber' ) . '</a>';
+	}
+
+	$user_info[] = array( $name, $link );
+
+	if ( $avatar = (string) get_avatar( $user_id, 96 ) ) {
+		$avatar = '<div>' . $avatar . '</div>';
+	}
+
+	// Registered
+	$reg = false;
+	$time = strtotime( cerber_db_get_var( "SELECT user_registered FROM  {$wpdb->users} WHERE id = " . $user_id ) );
+	if ( $time ) {
+		$reg = cerber_auto_date( $time, false );
+		$country = '';
+		if ( $rm = get_user_meta( $user_id, '_crb_reg_', true ) ) {
+			if ( $rm['IP'] ) {
+				$country = crb_country_html( null, $rm['IP'] );
+			}
+		}
+
+		$user_info[] = array( __( 'Registered', 'wp-cerber' ), $reg, $country );
+	}
+
+
+	// Activated - BuddyPress
+	if ( $log = cerber_get_log( array( 200 ), array( 'id' => $user_id ) ) ) {
+		$acted = $log[0];
+		$activated = cerber_auto_date( $acted->stamp );
+		$country = crb_country_html( null, $acted->ip );
+
+		$user_info[] = array( __( 'Activated', 'wp-cerber' ), $activated, $country );
+	}
+
+
+	// Last seen
+	$seen = '';
+	$s1 = $wpdb->get_row( 'SELECT stamp,ip FROM  ' . CERBER_TRAF_TABLE . ' WHERE user_id = ' . $user_id . ' ORDER BY stamp DESC LIMIT 1' );
+	$s2 = $wpdb->get_row( 'SELECT stamp,ip FROM  ' . CERBER_LOG_TABLE . ' WHERE user_id = ' . $user_id . ' ORDER BY stamp DESC LIMIT 1' );
+
+	$time1 = ( $s1 ) ? $s1->stamp : 0;
+	$time2 = ( $s2 ) ? $s2->stamp : 0;
+
+	$sn = ( $time1 < $time2 ) ? $s2 : $s1;
+
+	if ( $sn ) {
+		//$seen = cerber_auto_date( $sn->stamp );
+		$seen = cerber_ago_time( $sn->stamp );
+		$country = crb_country_html( null, $sn->ip );
+		$user_info[] = array( __( 'Last seen', 'wp-cerber' ), $seen, $country );
+	}
+
+	if ( $usn = crb_sessions_get_num( $user_id ) ) {
+		$user_info[] = array(
+			'<div style="white-space: nowrap;">' . __( 'Active sessions', 'wp-cerber' ) . '</div>',
+			'<a href="' . cerber_admin_link( 'sessions', array( 'filter_user' => $user_id ) ) . '">' . $usn . '</a>'
 		);
 	}
 
-	return '';
+	$summary = '';
+	foreach ( $user_info as $row ) {
+		$summary .= '<div><div>' . implode( '</div><div>', $row ) . '</div></div>';
+	}
+
+	$ins_class = '';
+	if ( ! $ins = crb_generate_user_insights( $user_id, $context, true ) ) {
+		$ins_class = 'crb_async_content';
+	}
+
+	$ret .= '<div class="crb_extra_info_row">' . $avatar . '<div id="crb_the_summary">' . $summary . '</div><div class="' . $ins_class . '" data-ajax_route="user_activity_analytics" data-user_id="' . $user_id . '" data-the_active_tab="' . $context . '">' . $ins . '</div></div>';
+
+	if ( crb_is_user_blocked( $user_id ) ) {
+		$class = 'crb-user-blocked';
+	}
+
+	return '<div class="crb-extra-info ' . $class . '" id="crb-user-extra-info">' . $ret . '</div>';
 
 }
 
@@ -1626,84 +1955,63 @@ add_filter( 'manage_users_sortable_columns', function ( $sortable_columns ) {
 /*
 	Display custom columns on the Users screen
 */
-add_filter( 'manage_users_custom_column' , function ($value, $column, $user_id) {
-	global $wpdb, $user_ID;
+add_filter( 'manage_users_custom_column', function ( $value, $column, $user_id ) {
+	global $wpdb, $user_ID, $crb_ajax_loader;
 	$ret = $value;
-	switch ($column) {
+	switch ( $column ) {
 		case 'cbcc' : // to get this work we need add filter 'preprocess_comment'
-			if ($com = get_comments(array('author__in' => $user_id)))	$ret = count($com);
-			else $ret = 0;
-		break;
-		case 'cbla' :
-			//$row = $wpdb->get_row('SELECT MAX(stamp) FROM '.CERBER_LOG_TABLE.' WHERE user_id = '.absint($user_id));
-			$row = $wpdb->get_row('SELECT * FROM '.CERBER_LOG_TABLE.' WHERE activity = 5 AND user_id = '.absint($user_id) . ' ORDER BY stamp DESC LIMIT 1');
-			if ($row) {
-				$act_link = cerber_admin_link('activity');
-				if ( $country = crb_country_html( $row->country, $row->ip ) ) {
-					$country = '<br />' . $country;
-				} else {
-					$country = '';
-                }
-				$ret = '<a href="'.$act_link.'&amp;filter_user='.$user_id.'">'.cerber_date($row->stamp).'</a>'.$country;
-			}
-			else $ret=__('Never','wp-cerber');
-		break;
-		case 'cbfl' :
-			$u      = get_userdata( $user_id );
-			//$failed = $wpdb->get_var( 'SELECT COUNT(user_id) FROM ' . CERBER_LOG_TABLE . ' WHERE user_login = \'' . $u->user_login . '\' AND activity = 7 AND stamp > ' . ( time() - 24 * 3600 ) );
-			$failed = cerber_db_get_var( 'SELECT COUNT(user_id) FROM ' . CERBER_LOG_TABLE . ' WHERE user_login = "' . $u->user_login . '" AND activity = 7 AND stamp > ' . ( time() - 24 * 3600 ) );
-			if ( $failed ) {
-				$act_link = cerber_admin_link( 'activity' );
-				$ret      = '<a href="' . $act_link . '&amp;filter_login=' . $u->user_login . '&amp;filter_activity=7">' . $failed . '</a>';
+			if ( $com = get_comments( array( 'author__in' => $user_id ) ) ) {
+				$ret = count( $com );
 			}
 			else {
-				$ret = $failed;
+				$ret = 0;
 			}
-		break;
+			break;
+		case 'cbla' :
+		case 'cbfl' :
+			$ret = crb_get_ajax_placeholder( $column, $user_id );
+			break;
 		case 'cbdr' :
-			//$time = strtotime($wpdb->get_var("SELECT user_registered FROM  $wpdb->users WHERE id = ".$user_id));
 			$time = strtotime( cerber_db_get_var( "SELECT user_registered FROM  $wpdb->users WHERE id = " . $user_id ) );
-			if ($time < (time() - DAY_IN_SECONDS)){
-				$ret = cerber_date($time);
-            }
-            else {
-	            $ret = cerber_ago_time($time);
-            }
-			if ($rm = get_user_meta($user_id, '_crb_reg_', true)){
-				if ($rm['IP']) {
+			$ret = cerber_auto_date( $time );
+			if ( $rm = get_user_meta( $user_id, '_crb_reg_', true ) ) {
+				if ( $rm['IP'] ) {
 					$act_link = cerber_admin_link( 'activity', array( 'filter_ip' => $rm['IP'] ) );
-				    $ret .= '<br /><a href="'.$act_link.'">'.$rm['IP'].'</a>';
+					$ret .= '<br /><a href="' . $act_link . '">' . $rm['IP'] . '</a>';
 					if ( $country = crb_country_html( null, $rm['IP'] ) ) {
 						$ret .= '<br />' . $country;
 					}
 				}
 				$uid = absint( $rm['user'] );
 				if ( $uid ) {
-					//$name = $wpdb->get_var( 'SELECT meta_value FROM ' . $wpdb->usermeta . ' WHERE user_id  = ' . $uid . ' AND meta_key = "nickname"' );
 					$name = cerber_db_get_var( 'SELECT meta_value FROM ' . $wpdb->usermeta . ' WHERE user_id  = ' . $uid . ' AND meta_key = "nickname"' );
-					if (!$user_ID) {
-					    $user_ID = get_current_user_id();
-				    }
-				    if ($user_ID == $uid){
-					    $name .= ' (' . __( 'You', 'wp-cerber' ) . ')';
-                    }
+					if ( ! $user_ID ) {
+						$user_ID = get_current_user_id();
+					}
+					if ( $user_ID == $uid ) {
+						$name .= ' (' . __( 'You', 'wp-cerber' ) . ')';
+					}
 					$ret .= '<br />' . $name;
 				}
-            }
-		break;
+			}
+			break;
 	}
+
 	return $ret;
-}, 10, 3);
+}, 10, 3 );
 
 /*
  	Registering admin widgets
 */
-if (!is_multisite()) add_action( 'wp_dashboard_setup', 'cerber_widgets' );
-else add_action( 'wp_network_dashboard_setup', 'cerber_widgets' );
+if ( ! is_multisite() ) {
+	add_action( 'wp_dashboard_setup', 'cerber_widgets' );
+}
+else {
+	add_action( 'wp_network_dashboard_setup', 'cerber_widgets' );
+}
 function cerber_widgets() {
-	if (!current_user_can('manage_options')) return;
-	if (current_user_can( 'manage_options')) {
-		wp_add_dashboard_widget( 'cerber_quick', __('Cerber Quick View','wp-cerber'), 'cerber_quick_w');
+	if ( cerber_user_can_manage() ) {
+		wp_add_dashboard_widget( 'cerber_quick', __( 'Cerber Quick View', 'wp-cerber' ), 'cerber_quick_w' );
 	}
 }
 /*
@@ -1761,7 +2069,7 @@ function cerber_quick_w(){
 	echo '<table id="quick-info"><tr><td>'.__('Lockouts at the moment','wp-cerber').'</td><td><b><a href="' . $locks . '">'.$lockouts.'</a></b></td></tr>';
 	echo '<tr><td>'.__('Last lockout','wp-cerber').'</td><td>'.$last.'</td></tr>';
 
-	echo '<tr class="with-padding"><td>' . __( 'Logged in users', 'wp-cerber' ) . '</td><td><b><a href="' . $sess . '">' . $s_count . ' ' . _n( 'user', 'users', $s_count, 'wp-cerber' ) . '</a></b></td></tr>';
+	echo '<tr class="with-padding"><td>' . __( 'Logged-in users', 'wp-cerber' ) . '</td><td><b><a href="' . $sess . '">' . $s_count . ' ' . _n( 'user', 'users', $s_count, 'wp-cerber' ) . '</a></b></td></tr>';
 
 	echo '<tr class="with-padding"><td>'.__('White IP Access List','wp-cerber').'</td><td><b><a href="'.$acl.'">'.$w_count.' '._n('entry','entries',$w_count,'wp-cerber').'</a></b></td></tr>';
 	echo '<tr><td>'.__('Black IP Access List','wp-cerber').'</td><td><b><a href="'.$acl.'">'.$b_count.' '._n('entry','entries',$b_count,'wp-cerber').'</a></b></td></tr>';
@@ -1968,7 +2276,7 @@ function cerber_show_scan_help() {
                             <li>Enable diagnostic logging in the scanner settings and check the log after scanning</li>
                         </ul>
 
-                        <p>Note: The scanner requires the CURL library to be enabled for PHP scripts. Usually, it's enabled by
+                        <p>Note: The scanner requires the cURL library to be enabled for PHP scripts. Usually, it's enabled by
                             default.</p>
 
                         <p>Read more: <a href="https://wpcerber.com/wordpress-security-scanner/" target="_blank">Malware
@@ -2306,7 +2614,7 @@ function cerber_help() {
 
     <h3 style="font-size: 150%;">How to configure the plugin</h3>
 
-    <p style="font-size: 120%;">To get the most out of Cerber Security, you need to configure the plugin properly</p>
+    <p style="font-size: 120%;">To get the most out of WP Cerber Security, you need to configure the plugin properly</p>
 
     <p style="font-size: 120%;">Please read this first: <a target="_blank" href="https://wpcerber.com/getting-started/">Getting Started Guide</a></p>
 
@@ -2328,14 +2636,11 @@ function cerber_help() {
 
 /**
  *
- * Dashboard v.1
+ * WP Cerber Dashboard
  *
- * @since 4.0
  *
  */
 function cerber_show_dashboard() {
-
-	//echo '<div style="padding-right: 10px;">';
 
 	$kpi_list = cerber_calculate_kpi( 1 );
 
@@ -2344,128 +2649,182 @@ function cerber_show_dashboard() {
 		$kpi_show .= '<td>' . $kpi[1] . '</td><td><span style="z-index: 10;">' . $kpi[0] . '</span></td>';
 	}
 
-	$kpi_show = '<table id = "crb-kpi" class="cerber-margin"><tr>' . $kpi_show . '</tr></table>';
+	$kpi_show = '<table id = "crb-kpi" class=""><tr>' . $kpi_show . '</tr></table>';
 
 	// TODO: add link "send daily report to my email"
-	echo '<div>' . $kpi_show . '<p style="text-align: right; margin: 0;">' . __( 'in the last 24 hours', 'wp-cerber' ) . '</p></div>';
+	// $kpi_show .= '<p style="text-align: right; margin: 0;">' . __( 'in the last 24 hours', 'wp-cerber' ) . '</p>';
+	echo '<div title="In the last 24 hours">' . $kpi_show . '</div>';
 
-	$total = cerber_db_get_var( 'SELECT count(ip) FROM ' . CERBER_LOG_TABLE );
+	$logged = cerber_db_get_var( 'SELECT ip FROM ' . CERBER_LOG_TABLE. ' LIMIT 1' );
+	$nav_links = ( $logged ) ? crb_admin_activity_nav_links( 'users' ) : '';
+	$placeholder = '<div class="crb-act-padding crb-dash-placeholder">' . __( 'No activity has been logged yet.', 'wp-cerber' ) . '</div>';
+
+	if ( ! $logged ) {
+		$user_act = $placeholder;
+	}
+	else {
+		$user_act = cerber_show_activity( array(
+			'filter_user' => '*',
+			'per_page'    => 10,
+			'no_navi'     => true,
+			'no_export'   => true,
+			'no_details'  => true,
+			'date'        => 'ago'
+		), false );
+	}
+
+	$dash_widgets[] = array( __( "Users' Activity", 'wp-cerber' ), $user_act, $nav_links );
+
+	$in = implode( ',', crb_get_filter_set( 1 ) );
+	$bad_logged = cerber_db_get_var( 'SELECT ip FROM ' . CERBER_LOG_TABLE . ' WHERE activity IN (' . $in . ') LIMIT 1' );
+
+	if ( ! $bad_logged ) {
+		$susp_act = $placeholder;
+	}
+	else {
+		$susp_act = cerber_show_activity( array(
+			'filter_set' => 1,
+			'per_page'    => 10,
+			'no_navi'     => true,
+			'no_export'   => true,
+			'no_details'  => true,
+			'date'        => 'ago'
+		), false );
+	}
+
+	$nav_links = ( $bad_logged ) ? crb_admin_activity_nav_links( 'suspicious' ) : '';
+	$dash_widgets[] = array( __( 'Malicious Activity', 'wp-cerber' ), $susp_act, $nav_links );
+
+	/*$total = cerber_db_get_var( 'SELECT count(ip) FROM ' . CERBER_LOG_TABLE );
 
 	$nav_links = ( $total ) ? crb_admin_quick_nav( 'dashboard' ) : '';
 
-	echo '<table class="cerber-margin"><tr><td><h2 style="margin-bottom:0.5em; margin-right: 1em;">' . __( 'Activity', 'wp-cerber' ) . '</h2></td><td>' . $nav_links . '</td></tr></table>';
+	echo '<table class="crb-table-heading cerber-margin"><tr><td><h2 style="margin-bottom:0.5em; margin-right: 1em;">' . __( 'Activity', 'wp-cerber' ) . '</h2></td><td>' . $nav_links . '</td></tr></table>';
 
-	cerber_show_activity( array(
+	/*cerber_show_activity( array(
 		'filter_activity' => crb_get_activity_set( 'dashboard' ),
 		'per_page'        => 10,
 		'no_navi'         => true,
 		'no_export'       => true,
 		'no_details'      => true,
 		'date'            => 'ago'
-	) );
+	) );*/
 
-	$view = '';
-
-	if ( cerber_blocked_num() ) {
-		$view = '<a class="crb-button-tiny" href="' . cerber_admin_link( 'lockouts' ) . '">' . __( 'View all', 'wp-cerber' ) . '</a>';
+	$locked = cerber_blocked_num();
+	if ( ! $locked ) {
+		$view_all = '';
+		$locked_ips = '<div class="crb-act-padding crb-dash-placeholder">' . __( 'No lockouts at the moment. The sky is clear.', 'wp-cerber' ) . '</div>';
+	}
+	else {
+		$view_all = '<a href="' . cerber_admin_link( 'lockouts' ) . '">' . __( 'View all', 'wp-cerber' ) . '</a>';
+		$locked_ips = cerber_show_lockouts( array(
+			'per_page' => 10,
+			'no_navi'  => true
+		,
+		), false );
 	}
 
-	echo '<table class="cerber-margin" style="margin-top:2em;"><tr><td><h2 style="margin-bottom:0.5em; margin-right: 1em;">' . __( 'Recently locked out IP addresses', 'wp-cerber' ) . '</h2></td><td>   ' . $view . '</td></tr></table>';
+	$dash_widgets[] = array( __( 'Recently locked out IP addresses', 'wp-cerber' ), $locked_ips, $view_all );
 
-	cerber_show_lockouts( array(
-		'per_page' => 10,
-		'no_navi'  => true
-	) );
-
+	foreach ( $dash_widgets as $dash_widget ) {
+		$heading = '<table class="crb-table-heading"><tr><td><h2 class="crb-act-padding">' . $dash_widget[0] . '</h2></td><td>' . $dash_widget[2] . '</td></tr></table>';
+		echo '<div class="crb-dashboard-element">' . $heading . $dash_widget[1] . '</div>';
+	}
 }
 
 
 /*
 	Admin aside bar
 */
-function cerber_show_aside( $page ) {
+function cerber_show_aside( $tab ) {
 	global $crb_assets_url;
 
-	if ( in_array( $page, array( 'nexus_sites', 'activity', 'lockouts', 'traffic' ) ) ) {
+	if ( in_array( $tab, array( 'nexus_sites', 'activity', 'lockouts', 'traffic' ) ) ) {
 		return;
 	}
 
 	$aside = array();
 
-	/*if ( in_array( $page, array( 'main' ) ) ) {
-		$aside[] = '<div class="crb-box">
-			<h3>' . __( 'Confused about some settings?', 'wp-cerber' ) . '</h3>'
-		           . __( 'You can easily load default recommended settings using button below', 'wp-cerber' ) . '
-			<p style="text-align:center;">
-				<input type="button" class="button button-primary" value="' . __( 'Load default settings', 'wp-cerber' ) . '" onclick="button_default_settings()" />
-				<script type="text/javascript">function button_default_settings(){
-					if (confirm("' . __( 'Are you sure?', 'wp-cerber' ) . '")) {
-						click_url = "' . cerber_admin_link_add( array( 'load_settings' => 'default', 'cerber_admin_do'=>'load_defaults' ) ) . '";
-						window.location = click_url.replace(/&amp;/g,"&");
-					}
-				}</script>
-			</p>
-			<p><i>* ' . __( "doesn't affect Custom login URL and Access Lists", 'wp-cerber' ) . '</i></p>
-			<p style="text-align: center; font-size: 110%;"><a href="https://wpcerber.com/getting-started/" target="_blank">' . __( 'Getting Started Guide', 'wp-cerber' ) . '</a></p>
-		</div>';
-	}*/
-	/*
-		$aside[] = '<div class="crb-box" id = "crb-subscribe">
-				<div class="crb-box-inner">
-				<h3>Be in touch with developer</h3>
-				<p>Receive updates and helpful ideas to protect your website, blog, or business online.</p>
-				<p>
-				<span class="dashicons-before dashicons-email-alt"></span> &nbsp; <a href="https://wpcerber.com/subscribe-newsletter/" target="_blank">Subscribe to Cerber\'s newsletter</a></br>
-				<span class="dashicons-before dashicons-twitter"></span> &nbsp; <a href="https://twitter.com/wpcerber">Follow Cerber on Twitter</a></br>
-				<span class="dashicons-before dashicons-facebook"></span> &nbsp; <a href="https://www.facebook.com/wpcerber/">Follow Cerber on Facebook</a>
-				</p>
-				</div>
-				</div>
-		';*/
-
-	if ( ! lab_lab() ) {
-		$aside[] =
+	if ( $tab != 'scan_main' && ! lab_lab() && crb_was_activated( 1 * DAY_IN_SECONDS ) ) {
+		/*$aside[] =
             '<a class="crb-button-one" style="background-color: #1DA1F2;" href="https://twitter.com/wpcerber" target="_blank"><span class="dashicons dashicons-twitter"></span> Follow Cerber on Twitter</a>';
-            //<a class="crb-button-one" href="https://wpcerber.com/subscribe-newsletter/" target="_blank"><span class="dashicons dashicons-email-alt"></span> Subscribe to Cerber\'s newsletter</a>
-//            <a class="crb-button-one" style="background-color: #3B5998;" href="https://www.facebook.com/wpcerber/" target="_blank"><span class="dashicons dashicons-facebook"></span> Follow Cerber on Facebook</a>
-	//';
+		*/
 
-	// 22.01.2017
-	/*
-	 * $aside[] = '<a class="crb-button-one" style="text-align:center; padding-top: 1.5em; padding-bottom: 1.5em; background-color: #C92E5C;" href="https://wpcerber.com/pro/" target="_blank">
-            <span class="dashicons dashicons-awards"></span><span class="dashicons dashicons-awards"></span><span class="dashicons dashicons-awards"></span><br><br>UPGRADE TO PROFESSIONAL VERSION</a>';
-    */
+        // <a class="crb-button-one" href="https://wpcerber.com/subscribe-newsletter/" target="_blank"><span class="dashicons dashicons-email-alt"></span> Subscribe to Cerber\'s newsletter</a>
+        // <a class="crb-button-one" style="background-color: #3B5998;" href="https://www.facebook.com/wpcerber/" target="_blank"><span class="dashicons dashicons-facebook"></span> Follow Cerber on Facebook</a>
+	    //';
 
-	$aside[] = '<a href="https://wpcerber.com/pro/" target="_blank"><img src="'.$crb_assets_url.'bn3ra.png" width="290" height="478"/></a>';
+
+		$images = array( 'bn4ra.png', 'bn5ra.png' );
+		$d = (int) date( 'z' );
+		$n = ( $d & 1 ) ? 1 : 0;
+		$ban = $crb_assets_url . $images[ $n ];
+
+        $aside[] = '<a href="https://wpcerber.com/pro/" target="_blank"><img src="'.$ban.'" class="crb-full-width" /></a>';
 
 	}
 
-	$aside[] = '<div class="crb-box" id = "crb-blog">
-			<div class="crb-box-inner">
-			<!-- <h3><span class="dashicons-before dashicons-lightbulb"></span> Read Cerber\'s blog</h3> --> 
-			<h3>Documentation & How To</h3>
-
-            <p><a href="https://wpcerber.com/manage-multiple-websites/" target="_blank">Managing multiple WP Cerber instances from one dashboard</a>
-            <p><a href="https://wpcerber.com/wordpress/gdpr/" target="_blank">Stay in compliance with GDPR</a>
-            <p><a href="https://wpcerber.com/two-factor-authentication-for-wordpress/" target="_blank">Two-Factor Authentication for WordPress</a>
-            <p><a href="https://wpcerber.com/how-to-protect-wordpress-checklist/" target="_blank">How to protect WordPress effectively: a must-do list</a>					
-			<p><a href="https://wpcerber.com/automatic-malware-removal-wordpress/" target="_blank">Automatic cleanup of malware and suspicious files</a>
-			<p><a href="https://wpcerber.com/automated-recurring-malware-scans/" target="_blank">Automated recurring scans and email reporting</a>
-			<p><a href="https://wpcerber.com/wordpress-mobile-and-browser-notifications-pushbullet/" target="_blank">Instant mobile and browser notifications</a>
-			<p><a href="https://wpcerber.com/wordpress-notifications-made-easy/" target="_blank">WordPress notifications made easy</a>
-			<p><a href="https://wpcerber.com/restrict-access-to-wordpress-rest-api/" target="_blank">How to limit access to the WP REST API</a>
-		
-		</div>
-		</div>';
-
-	if ( ! lab_lab() ) {
-		$a = cerber_get_set( '_activated' );
-		if ( ! $a || ( ! empty( $a['time'] ) && $a['time'] < ( time() - WEEK_IN_SECONDS ) ) ) {
-			$aside[] = '<a href="https://wordpress.org/support/plugin/wp-cerber/reviews/#new-post" target="_blank"><img style="width: 290px;" src="' . $crb_assets_url . 'rateit2.png" /></a>';
-		}
+	$context_links = '';
+	$docs = crb_get_doc_links();
+	foreach ( $docs as $doc ) {
+		$context_links .= '<p><a href="' . $doc[0] . '" target="_blank">' . $doc[1] . '</a></p>';
 	}
 
-	echo '<div id="crb-aside">'.implode(' ',$aside).'</div>';
+	$aside[] = '<div class="crb-box" id="crb-blog"><div class="crb-box-inner"> 
+			<h3>Documentation & How To</h3>           
+            ' . $context_links . '</div></div>';
+
+	if ( ! lab_lab() && crb_was_activated( 2 * WEEK_IN_SECONDS ) ) {
+		$r = array();
+		$r[0] = crb_get_review_url( 'tpilot' );
+		$r[1] = crb_get_review_url( 'wp' );
+		shuffle( $r );
+		$aside[] = '<a href="' . $r[0] . '" target="_blank"><img class="crb-full-width" src="' . $crb_assets_url . 'fb2b.png" /></a>';
+	}
+
+	echo '<div id="crb-aside">' . implode( ' ', $aside ) . '</div>';
+}
+
+function crb_get_doc_links() {
+	static $links = array(
+		'cerber-integrity' => array(
+			array( 'https://wpcerber.com/wordpress-security-scanner/', 'How to use the integrity checker and malware scanner' ),
+			array( 'https://wpcerber.com/wordpress-security-scanner-scan-malware-detect/', 'What the scanner scans and detects' ),
+			array( 'https://wpcerber.com/malware-scanner-settings/', 'Configuring the scanner settings' ),
+			array( 'https://wpcerber.com/troubleshooting-malware-scanner/', 'Troubleshooting malware scanner issues' ),
+			array( 'https://wpcerber.com/automatic-malware-removal-wordpress/', 'Automatic cleanup of malware and suspicious files' ),
+			array( 'https://wpcerber.com/automated-recurring-malware-scans/', 'Automated recurring scans and email reporting' )
+		),
+		'*' => array(
+			array( 'https://wpcerber.com/wordpress-application-passwords-how-to/', 'Managing WordPress application passwords a hassle-free way' ),
+			array( 'https://wpcerber.com/how-to-protect-wordpress-checklist/', 'How to protect WordPress effectively: a must-do list' ),
+			array( 'https://wpcerber.com/manage-multiple-websites/', 'Managing multiple WP Cerber instances from one dashboard' ),
+			array( 'https://wpcerber.com/wordpress/gdpr/', 'Stay in compliance with GDPR' ),
+			array( 'https://wpcerber.com/two-factor-authentication-for-wordpress/', 'How to protect user accounts with Two-Factor Authentication' ),
+			array( 'https://wpcerber.com/limiting-concurrent-user-sessions-in-wordpress/', 'How to stop your users from sharing their WordPress accounts' ),
+			array( 'https://wpcerber.com/wordpress-mobile-and-browser-notifications-pushbullet/', 'Be notified with mobile and browser notifications' ),
+			array( 'https://wpcerber.com/wordpress-notifications-made-easy/', 'WordPress notifications made easy' ),
+			array( 'https://wpcerber.com/restrict-access-to-wordpress-rest-api/', 'How to restrict access to REST API' ),
+            array( 'https://wpcerber.com/automatic-malware-removal-wordpress/', 'Automatic cleanup of malware and suspicious files' ),
+			array( 'https://wpcerber.com/automated-recurring-malware-scans/', 'Automated recurring scans and email reporting' ),
+		),
+	);
+
+	static $get_started = array( 'https://wpcerber.com/getting-started/', '<b>Getting Started Guide</b>' );
+
+	$ret = crb_array_get( $links, crb_admin_get_page() );
+	$common = crb_array_get( $links, '*' );
+
+	if ( ! $ret ) {
+		array_unshift( $common, $get_started );
+
+		return $common;
+	}
+
+	$ret = array_merge( $ret, array_slice( $common, 0, 5 ) );
+	$ret[] = $get_started;
+
+	return $ret;
 }
 
 /*
@@ -2479,11 +2838,11 @@ function cerber_show_admin_notice(){
 	global $cerber_shown;
 	$cerber_shown = false;
 
-	if (cerber_is_citadel() && current_user_can('manage_options')) {
-		echo '<div class="update-nag crb-alarm"><p>'.
-		__('Attention! Citadel mode is now active. Nobody is able to log in.','wp-cerber').
-		' &nbsp; <a href="'.wp_nonce_url(add_query_arg(array('citadel' => 'deactivate')),'control','cerber_nonce').'">'.__('Deactivate','wp-cerber').'</a>'.
-		' | <a href="' . cerber_admin_link('activity') . '">' . __('View Activity','wp-cerber') . '</a>' .
+	if ( cerber_is_citadel() && cerber_user_can_manage() ) {
+		echo '<div class="update-nag crb-alarm"><p>' .
+		     __( 'Attention! Citadel mode is now active. Nobody is able to log in.', 'wp-cerber' ) .
+		     ' &nbsp; <a href="' . wp_nonce_url( add_query_arg( array( 'citadel' => 'deactivate' ) ), 'control', 'cerber_nonce' ) . '">' . __( 'Deactivate', 'wp-cerber' ) . '</a>' .
+		     ' | <a href="' . cerber_admin_link( 'activity' ) . '">' . __( 'View Activity', 'wp-cerber' ) . '</a>' .
 		     '</p></div>';
 	}
 
@@ -2506,28 +2865,30 @@ function cerber_show_admin_notice(){
 			$notice = '<p>' . implode( '</p><p>', $notice ) . '</p>';
 		}
 		$all[] = array( $notice, 'error' ); // red
+		cerber_update_set( 'admin_notice', array() );
 	}
-	if ( $notice = cerber_get_set( 'admin_message' ) ) {
-		if ( is_array( $notice ) ) {
-			$notice = '<p>' . implode( '</p><p>', $notice ) . '</p>';
+
+	if ( $message = cerber_get_set( 'admin_message' ) ) {
+		if ( is_array( $message ) ) {
+			$message = '<p>' . implode( '</p><p>', $message ) . '</p>';
 		}
-		$all[] = array( $notice, 'updated' ); // green
+		$all[] = array( $message, 'updated' ); // green
+		cerber_update_set( 'admin_message', array() );
 	}
 
 	if ( $all ) {
 		$cerber_shown = true;
 		foreach ( $all as $notice ) {
-			echo '<div id="setting-error-settings_updated" class="' . $notice[1] . ' settings-error notice is-dismissible"> 
-		<p>' . $notice[0] . '</p><button type="button" class="notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button></div>';
+			echo '<div id="setting-error-settings_updated" class="' . $notice[1] . ' settings-error notice is-dismissible crb-admin-message"> 
+		' . $notice[0] . '<button type="button" class="notice-dismiss crb-notice-dismiss"><span class="screen-reader-text">Dismiss this notice.</span></button></div>';
 		}
 	}
 
-	if ( $msg = cerber_get_set( 'cerber_admin_wide', null, false ) ) {
-		crb_show_admin_announcement( $msg, false );
+	if ( $wide = cerber_get_set( 'cerber_admin_wide', null, false ) ) {
+		crb_show_admin_announcement( $wide, false );
 		$cerber_shown = true;
+		cerber_update_set( 'cerber_admin_wide', '' );
 	}
-
-	crb_clear_admin_msg();
 
 	if ( $cerber_shown || ! cerber_is_admin_page() ) {
 		return;
@@ -2536,6 +2897,7 @@ function cerber_show_admin_notice(){
 	if ( $msg = get_site_option( 'cerber_admin_info' ) ) {
 		crb_show_admin_announcement( $msg );
 		$cerber_shown = true;
+
 		return;
 	}
 
@@ -2801,13 +3163,15 @@ function cerber_admin_head() {
 
     <?php
 
-    if (defined('CERBER_BETA')) :
-	    ?>
-	    <style type="text/css" media="all">
-		    <?php readfile(dirname(__FILE__).'/assets/admin.css'); ?>
-	    </style>
-	    <?php
-    endif;
+	if ( defined( 'CERBER_BETA' ) ) :
+		?>
+        <style type="text/css" media="all">
+            <?php
+             readfile(cerber_assets_dir().'/admin.css');
+            ?>
+        </style>
+	<?php
+	endif;
 
 	if ( ! cerber_is_admin_page() ) {
 		return;
@@ -2815,27 +3179,38 @@ function cerber_admin_head() {
 
 	?>
 
-    <script type="text/javascript">
-        crb_admin_page = '<?php echo crb_admin_get_page(); ?>';
-        crb_admin_tab = '<?php echo crb_admin_get_tab(); ?>';
-        crb_user_locale = '<?php echo substr( get_user_locale(), 0, 6 ); ?>';
+    <meta http-equiv="x-dns-prefetch-control" content="on" />
+    <link rel='dns-prefetch' href='//wpcerber.com' />
 
-        crb_scan_msg_steps = <?php echo json_encode( cerber_step_desc() ); ?>;
-        crb_scan_msg_issues = <?php echo json_encode( cerber_get_issue_label() ); ?>;
-        crb_scan_msg_risks = <?php echo json_encode( cerber_get_risk_label() ); ?>;
-        crb_scan_msg_misc = <?php echo json_encode( array(
-	        'delete_file'     => array(
-		        __( 'Are you sure you want to delete selected files?', 'wp-cerber' ),
-		        __( 'These files have been moved to the quarantine', 'wp-cerber' )
-	        ),
-	        'ignore_add_file' => array(
-		        __( 'Do you want to add selected files to the ignore list?', 'wp-cerber' ),
-		        __( 'These files have been added to the ignore list', 'wp-cerber' ),
-	        ),
-	        'file_error'      => __( 'Some errors occurred', 'wp-cerber' ),
-	        'all_ok'          => __( 'All files have been processed', 'wp-cerber' ),
-        ) );
-        ?>;
+    <script type="text/javascript">
+
+        <?php
+
+        echo 'crb_admin_page = "' . crb_admin_get_page() . '";';
+        echo 'crb_admin_tab = "' . crb_admin_get_tab() . '";';
+        echo 'crb_user_locale = "' . substr( get_user_locale(), 0, 6 ) . '";';
+
+        if ( cerber_is_admin_page( false, array( 'page' => 'cerber-integrity' ) ) ) {
+	        //echo 'crb_scan_msg_stats = ' . json_encode( cerber_get_stat_labels() ) . ';';
+	        echo 'crb_scan_msg_steps = ' . json_encode( cerber_get_step_description() ) . ';';
+	        echo 'crb_scan_msg_issues = ' . json_encode( cerber_get_issue_label() ) . ';';
+	        echo 'crb_scan_msg_risks = ' . json_encode( cerber_get_risk_labels() ) . ';';
+	        echo 'crb_scan_msg_misc = ' . json_encode( array(
+			        'delete_file'     => array(
+				        __( 'Are you sure you want to delete selected files?', 'wp-cerber' ),
+				        __( 'These files have been moved to the quarantine', 'wp-cerber' )
+			        ),
+			        'ignore_add_file' => array(
+				        __( 'Do you want to add selected files to the ignore list?', 'wp-cerber' ),
+				        __( 'These files have been added to the ignore list', 'wp-cerber' ),
+			        ),
+			        'file_error'      => __( 'Some errors occurred', 'wp-cerber' ),
+			        'all_ok'          => __( 'All files have been processed', 'wp-cerber' ),
+			        'rerun_needed'    => __( 'This scan report was generated by the previous version of WP Cerber. Please run a new scan to get consistent and accurate results.', 'wp-cerber' ),
+		        ) ) . ';';
+        }
+
+        ?>
     </script>
 
     <style type="text/css" media="all">
@@ -2884,13 +3259,16 @@ function cerber_admin_footer() {
 	crb_load_wp_js();
 
     // Add buttons to the user profile page
+
     $uid = 0;
 	if ( defined( 'IS_PROFILE_PAGE' ) && IS_PROFILE_PAGE ) {
 		$uid = get_current_user_id();
 	}
-    elseif ( ! empty( $_GET['user_id'] ) && strpos( $_SERVER['SCRIPT_NAME'], 'user-edit.php' ) ) {
+    //elseif ( ! empty( $_GET['user_id'] ) && strpos( $_SERVER['SCRIPT_NAME'], 'user-edit.php' ) ) {
+    elseif ( ! empty( $_GET['user_id'] ) && is_admin_user_edit() ) {
 		$uid = absint( $_GET['user_id'] );
 	}
+
 	if ( $uid ) {
 		$user_links = '<a href="' . cerber_admin_link( 'activity', array( 'filter_user' => $uid ) ) . '" class="page-title-action">' . __( 'View Activity', 'wp-cerber' ) . '</a>';
 		if ( $uss = crb_sessions_get_num( $uid ) ) {
@@ -2915,17 +3293,17 @@ function cerber_admin_footer() {
 	?>
     <script>
         // Blocked users
-        var crb_blocked_users = <?php echo '[' . implode( ',', $blocked ) . ']'; ?>;
+        let crb_blocked_users = <?php echo '[' . implode( ',', $blocked ) . ']'; ?>;
         if (crb_blocked_users.length) {
             crb_blocked_users.forEach(function (uid) {
-                var element = document.getElementById('user-' + uid);
+                let element = document.getElementById('user-' + uid);
                 element.classList.add("crb-user-blocked");
             });
         }
         // Switching textarea
         jQuery(document).ready(function ($) {
-            var mrow = $('#profile-page .crb_blocked_txt');
-            $("#crb_user_blocked").change(function () {
+            let mrow = $('#profile-page .crb_blocked_txt');
+            $("#crb_user_blocked").on('change', function () {
                 if ($(this).is(':checked')) {
                     mrow.show();
                 }
@@ -2944,12 +3322,12 @@ function cerber_admin_footer() {
 		$list = array_keys( $list );
 		?>
         <script>
-            var crb_bg_tasks = <?php echo '["' . implode( '","', $list ) . '"]'; ?>;
-            console.log('Background tasks: ' + crb_bg_tasks.length);
+            let crb_bg_tasks = <?php echo '["' . implode( '","', $list ) . '"]'; ?>;
             jQuery(document).ready(function ($) {
                 //var crb_bg_tasks = <?php echo '["' . implode( '","', $list ) . '"]'; ?>;
                 //console.log('Background tasks: ' + crb_bg_tasks.length)
                 if (crb_bg_tasks.length) {
+                    console.log('Background tasks: ' + crb_bg_tasks.length);
                     $.post(ajaxurl, {
                             ajax_nonce: crb_ajax_nonce,
                             action: 'cerber_local_ajax',
@@ -2972,9 +3350,11 @@ function cerber_admin_footer() {
 	if ( defined( 'CERBER_BETA' ) ) :
 		?>
         <script type="text/javascript">
-			<?php readfile( dirname( __FILE__ ) . '/assets/admin.js' ); ?>
-			<?php readfile( dirname( __FILE__ ) . '/assets/ui-stack.js' ); ?>
-			<?php readfile( dirname( __FILE__ ) . '/assets/scanner.js' ); ?>
+			<?php
+            readfile( cerber_assets_dir() . '/admin.js' );
+			readfile( cerber_assets_dir() . '/ui-stack.js' );
+			readfile( cerber_assets_dir() . '/scanner.js' );
+			?>
         </script>
 		<?php
 	endif;
@@ -3025,7 +3405,7 @@ add_filter( 'admin_footer_text', function ( $text ) {
 		return $text;
 	}
 
-	return 'If you like <strong>WP Cerber</strong>, <a target="_blank" href="https://wordpress.org/support/plugin/wp-cerber/reviews/#new-post">please give it a &#9733; &#9733; &#9733; &#9733; &#9733; review</a>. Thanks!';
+	return 'If you like <strong>WP Cerber</strong>, <a target="_blank" href="' . crb_get_review_url( 'wp' ) . '">please give it a &#9733;&#9733;&#9733;&#9733;&#9733; review</a>. Thanks!';
 }, PHP_INT_MAX );
 
 add_filter( 'update_footer', function ( $text ) {
@@ -3051,32 +3431,37 @@ add_filter( 'update_footer', function ( $text ) {
 }, PHP_INT_MAX );
 
 /*
- * Add per admin screen settings
+ * Add per screen user settings
  */
 function crb_admin_screen_options() {
 	if ( ! $id = crb_get_configurable_screen() ) {
 		return;
 	}
-	$args = array(
+
+	add_screen_option( 'per_page', array(
 		//'label' => __( 'Number of items per page:' ),
 		'default' => 25,
-		'option'  => 'cerber_screen_' . $id,
-	);
-	add_screen_option( 'per_page', $args );
+		'option'  => 'cerber_screen_' . $id . '_page', // '_page' is mandatory since WP 5.4.2
+	) );
 }
+
 /*
- * Allows to save screen settings to the user meta
+ * Enables saving screen options to the user's meta
  */
 add_filter( 'set-screen-option', function ( $status, $option, $value ) {
 	if ( $id = crb_get_configurable_screen() ) {
-		if ( 'cerber_screen_' . $id == $option ) {
+		if ( 'cerber_screen_' . $id . '_page' == $option ) {
 			return $value;
 		}
 	}
 
 	return $status;
 }, 10, 3 );
-
+/*
+ * Returns false if the admin page has no screen options to configure
+ *
+ * @return false|string
+ */
 function crb_get_configurable_screen() {
 	if ( ! $id = crb_admin_get_tab() ) {
 		$id = crb_admin_get_page();
@@ -3087,7 +3472,7 @@ function crb_get_configurable_screen() {
 	if ( ( $id == 'cerber-nexus' ) && nexus_is_master() ) {
 		return 'nexus_sites';
 	}
-	$ids = array( 'lockouts', 'activity', 'traffic', 'scan_quarantine', 'scan_ignore', 'nexus_sites' );
+	$ids = array( 'sessions', 'lockouts', 'activity', 'traffic', 'scan_quarantine', 'scan_ignore', 'nexus_sites' );
 	if ( ! in_array( $id, $ids ) ) {
 		return false;
 	}
@@ -3129,32 +3514,20 @@ function crb_admin_get_per_page() {
 /**
  * @param array $tabs_config array of tabs: title, desc, contents and optional JS callback
  * @param string $submit Text for the submit button
- * @param array $hidden Hidden form fiedls
+ * @param array $hidden Hidden form fields
+ * @param string $form_id
  *
  */
-function crb_admin_show_vtabs( $tabs_config, $submit = '', $hidden = array(), $form_id = '' ) {
+function crb_admin_show_vtabs( $tabs_config, $submit = '', $hidden = array(), $form_id = 'cerber_tabs' ) {
 
 	$tablinks  = '';
 	$tabs      = '';
-	$b_class   = 'active';
-	$t_style   = '';
-	$callbacks = array();
 
 	foreach ( $tabs_config as $tab_id => $tab ) {
 		$tab_id = str_replace( '-', '_', $tab_id );
-		$tablinks .= '<div class="tablinks ' . $b_class . '" data-tab-id="' . $tab_id . '">' . $tab['title'] . '<br/><span>' . crb_array_get( $tab, 'desc', '' ) . '</span></div>';
-		$tabs     .= '<div id="tab-' . $tab_id . '" class="vtabcontent" ' . $t_style . '>' . $tab['content'] . '</div>';
-		if ( $b_class ) {
-			$b_class = '';
-			$t_style = 'style= "display: none;"';
-		}
-		$callbacks[] = '' . $tab_id . ':"' . crb_array_get( $tab, 'callback', '' ) . '"';
+		$tablinks .= '<div class="tablinks" data-tab-id="' . $tab_id . '" data-callback="' . crb_array_get( $tab, 'callback', '' ) . '">' . $tab['title'] . '<br/><span>' . crb_array_get( $tab, 'desc', '' ) . '</span></div>';
+		$tabs     .= '<div id="tab-' . $tab_id . '" class="vtabcontent">' . $tab['content'] . '</div>';
 	}
-
-	$js_code = '/* VTabs JS code */';
-	$js_code .= 'var vtabs_callbacks = {' . implode( ',', $callbacks ) . '};' . "\n";
-	reset( $tabs_config );
-	$js_code .= 'var vtabs_first_id = "' . key( $tabs_config ) . '";' . "\n";
 
 	echo '<form id="' . $form_id . '" method="post" action="" class="crb-settings">';
 
@@ -3162,7 +3535,7 @@ function crb_admin_show_vtabs( $tabs_config, $submit = '', $hidden = array(), $f
 		$submit = __( 'Save Changes' );
 	}
 
-	echo '<table class="vtable" style="width: 100%; border-collapse: collapse;"><tr><td id="crb-vtabs"><div class="vtabs">' . $tablinks . '</div></td><td id="crb-vtabcontent">' . $tabs . '
+	echo '<table class="vtable" id="crb_vtabs_container" style="width: 100%; border-collapse: collapse;"><tr><td id="crb-vtabs"><div class="vtabs">' . $tablinks . '</div></td><td id="crb-vtabcontent">' . $tabs . '
     </td></tr><tr><td></td><td><div style="padding-left: 3em;">' . crb_admin_submit_button( $submit ) . '</div></td></tr></table>';
 
 	cerber_nonce_field( 'control', true );
@@ -3174,43 +3547,6 @@ function crb_admin_show_vtabs( $tabs_config, $submit = '', $hidden = array(), $f
 	}
 
 	echo '</form>';
-
-	?>
-
-    <script type="text/javascript">
-
-        jQuery(document).ready(function ($) {
-
-            /* VTabs */
-
-			<?php echo $js_code; ?>
-
-            // Initialize the first tab
-
-            crb_call_callback(vtabs_first_id);
-
-            $('.tablinks').click(function () {
-                var tab_id = $(this).data('tab-id');
-                $('.vtabcontent').hide();
-                $('#tab-' + tab_id).show();
-
-                $(".tablinks").removeClass("active");
-                $(this).addClass("active");
-
-                crb_call_callback(tab_id);
-            });
-
-            function crb_call_callback(id) {
-                var callback = vtabs_callbacks[id];
-                if (callback && (typeof window[callback] === "function")) {
-                    window[callback](id);
-                }
-            }
-        });
-
-    </script>
-
-	<?php
 
 }
 
@@ -3236,7 +3572,7 @@ function crb_admin_show_geo_rules(){
 				}
 				else {
 					$names[ $item_id ] = $item_title;
-                }
+				}
 			}
 			$content = '<p>' . cerber_select( 'sw_' . $rule_id, $names, null, 'crb-geo-switcher', null, null, null, array( 'rule-id' => $rule_id ) ) . '</p>' . $content;
 		}
@@ -3507,19 +3843,19 @@ function crb_admin_process_geo( $post, $rule_id ) {
  *
  * @param null $code
  * @param null $ip
+ * @param bool $cache_only
  *
  * @return string
  */
-function crb_country_html($code = null, $ip = null){
-	global $crb_ajax_loader;
+function crb_country_html( $code = null, $ip = null, $cache_only = true ) {
 
-	if (!lab_lab()){
-	    return '';
-    }
+	if ( ! lab_lab() ) {
+		return '';
+	}
 
 	if ( ! $code ) {
 		if ( $ip ) {
-			$code = lab_get_country( $ip );
+			$code = lab_get_country( $ip, $cache_only );
 		}
 		else {
 			return '';
@@ -3527,12 +3863,11 @@ function crb_country_html($code = null, $ip = null){
 	}
 
 	if ( $code ) {
-		//$country = cerber_get_flag_html( $code ) . '<a href="'.$base_url.'&filter_country='.$code.'">'.cerber_country_name( $code ).'</a>';
 		$ret = cerber_get_flag_html( $code, cerber_country_name( $code ) );
 	}
 	else {
-		$ip_id = cerber_get_id_ip($ip);
-		$ret = '<img data-ip-id="' . $ip_id . '" class="crb-no-country" src="' . $crb_ajax_loader . '" />' . "\n";
+		$ip_id = cerber_get_id_ip( $ip );
+		$ret = crb_get_ajax_placeholder( 'country', $ip_id );
 	}
 
 	return $ret;
@@ -3657,96 +3992,117 @@ function cerber_export_traffic( $params = array() ) {
 
 /*
  * Display traffic in the WP Dashboard
- * @since 6.0
  *
  */
 function cerber_show_traffic( $args = array(), $echo = true ) {
-	global $wpdb, $crb_ajax_loader, $wp_cerber_remote;
+	global $wpdb, $crb_ajax_loader;
 
-	$labels        = cerber_get_labels( 'activity' );
+	$labels = cerber_get_labels( 'activity' );
 	$status_labels = cerber_get_labels( 'status' ) + cerber_get_reason();
 
-	$base_url     = cerber_admin_link( 'traffic' );
+	$base_url = cerber_admin_link( 'traffic' );
 	//$activity_url = cerber_admin_link( 'activity' );
 
 	$export_button = '';
-	$ret           = '';
-	$total         = 0;
+	$ret = '';
+	$total = 0;
 
-	if ( ! $wp_cerber_remote ) {
-		list( $query, $found, $per_page, $filter_act, $filter_ip, $prc, $user_id ) = cerber_traffic_query( $args );
-		$rows = cerber_db_get_results( $query, MYSQL_FETCH_OBJECT_K );
-        $total = cerber_db_get_var( $found );
+	list( $query, $found, $per_page, $filter_act, $filter_ip, $prc, $user_id ) = cerber_traffic_query( $args );
 
-		if ( $rows ) {
+	// No cache
+	//$rows = cerber_db_get_results( $query, MYSQL_FETCH_OBJECT_K );
+	//$total = cerber_db_get_var( $found );
 
-			$events = array();
-			if ( $act_events = cerber_db_get_results( 'SELECT * FROM ' . CERBER_LOG_TABLE . ' WHERE session_id IN ("' . implode( '", "', array_keys( $rows ) ) . '" ) ORDER BY stamp DESC', MYSQL_FETCH_OBJECT ) ) {
-				foreach ( $act_events as $ac ) {
-					$events[ $ac->session_id ][] = $ac;
-				}
+	list( $rows, $total ) = crb_q_cache_get( array(
+		array( $query, MYSQL_FETCH_OBJECT_K ),
+		array( $found )
+	), CERBER_TRAF_TABLE );
+	if ( is_object( $rows ) ) { // Due to json
+		$rows = get_object_vars( $rows );
+	}
+	$total = $total[0][0];
+
+	if ( $rows ) {
+
+		// No cache
+		// $act_events = cerber_db_get_results( 'SELECT * FROM ' . CERBER_LOG_TABLE . ' WHERE session_id IN ("' . implode( '", "', array_keys( $rows ) ) . '" ) ORDER BY stamp DESC', MYSQL_FETCH_OBJECT );
+		// $act_events = cerber_db_get_results( 'SELECT * FROM ' . CERBER_LOG_TABLE . ' WHERE session_id IN ("' . implode( '", "', array_keys( $rows ) ) . '" )', MYSQL_FETCH_OBJECT );
+		$act_events = crb_q_cache_get( array(
+			array(
+				'SELECT * FROM ' . CERBER_LOG_TABLE . ' WHERE session_id IN ("' . implode( '", "', array_keys( $rows ) ) . '" ) ORDER BY stamp DESC',
+				MYSQL_FETCH_OBJECT
+			)
+		), CERBER_LOG_TABLE );
+
+		$events = array();
+		if ( $act_events ) {
+			foreach ( $act_events as $ac ) {
+				$events[ $ac->session_id ][] = $ac;
 			}
+		}
 
-			$roles = wp_roles()->roles;
-			$users = array();
-			$acl = array();
-			$block = array();
-			$wp_objects = array();
+		$roles = wp_roles()->roles;
+		$users = array();
+		$acl = array();
+		$block = array();
+		$wp_objects = array();
 
-			foreach ( $rows as $row ) {
-				if ( $row->user_id && ! isset( $users[ $row->user_id ] ) ) {
-					if ( $u = get_userdata( $row->user_id ) ) {
-						$n = $u->display_name;
-						$r = '';
-						if ( ! is_multisite() && $u->roles ) {
-							$r = array();
-							foreach ( $u->roles as $role ) {
-								$r[] = $roles[ $role ]['name'];
-							}
-							$r = '<span class="crb_act_role">' . implode( ', ', $r ) . '</span>';
+		foreach ( $rows as $row ) {
+
+			if ( $row->user_id && ! isset( $users[ $row->user_id ] ) ) {
+				if ( $u = get_userdata( $row->user_id ) ) {
+					$n = $u->display_name;
+					$r = '';
+					if ( ! is_multisite() && $u->roles ) {
+						$r = array();
+						foreach ( $u->roles as $role ) {
+							$r[] = $roles[ $role ]['name'];
 						}
-					}
-					else {
-						$n = __( 'Unknown', 'wp-cerber' ) . ' (' . $row->user_id . ')';
-						$r = '';
-					}
-
-					$users[ $row->user_id ]['name']  = $n;
-					$users[ $row->user_id ]['roles'] = $r;
-				}
-
-				if ( ! isset( $acl[ $row->ip ] ) ) {
-					$acl[ $row->ip ] = cerber_acl_check( $row->ip );
-				}
-
-				if ( ! isset( $block[ $row->ip ] ) ) {
-					$block[ $row->ip ] = cerber_block_check( $row->ip );
-				}
-
-				// TODO: make it compatible with multisite WP
-				if ( $row->wp_type == 601 && $row->wp_id > 0 ) {
-					$title = cerber_db_get_var( 'SELECT post_title FROM ' . $wpdb->posts . ' WHERE ID = ' . absint( $row->wp_id ) );
-					if ( $title ) {
-						$wp_objects[ $row->wp_id ] = apply_filters( 'the_title', $title, $row->wp_id );
+						$r = '<span class="crb_act_role">' . implode( ', ', $r ) . '</span>';
 					}
 				}
+				else {
+					$n = __( 'Unknown', 'wp-cerber' ) . ' (' . $row->user_id . ')';
+					$r = '';
+				}
 
+				$users[ $row->user_id ]['name'] = $n;
+				$users[ $row->user_id ]['roles'] = $r;
 			}
+
+			if ( ! isset( $acl[ $row->ip ] ) ) {
+				$acl[ $row->ip ] = cerber_acl_check( $row->ip );
+			}
+
+			if ( ! isset( $block[ $row->ip ] ) ) {
+				$block[ $row->ip ] = cerber_block_check( $row->ip );
+			}
+
+			// TODO: make it compatible with multisite WP
+			if ( $row->wp_type == 601 && $row->wp_id > 0 ) {
+				$title = cerber_db_get_var( 'SELECT post_title FROM ' . $wpdb->posts . ' WHERE ID = ' . absint( $row->wp_id ) );
+				if ( $title ) {
+					$wp_objects[ $row->wp_id ] = apply_filters( 'the_title', $title, $row->wp_id );
+				}
+			}
+
 		}
 	}
 
+
 	$info = '';
-	if ($filter_ip) {
-	    $info .= cerber_ip_extra_view( $filter_ip, 'traffic' );
+
+	if ( $filter_ip ) {
+		$info .= cerber_ip_extra_view( $filter_ip, 'traffic' );
 	}
-	if ($user_id){
-		list( $sname, $tmp ) = cerber_user_extra_view( $user_id, 'traffic' );
-		$info .= $tmp;
+
+	if ( $user_id ) {
+		$info .= cerber_user_extra_view( $user_id, 'traffic' );
 	}
 
 	if ( $rows ) {
 
-		$tbody   = '';
+		$tbody = '';
 		$country = '';
 		$geo = lab_lab();
 
@@ -3760,9 +4116,9 @@ function cerber_show_traffic( $args = array(), $echo = true ) {
 			$len = 0;
 		}
 
-		foreach ($rows as $row) {
+		foreach ( $rows as $row ) {
 
-		    // URI
+			// URI
 
 			$full_uri = urldecode( $row->uri );
 
@@ -3781,8 +4137,8 @@ function cerber_show_traffic( $args = array(), $echo = true ) {
 				$truncated = false;
 			}
 
-			$row_uri = htmlentities( $row_uri );
-			$row_uri  = str_replace( array( '-', '/', '%', '&', '=', '?', '(', ')', ),
+			$row_uri = htmlentities( $row_uri, ENT_SUBSTITUTE );
+			$row_uri = str_replace( array( '-', '/', '%', '&', '=', '?', '(', ')', ),
 				array( '<wbr>-', '<wbr>/', '<wbr>%', '<wbr>&', '<wbr>=', '<wbr>?', '<wbr>(', ')<wbr>' ), $row_uri );
 
 			if ( $truncated ) {
@@ -3809,7 +4165,7 @@ function cerber_show_traffic( $args = array(), $echo = true ) {
 					$hostname = $ip_info['hostname_html'];
 				}
 				else {
-					$hostname = '<img data-ip-id="' . $ip_id . '" class="crb-no-hostname" src="' . $crb_ajax_loader . '" />' . "\n";
+					$hostname = crb_get_ajax_placeholder( 'hostname', $ip_id );
 				}
 			}
 
@@ -3859,7 +4215,7 @@ function cerber_show_traffic( $args = array(), $echo = true ) {
 			$more_details = array();
 
 			if ( $truncated ) {
-				$full_uri = htmlentities( $full_uri );
+				$full_uri = htmlentities( $full_uri, ENT_SUBSTITUTE );
 				$full_uri = str_replace( array( '-', '/', '%', '&', '=', '?', '(', ')', ),
 					array( '<wbr>-', '<wbr>/', '<wbr>%', '<wbr>&', '<wbr>=', '<wbr>?', '<wbr>(', ')<wbr>' ), $full_uri );
 				$more_details[] = array(
@@ -3868,27 +4224,20 @@ function cerber_show_traffic( $args = array(), $echo = true ) {
 				);
 			}
 
-			$fields = array();
-			if ( ! empty( $row->request_fields ) ) {
-				$fields = @unserialize( $row->request_fields );
-			}
-
-			$details = array();
-			if ( ! empty( $row->request_details ) ) {
-				$details = @unserialize( $row->request_details );
-			}
+			$fields = crb_auto_decode( $row->request_fields );
+			$details = crb_auto_decode( $row->request_details );
 
 			if ( ! empty( $details[2] ) ) {
 				$more_details[] = array(
 					'Referrer',
-					'<span class="crb-monospace">' . htmlentities( urldecode( $details[2] ) ) . '</span>'
+					'<span class="crb-monospace">' . htmlentities( urldecode( $details[2] ), ENT_SUBSTITUTE ) . '</span>'
 				);
 			}
 
 			if ( ! empty( $details[1] ) ) {
 				$more_details[] = array(
 					'User Agent',
-					'<span class="crb-monospace">' . htmlentities( $details[1] ) . '</span>'
+					'<span class="crb-monospace">' . htmlentities( $details[1], ENT_SUBSTITUTE ) . '</span>'
 				);
 			}
 
@@ -3937,11 +4286,11 @@ function cerber_show_traffic( $args = array(), $echo = true ) {
 						$f_size = $file['size'];
 					}
 
-					$files[ $field_name ] = htmlentities( $f_name ) . ', size: ' . absint( $f_size ) . ' bytes';
+					$files[ $field_name ] = htmlentities( $f_name, ENT_SUBSTITUTE ) . ', size: ' . absint( $f_size ) . ' bytes';
 				}
 
 				if ( ! empty( $files ) ) {
-					$f              = '<span class="crb-ffile">F</span>';
+					$f = '<span class="crb-ffile">F</span>';
 					$more_details[] = array( '', cerber_table_view( 'Files submitted', $files ) );
 				}
 			}
@@ -3949,15 +4298,37 @@ function cerber_show_traffic( $args = array(), $echo = true ) {
 			// Additional details
 
 			if ( ! empty( $details[5] ) ) {
-				$more_details[] = array( 'XML-RPC Data', htmlentities( $details[5] ) );
+				$more_details[] = array( 'XML-RPC Data', htmlentities( $details[5], ENT_SUBSTITUTE ) );
 			}
 
 			if ( ! empty( $details[6] ) ) {
-				$more_details[] = array( '', cerber_table_view( 'Headers', $details[6] ) );
+				$more_details[] = array( '', cerber_table_view( 'Request Headers', $details[6] ) );
+			}
+
+			if ( ! empty( $details[10] ) ) {
+				$list = array();
+				foreach ( $details[10] as $item ) {
+					$e = explode( ':', $item, 2 );
+					/* $key = ( isset( $list[ $e[0] ] ) ) ? $e[0] . '&nbsp;' : $e[0];
+					$list[ $key ] = $e[1];*/
+					$list[] = array( $e[0] => $e[1] );
+				}
+				$more_details[] = array( '', cerber_table_view( 'Response Headers', $list ) );
 			}
 
 			if ( ! empty( $details[8] ) ) {
-				$more_details[] = array( '', cerber_table_view( 'Cookies', $details[8] ) );
+				$more_details[] = array( '', cerber_table_view( 'Request Cookies', $details[8] ) );
+			}
+
+			if ( ! empty( $details[9] ) ) {
+				$start = strlen( 'Set-Cookie:' );
+				$list = array();
+				foreach ( $details[9] as $item ) {
+					if ( $e = explode( '=', substr( $item, $start ), 2 ) ) {
+						$list[ $e[0] ] = $e[1];
+					}
+				}
+				$more_details[] = array( '', cerber_table_view( 'Response Cookies', $list ) );
 			}
 
 			if ( ! empty( $details[7] ) ) {
@@ -3965,21 +4336,18 @@ function cerber_show_traffic( $args = array(), $echo = true ) {
 			}
 
 			$php_errors = '';
-			if ( ! empty( $row->php_errors ) ) {
-				$err_list = @unserialize( $row->php_errors );
-				if ( $err_list ) {
-					$errors = array();
-					foreach ( $err_list as $err ) {
-						$errors[] = array(
-							'type' => cerber_get_err_type( $err[0] ) . ' (' . $err[0] . ')',
-							'info' => $err[1],
-							'file' => $err[2],
-							'line' => $err[3]
-						);
-					}
-					$more_details[] = array( '', cerber_table_view( 'Software errors', $errors ) );
-					$php_errors = '<span class="crb-php-error">SE &nbsp;' . count( $err_list ) . '</span>';
+			if ( $err_list = crb_auto_decode( $row->php_errors ) ) {
+				$errors = array();
+				foreach ( $err_list as $err ) {
+					$errors[] = array(
+						'type' => cerber_get_err_type( $err[0] ) . ' (' . $err[0] . ')',
+						'info' => $err[1],
+						'file' => $err[2],
+						'line' => $err[3]
+					);
 				}
+				$more_details[] = array( '', cerber_table_view( 'Software errors', $errors ) );
+				$php_errors = '<span class="crb-php-error">SE &nbsp;' . count( $err_list ) . '</span>';
 			}
 
 			$req_status = '';
@@ -3988,8 +4356,8 @@ function cerber_show_traffic( $args = array(), $echo = true ) {
 			}
 
 			$request_details = '';
-			$more_link       = '';
-			$toggle_class    = '';
+			$more_link = '';
+			$toggle_class = '';
 
 			if ( $more_details ) {
 				foreach ( $more_details as $d ) {
@@ -4000,7 +4368,7 @@ function cerber_show_traffic( $args = array(), $echo = true ) {
 						$request_details .= $d[1];
 					}
 				}
-				$more_link    = '<a href="#" onclick="return false;" class="crb-traffic-more">Details</a>';
+				$more_link = '<a href="#" onclick="return false;" class="crb-traffic-more">Details</a>';
 				$toggle_class = 'crb-toggle';
 			}
 
@@ -4009,14 +4377,14 @@ function cerber_show_traffic( $args = array(), $echo = true ) {
 			// Decorating this table can't be done via simple CSS
 			if ( ! empty( $even ) ) {
 				$class = 'crb-even';
-				$even  = false;
+				$even = false;
 			}
 			else {
-				$even  = true;
+				$even = true;
 				$class = 'crb-odd';
 			}
 
-			$tbody .= '<tr class="' . $class . ' '.$toggle_class.'">
+			$tbody .= '<tr class="' . $class . ' ' . $toggle_class . '">
                     <td>' . $date . '</td>
                     <td class="crb-request">' . $request . '</td>
                     <td>' . crb_admin_ip_cell( $row->ip, $base_url . '&amp;filter_ip=' . $row->ip ) . '</td>
@@ -4028,17 +4396,22 @@ function cerber_show_traffic( $args = array(), $echo = true ) {
 		}
 
 		$heading = array(
-			__( 'Date', 'wp-cerber' ),
-			__( 'Request', 'wp-cerber' ),
-			'<div class="crb_act_icon"></div>' . __( 'IP Address', 'wp-cerber' ),
-			__( 'Host Info', 'wp-cerber' ),
-			__( 'User Agent', 'wp-cerber' ),
-			__( 'Local User', 'wp-cerber' ),
+			'crb_date_col'     => __( 'Date', 'wp-cerber' ),
+			'crb_request_col'  => __( 'Request', 'wp-cerber' ),
+			'crb_ip_col'       => '<div class="crb_act_icon"></div>' . __( 'IP Address', 'wp-cerber' ),
+			'crb_hostinfo_col' => __( 'Host Info', 'wp-cerber' ),
+			'crb_ua_col'       => __( 'User Agent', 'wp-cerber' ),
+			'crb_user_col'     => __( 'Local User', 'wp-cerber' ),
 		);
 
-		$titles = '<tr><th>' . implode( '</th><th>', $heading ) . '</th></tr>';
+		$titles_head = '';
+		foreach ( $heading as $id => $title ) {
+			$titles_head .= '<th id="' . $id . '">' . $title . '</th>';
+		}
 
-		$table = '<table id="crb-traffic" class="widefat crb-table cerber-margin"><thead>' . $titles . '</thead><tfoot>' . $titles . '</tfoot><tbody>' . $tbody . '</tbody></table>';
+		$titles_foot = '<th>' . implode( '</th><th>', $heading ) . '</th>';
+
+		$table = '<table id="crb-traffic" class="widefat crb-table cerber-margin"><thead><tr>' . $titles_head . '</tr></thead><tfoot><tr>' . $titles_foot . '</tr></tfoot><tbody>' . $tbody . '</tbody></table>';
 
 		if ( empty( $args['no_navi'] ) ) {
 			$table .= cerber_page_navi( $total, $per_page );
@@ -4049,63 +4422,49 @@ function cerber_show_traffic( $args = array(), $echo = true ) {
 		//if (empty($args['no_export'])) $export_link = '<a class="button button-secondary cerber-button" href="'.wp_nonce_url(add_query_arg('export_activity',1),'control','cerber_nonce').'"><span class="dashicons dashicons-download" style="vertical-align: middle;"></span> '.__('Export','wp-cerber').'</a>';
 	}
 	else {
-		$table = '<p class="cerber-margin">'.__('No requests have been logged.','wp-cerber').'</p>';
+		$table = '<p class="cerber-margin">' . __( 'No requests have been logged.', 'wp-cerber' ) . '</p>';
 		cerber_watchdog( true );
 	}
 
 	if ( empty( $args['no_navi'] ) ) {
 
-		$filters = array();
-
-		$filters[] = array( '', __( 'All requests', 'wp-cerber' ) );
-
-		$filters[] = array( '&amp;filter_set=1', __( 'Suspicious activity', 'wp-cerber' ) );
-		$filters[] = array( '&amp;filter_http_code=399&filter_http_code_mode=GT', __( 'Errors', 'wp-cerber' ) );
-		$filters[] = array( '&amp;filter_user=*', __( 'Logged in users', 'wp-cerber' ) );
-		$filters[] = array( '&amp;filter_user=0', __( 'Not logged in visitors', 'wp-cerber' ) );
-		$filters[] = array(
-			'&amp;filter_method=POST&amp;filter_wp_type=519&amp;filter_wp_type_mode=GT',
-			__( 'Form submissions', 'wp-cerber' )
-		);
-		$filters[] = array( '&amp;filter_http_code=404', __( 'Page Not Found', 'wp-cerber' ) );
-		$filters[] = array( '&amp;filter_wp_type=520', 'REST API' );
-		$filters[] = array( '&amp;filter_wp_type=515', 'XML-RPC' );
-
-		$filters[] = array( '&amp;filter_user=' . get_current_user_id(), __( 'My requests', 'wp-cerber' ) );
-		$filters[] = array( '&amp;filter_ip=' . cerber_get_remote_ip(), __( 'My IP', 'wp-cerber' ) );
-
-		//$filters .= ' | <a href="'.$base_url.'&filter_wp_type >= 600&filter_method=POST">Form submissions</a>';
+		$nav_links = array();
+		$nav_links[] = array( array(), __( 'View all', 'wp-cerber' ) );
+		$nav_links[] = array( array( 'filter_set' => 1 ), __( 'Suspicious requests', 'wp-cerber' ) );
+		$nav_links[] = array( array( 'filter_http_code' => 399, 'filter_http_code_mode' => 'GT' ), __( 'Errors', 'wp-cerber' ) );
+		$nav_links[] = array( array( 'filter_user' => '*' ), __( 'Users', 'wp-cerber' ) );
+		$nav_links[] = array( array( 'filter_user' => 0 ), __( 'Non-authenticated', 'wp-cerber' ) );
+		$nav_links[] = array( array( 'filter_method' => 'POST', 'filter_wp_type' => 519, 'filter_wp_type_mode' => 'GT' ), __( 'Form submissions', 'wp-cerber' ) );
+		$nav_links[] = array( array( 'filter_http_code' => 404 ), __( 'Page Not Found', 'wp-cerber' ) );
+		$nav_links[] = array( array( 'filter_wp_type' => 520 ), 'REST API' );
+		$nav_links[] = array( array( 'filter_wp_type' => 515 ), 'XML-RPC' );
+		$nav_links[] = array( array( 'filter_user' => get_current_user_id() ), __( 'My requests', 'wp-cerber' ) );
+		$nav_links[] = array( array( 'filter_ip' => cerber_get_remote_ip() ), __( 'My IP', 'wp-cerber' ) );
 
 		if ( $threshold = crb_get_settings( 'tithreshold' ) ) {
-			$filters[] = array(
-				'&amp;filter_processing=' . $threshold,
-				__( 'Longer than', 'wp-cerber' ) . ' ' . $threshold . ' ms'
-			);
+			$nav_links[] = array( array( 'filter_processing' => $threshold ), __( 'Longer than', 'wp-cerber' ) . ' ' . $threshold . ' ms' );
 		}
 
-		$filter_links = '';
-		foreach ( $filters as $filter ) {
-			$filter_links .= '<a class="crb-button-tiny" href="' . $base_url . $filter[0] . '">' . $filter[1] . '</a>';
-		}
+		$filter_links = crb_make_nav_links( $nav_links, 'traffic' );
 
 		//$search_button = cerber_traffic_search_form();
-		$search_button = '<a href="#" id="traffic-search-btn" class="button button-secondary cerber-button" title="Search in the request history"><i class="crb-icon crb-icon-bx-search"></i> '.__('Advanced Search','wp-cerber').'</a>';
+		$search_button = '<a href="#" id="traffic-search-btn" class="button button-secondary cerber-button" title="Search in the request history"><i class="crb-icon crb-icon-bx-search"></i> ' . __( 'Advanced Search', 'wp-cerber' ) . '</a>';
 
 		$export_button .= '<a class="button button-secondary cerber-button" href="' .
-		                cerber_admin_link_add( array(
-			                'cerber_admin_do' => 'export',
-			                'type'            => 'traffic',
-		                ), true )
-                        . '"><i class="crb-icon crb-icon-bx-download"></i> ' . __( 'Export', 'wp-cerber' ) . '</a>';
+		                  cerber_admin_link_add( array(
+			                  'cerber_admin_do' => 'export',
+			                  'type'            => 'traffic',
+		                  ), true )
+		                  . '"><i class="crb-icon crb-icon-bx-download"></i> ' . __( 'Export', 'wp-cerber' ) . '</a>';
 
-		$right_links = $search_button .' '. $export_button;
+		$right_links = $search_button . ' ' . $export_button;
 
 		$refresh = '';
 		if ( crb_get_settings( 'timode' ) ) {
 			$refresh = '<a href="" style="white-space: pre;"><i class="dashicons dashicons-update" style=""></i> <span>' . __( 'Refresh', 'wp-cerber' ) . '</span></a>';
 		}
 
-		$top_bar = '<div id = "activity-filter"><div><div style="display: table-cell; width: 90%;">' . $filter_links .'</div><div style="display: table-cell;">'. $refresh . '</div></div><div>' . $right_links . '</div></div><br style="clear: both;">';
+		$top_bar = '<div id = "activity-filter"><div><div style="display: table-cell; width: 80%;">' . $filter_links . '</div><div style="display: table-cell;">' . $refresh . '</div></div><div>' . $right_links . '</div></div><br style="clear: both;">';
 
 		$ret = '<div class="cerber-margin">' . $top_bar . crb_admin_traffic_search_form() . $info . '</div>' . $ret;
 	}
@@ -4152,7 +4511,7 @@ function cerber_detect_browser( $ua ) {
 				if ( strpos( $ua, 'Android' ) ) {
 					$item .= ' Mobile';
 				}
-				return htmlentities( $item );
+				return htmlentities( $item, ENT_SUBSTITUTE );
 			}
 		}
 		if ( strpos( $ua, 'Google-Read-Aloud' ) ) {
@@ -4194,7 +4553,7 @@ function cerber_detect_browser( $ua ) {
 		}
 
 		if ( $ret ) {
-			return htmlentities( $ret );
+			return htmlentities( $ret, ENT_SUBSTITUTE );
 		}
 		else {
 			return __( 'Unknown Google\'s bot', 'wp-cerber' );
@@ -4207,13 +4566,13 @@ function cerber_detect_browser( $ua ) {
 	}*/
     elseif ( 0 === strpos( $ua, 'WordPress/' ) ) {
 		list( $ret ) = explode( ';', $ua, 2 );
-		return htmlentities( $ret );
+		return htmlentities( $ret, ENT_SUBSTITUTE );
 	}
     elseif ( 0 === strpos( $ua, 'PayPal IPN' ) ) {
 		return 'PayPal Payment Notification';
 	}
     elseif (0 === strpos( $ua, 'Wget/' )){
-		return htmlentities( $ua );
+		return htmlentities( $ua, ENT_SUBSTITUTE );
 	}
     elseif ( strpos( $ua, 'googleweblight' )){
 		return 'Web Light by Google';
@@ -4277,7 +4636,7 @@ function cerber_detect_browser( $ua ) {
 		$ret = __( 'Unknown', 'wp-cerber' );
 	}
 
-	return htmlentities( $ret );
+	return htmlentities( $ret, ENT_SUBSTITUTE );
 }
 
 /**
@@ -4309,10 +4668,10 @@ function cerber_table_view( $title, $fields, $sub_key = null ) {
 	$i = 1;
 	foreach ( $fields as $key => $value ) {
 		if ( is_array( $value ) ) {
-			$view .= '<tr><td>' . $key . '</td><td>' . cerber_table_view( '', $value, $key ) . '</td></tr>';
+			$view .= '<tr><td>' . htmlentities( $key, ENT_SUBSTITUTE ) . '</td><td>' . cerber_table_view( '', $value, $key ) . '</td></tr>';
 		}
 		else {
-			$view .= '<tr><td>' . htmlentities( $key ) . '</td><td><div>' . nl2br( htmlentities( $value ) ) . '</div></td></tr>';
+			$view .= '<tr><td>' . htmlentities( $key, ENT_SUBSTITUTE ) . '</td><td><div>' . nl2br( htmlentities( $value, ENT_SUBSTITUTE ) ) . '</div></td></tr>';
 		}
 		$i ++;
 	}
@@ -4381,10 +4740,10 @@ function cerber_traffic_query( $args = array() ) {
 	if ( $q->filter_ip ) {
 		$range = cerber_any2range( $q->filter_ip );
 		if ( is_array( $range ) ) {
-			$where[] = $wpdb->prepare( '(log.ip_long >= %d AND log.ip_long <= %d)', $range['begin'], $range['end'] );
+			$where[] = '(log.ip_long >= ' . $range['begin'] . ' AND log.ip_long <= ' . $range['end'] . ')';
 		}
-		elseif ( cerber_is_ip_or_net( $q->filter_ip ) ) {
-			$where[] = $wpdb->prepare( 'log.ip = %s', $q->filter_ip );
+        elseif ( cerber_is_ip_or_net( $q->filter_ip ) ) {
+			$where[] = 'log.ip = "' . $q->filter_ip . '"';
 		}
 		else {
 			$where[] = "log.ip = 'produce-no-result'";
@@ -4414,15 +4773,17 @@ function cerber_traffic_query( $args = array() ) {
 			$ret[6]  = '*';
 		}
         elseif ( preg_match_all( '/\d+/', $filter_user, $matches ) ) {
-			$ul = implode( ',', $matches[0] );
+			$users = implode( ',', $matches[0] );
+
 			if ( ! empty( $q->filter_user_mode ) ) {
 				$um = 'NOT IN';
 			}
 			else {
 				$um     = 'IN';
-				$ret[6] = $ul;
+				$ret[6] = $users;
 			}
-			$where[] = 'log.user_id ' . $um . ' (' . $ul . ')';
+
+			$where[] = 'log.user_id ' . $um . ' (' . $users . ')';
 		}
 	}
 
@@ -4442,6 +4803,7 @@ function cerber_traffic_query( $args = array() ) {
 		if ( $search['ip'] ) {
 			if ( $ip = filter_var( $search['ip'], FILTER_VALIDATE_IP ) ) {
 				$where[] = 'log.ip = "' . $ip . '"';
+				$ret[4] = $ip;
 			}
 			else {
 				$where[] = 'log.ip LIKE "%' . cerber_real_escape( $search['ip'] ) . '%"';
@@ -4482,11 +4844,7 @@ function cerber_traffic_query( $args = array() ) {
 		$activity = absint( $q->filter_activity );
 	}
 	if ( $q->filter_set ) {
-		switch ( $q->filter_set ) {
-			case 1:
-				$activity = crb_get_activity_set( 'suspicious', true );
-				break;
-		}
+		$activity = implode( ',', crb_get_filter_set( $q->filter_set ) );
 	}
 	if ( $activity ) {
 		$ret[3]   = $activity;
@@ -4684,7 +5042,7 @@ function cerber_check_ajax_permissions( $strict = true ) {
 
 	check_ajax_referer( 'crb-ajax-admin', 'ajax_nonce' );
 
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! cerber_user_can_manage() ) {
 		if ( $strict ) {
 			wp_die( 'Oops! Access denied.' );
 		}
@@ -4871,7 +5229,7 @@ function cerber_get_admin_page_config( $page = '' ) {
 		'cerber-users'     => array(
 			'title'    => __( 'User Policies', 'wp-cerber' ),
 			'tabs'     => array(
-				'role_policies'   => array( 'bx-group', __( 'Role-based', 'wp-cerber' ) ),
+				'role_policies'   => array( 'bx-group', __( 'Role-Based', 'wp-cerber' ) ),
 				'global_policies' => array( 'bx-user-detail', __( 'Global', 'wp-cerber' ) ),
 			),
 			'callback' => function ( $tab ) {
@@ -5254,7 +5612,7 @@ function cerber_get_bulk_action() {
 function crb_admin_cool_features() {
 	return
 		'<div class="crb-pro-req">' .
-		__( 'These features are available in a professional version of the plugin.', 'wp-cerber' ) .
+		__( 'These features are available in the professional version of WP Cerber.', 'wp-cerber' ) .
 		'<br/><br/>' . __( 'Know more about all advantages at', 'wp-cerber' ) .
 		' <a href="https://wpcerber.com/pro/" target="_blank">https://wpcerber.com/pro/</a>
         </div>';

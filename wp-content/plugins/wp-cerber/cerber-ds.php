@@ -1,7 +1,7 @@
 <?php
 /*
-	Copyright (C) 2015-20 CERBER TECH INC., https://cerber.tech
-	Copyright (C) 2015-20 CERBER TECH INC., https://wpcerber.com
+	Copyright (C) 2015-21 CERBER TECH INC., https://cerber.tech
+	Copyright (C) 2015-21 Markov Cregory, https://wpcerber.com
 
     Licenced under the GNU GPL.
 
@@ -59,7 +59,7 @@ final class CRB_DS {
 					$data[5] = CRB_USHD_KEY; // If users' tables are shared among mutiple websites, define it in the wp-config.php on all websites before (!) activation shadowing
 				}
 				else {
-					$data[5] = substr( str_shuffle( 'abcdefghijklmnopqrstuvwxyz' ), 0, rand( 14, 16 ) );
+					$data[5] = crb_random_string( 14, 16, false, false );
 				}
 
 				$conf[ $type ] = $data;
@@ -75,8 +75,8 @@ final class CRB_DS {
 			case 3: // Settings
 
 				$data[1] = time(); // Should be set after all shadows has created
-				$data[5] = substr( str_shuffle( 'abcdefghijklmnopqrstuvwxyz' ), 0, rand( 10, 12 ) );
-				$data[6] = substr( str_shuffle( '0123456789abcdefghijklmnopqrstuvwxyz' ), 0, rand( 8, 14 ) );
+				$data[5] = crb_random_string( 10, 12, false, false );
+				$data[6] = crb_random_string( 8, 14, true, false );
 
 				$conf[ $type ] = $data;
 				self::save_config( $conf );
@@ -218,7 +218,8 @@ final class CRB_DS {
 			return array();
 		}
 
-		$ret = @unserialize( self::decode( $um ) );
+		$val = self::decode( $um );
+		$ret = crb_unserialize( $val );
 
 		if ( ! $ret || ! is_array( $ret ) ) {
 			$ret = array();

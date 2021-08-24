@@ -1,7 +1,7 @@
 <?php
 /*
-	Copyright (C) 2015-20 CERBER TECH INC., https://cerber.tech
-	Copyright (C) 2015-20 CERBER TECH INC., https://wpcerber.com
+	Copyright (C) 2015-21 CERBER TECH INC., https://cerber.tech
+	Copyright (C) 2015-21 Markov Cregory, https://wpcerber.com
 
     Licenced under the GNU GPL.
 
@@ -136,7 +136,7 @@ class CRB_Slave_Table extends WP_List_Table {
 					$filter .= cerber_select( 'filter_group_id', $groups, crb_array_get( $_GET, 'filter_group_id', '-1', '\d+' ) );
 				}
 
-				$servers = cerber_get_set( 'nexus_servers' );
+				$servers = (array) cerber_get_set( 'nexus_servers' );
 				if ( count( $servers ) > 1 ) {
 					$list = array();
 					foreach ( $servers as $id => $server ) {
@@ -147,7 +147,7 @@ class CRB_Slave_Table extends WP_List_Table {
 				}
 
 				//$countries = wp_cache_get( 'cerber_nexus', 'countries' );
-				$countries = cerber_get_set( 'nexus_countries' );
+				$countries = (array) cerber_get_set( 'nexus_countries' );
 				if ( count( $countries ) > 1 ) {
 					$list = array( '*' => __( 'All countries', 'wp-cerber' ) ) + $countries;
 					$filter .= cerber_select( 'filter_country', $list, crb_array_get( $_GET, 'filter_country', '*', '\w+' ) );
@@ -244,7 +244,7 @@ class CRB_Slave_Table extends WP_List_Table {
 		}
 
 		if ( ! empty( $term ) ) {
-			echo '<div style="margin-top:15px;"><b>' . __( 'Search results for:', 'wp-cerber' ) . '</b> “' . htmlspecialchars( $term ) . '”</div>';
+			echo '<div style="margin-top:15px;"><b>' . __( 'Search results for:', 'wp-cerber' ) . '</b> “' . htmlspecialchars( $term, ENT_SUBSTITUTE ) . '”</div>';
 		}
 
 		// Pagination, part 2
@@ -264,7 +264,7 @@ class CRB_Slave_Table extends WP_List_Table {
 	function single_row( $item ) {
 		echo '<tr class="crb-slave-site" data-slave-id="' . $item['id'] . '" data-slave-name="' . $item['site_name'] . '">';
 		if ( ! empty( $item['details'] ) ) {
-			$item['details'] = unserialize( $item['details'] );
+			$item['details'] = crb_unserialize( $item['details'] );
 		}
 		$this->single_row_columns( $item );
 		echo '</tr>';
@@ -404,7 +404,7 @@ class CRB_Slave_Table extends WP_List_Table {
 				break;
 		}
 
-		return htmlspecialchars( $val );
+		return htmlspecialchars( $val, ENT_SUBSTITUTE );
 	}
 
 	function no_items() {
