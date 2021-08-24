@@ -39,7 +39,7 @@ function relevanssi_polylang_filter( $query ) {
 		}
 
 		foreach ( $query->tax_query->queries as $tax_query ) {
-			if ( 'language' !== $tax_query['taxonomy'] ) {
+			if ( isset( $tax_query['taxonomy'] ) && 'language' !== $tax_query['taxonomy'] ) {
 				// Not a language tax query.
 				$ok_queries[] = $tax_query;
 			}
@@ -170,4 +170,36 @@ function relevanssi_polylang_term_filter( $hits ) {
 		$hits[0] = $accepted_hits;
 	}
 	return $hits;
+}
+
+/**
+ * Returns the term_taxonomy_id matching the Polylang language based on locale.
+ *
+ * @param string $locale The locale string for the language.
+ *
+ * @return int The term_taxonomy_id for the language; 0 if nothing is found.
+ */
+function relevanssi_get_language_term_taxonomy_id( $locale ) {
+	global $wpdb, $relevanssi_language_term_ids;
+
+	if ( isset( $relevanssi_language_term_ids[ $locale ] ) ) {
+		return $relevanssi_language_term_ids[ $locale ];
+	}
+
+	$languages = $wpdb->get_results(
+		"SELECT term_taxonomy_id, description FROM $wpdb->term_taxonomy " .
+		"WHERE taxonomy = 'language'"
+	);
+	$term_id   = 0;
+	foreach ( $languages as $row ) {
+		$description = unserialize( $row->description ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions
+		if ( $description['locale'] === $locale ) {
+			$term_id = $row->term_taxonomy_id;
+			break;
+		}
+	}
+
+	$relevanssi_language_term_ids[ $locale ] = $term_id;
+
+	return $term_id;
 }

@@ -1,22 +1,21 @@
 <?php
 /**
- * /lib/compatibility/yoast-seo.php
+ * /lib/compatibility/rankmath.php
  *
- * Yoast SEO noindex filtering function.
+ * Rank Math noindex filtering function.
  *
  * @package Relevanssi
- * @author  Mikko Saari
  * @license https://wordpress.org/about/gpl/ GNU General Public License
  * @see     https://www.relevanssi.com/
  */
 
-add_filter( 'relevanssi_do_not_index', 'relevanssi_yoast_noindex', 10, 2 );
-add_filter( 'relevanssi_indexing_restriction', 'relevanssi_yoast_exclude' );
-add_action( 'relevanssi_indexing_tab_advanced', 'relevanssi_yoast_form', 20 );
-add_action( 'relevanssi_indexing_options', 'relevanssi_yoast_options' );
+add_filter( 'relevanssi_do_not_index', 'relevanssi_rankmath_noindex', 10, 2 );
+add_filter( 'relevanssi_indexing_restriction', 'relevanssi_rankmath_exclude' );
+add_action( 'relevanssi_indexing_tab_advanced', 'relevanssi_rankmath_form', 20 );
+add_action( 'relevanssi_indexing_options', 'relevanssi_rankmath_options' );
 
 /**
- * Blocks indexing of posts marked "noindex" in the Yoast SEO settings.
+ * Blocks indexing of posts marked "noindex" in the Rank Math settings.
  *
  * Attaches to the 'relevanssi_do_not_index' filter hook.
  *
@@ -24,16 +23,15 @@ add_action( 'relevanssi_indexing_options', 'relevanssi_yoast_options' );
  * @param integer $post_id      The post ID number.
  *
  * @return string|boolean If the post shouldn't be indexed, this returns
- * 'yoast_seo'. The value may also be a boolean.
+ * 'RankMath'. The value may also be a boolean.
  */
-function relevanssi_yoast_noindex( $do_not_index, $post_id ) {
+function relevanssi_rankmath_noindex( $do_not_index, $post_id ) {
 	if ( 'on' !== get_option( 'relevanssi_seo_noindex' ) ) {
 		return $do_not_index;
 	}
-
-	$noindex = get_post_meta( $post_id, '_yoast_wpseo_meta-robots-noindex', true );
-	if ( '1' === $noindex ) {
-		$do_not_index = 'Yoast SEO';
+	$noindex = get_post_meta( $post_id, 'rank_math_robots', true );
+	if ( is_array( $noindex ) && in_array( 'noindex', $noindex, true ) ) {
+		$do_not_index = 'RankMath';
 	}
 	return $do_not_index;
 }
@@ -41,13 +39,13 @@ function relevanssi_yoast_noindex( $do_not_index, $post_id ) {
 /**
  * Excludes the "noindex" posts from Relevanssi indexing.
  *
- * Adds a MySQL query restriction that blocks posts that have the Yoast SEO
- * "noindex" setting set to "1" from indexing.
+ * Adds a MySQL query restriction that blocks posts that have the Rank Math
+ * "rank_math_robots" setting set to something that includes "noindex".
  *
  * @param array $restriction An array with two values: 'mysql' for the MySQL
  * query restriction to modify, 'reason' for the reason of restriction.
  */
-function relevanssi_yoast_exclude( $restriction ) {
+function relevanssi_rankmath_exclude( $restriction ) {
 	if ( 'on' !== get_option( 'relevanssi_seo_noindex' ) ) {
 		return $restriction;
 	}
@@ -63,30 +61,30 @@ function relevanssi_yoast_exclude( $restriction ) {
 	}
 
 	$restriction['mysql']  .= " AND post.ID NOT IN (SELECT post_id FROM
-		$wpdb->postmeta WHERE meta_key = '_yoast_wpseo_meta-robots-noindex'
-		AND meta_value = '1' ) ";
-	$restriction['reason'] .= ' Yoast SEO';
+		$wpdb->postmeta WHERE meta_key = 'rank_math_robots'
+		AND meta_value LIKE '%noindex%' ) ";
+	$restriction['reason'] .= ' Rank Math';
 	return $restriction;
 }
 
 /**
  * Prints out the form fields for disabling the feature.
  */
-function relevanssi_yoast_form() {
+function relevanssi_rankmath_form() {
 	$seo_noindex = get_option( 'relevanssi_seo_noindex' );
 	$seo_noindex = relevanssi_check( $seo_noindex );
 
 	?>
 	<tr>
 		<th scope="row">
-			<label for='relevanssi_seo_noindex'><?php esc_html_e( 'Use Yoast SEO noindex', 'relevanssi' ); ?></label>
+			<label for='relevanssi_seo_noindex'><?php esc_html_e( 'Use Rank Math SEO noindex', 'relevanssi' ); ?></label>
 		</th>
 		<td>
 			<label for='relevanssi_seo_noindex'>
 				<input type='checkbox' name='relevanssi_seo_noindex' id='relevanssi_seo_noindex' <?php echo esc_attr( $seo_noindex ); ?> />
-				<?php esc_html_e( 'Use Yoast SEO noindex.', 'relevanssi' ); ?>
+				<?php esc_html_e( 'Use Rank Math SEO noindex.', 'relevanssi' ); ?>
 			</label>
-			<p class="description"><?php esc_html_e( 'If checked, Relevanssi will not index posts marked as "No index" in Yoast SEO settings.', 'relevanssi' ); ?></p>
+			<p class="description"><?php esc_html_e( 'If checked, Relevanssi will not index posts marked as "No index" in Rank Math SEO settings.', 'relevanssi' ); ?></p>
 		</td>
 	</tr>
 	<?php
@@ -97,6 +95,6 @@ function relevanssi_yoast_form() {
  *
  * @param array $request An array of option values from the request.
  */
-function relevanssi_yoast_options( array $request ) {
+function relevanssi_rankmath_options( array $request ) {
 	relevanssi_update_off_or_on( $request, 'relevanssi_seo_noindex', true );
 }

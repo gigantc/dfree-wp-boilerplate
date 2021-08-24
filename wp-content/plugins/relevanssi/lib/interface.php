@@ -100,384 +100,6 @@ function relevanssi_options() {
 }
 
 /**
- * Updates Relevanssi options.
- *
- * Checks the option values and updates the options. It's safe to use $_REQUEST here,
- * check_admin_referer() is done immediately before this function is called.
- */
-function update_relevanssi_options() {
-	// phpcs:disable WordPress.Security.NonceVerification
-	if ( isset( $_REQUEST['relevanssi_content_boost'] ) ) {
-		$boost = floatval( $_REQUEST['relevanssi_content_boost'] );
-		update_option( 'relevanssi_content_boost', $boost );
-	}
-
-	if ( isset( $_REQUEST['relevanssi_title_boost'] ) ) {
-		$boost = floatval( $_REQUEST['relevanssi_title_boost'] );
-		update_option( 'relevanssi_title_boost', $boost );
-	}
-
-	if ( isset( $_REQUEST['relevanssi_comment_boost'] ) ) {
-		$boost = floatval( $_REQUEST['relevanssi_comment_boost'] );
-		update_option( 'relevanssi_comment_boost', $boost );
-	}
-
-	if ( isset( $_REQUEST['relevanssi_min_word_length'] ) ) {
-		$value = intval( $_REQUEST['relevanssi_min_word_length'] );
-		if ( 0 === $value ) {
-			$value = 3;
-		}
-		update_option( 'relevanssi_min_word_length', $value );
-	}
-
-	if ( 'indexing' === $_REQUEST['tab'] ) {
-		if ( ! isset( $_REQUEST['relevanssi_index_author'] ) ) {
-			$_REQUEST['relevanssi_index_author'] = 'off';
-		}
-
-		if ( ! isset( $_REQUEST['relevanssi_index_excerpt'] ) ) {
-			$_REQUEST['relevanssi_index_excerpt'] = 'off';
-		}
-
-		if ( ! isset( $_REQUEST['relevanssi_expand_shortcodes'] ) ) {
-			$_REQUEST['relevanssi_expand_shortcodes'] = 'off';
-		}
-
-		if ( ! isset( $_REQUEST['relevanssi_index_image_files'] ) ) {
-			$_REQUEST['relevanssi_index_image_files'] = 'off';
-		}
-	}
-
-	if ( 'searching' === $_REQUEST['tab'] ) {
-		if ( ! isset( $_REQUEST['relevanssi_admin_search'] ) ) {
-			$_REQUEST['relevanssi_admin_search'] = 'off';
-		}
-
-		if ( ! isset( $_REQUEST['relevanssi_throttle'] ) ) {
-			$_REQUEST['relevanssi_throttle'] = 'off';
-		}
-
-		if ( ! isset( $_REQUEST['relevanssi_disable_or_fallback'] ) ) {
-			$_REQUEST['relevanssi_disable_or_fallback'] = 'off';
-		}
-
-		if ( ! isset( $_REQUEST['relevanssi_respect_exclude'] ) ) {
-			$_REQUEST['relevanssi_respect_exclude'] = 'off';
-		}
-
-		if ( ! isset( $_REQUEST['relevanssi_wpml_only_current'] ) ) {
-			$_REQUEST['relevanssi_wpml_only_current'] = 'off';
-		}
-
-		if ( ! isset( $_REQUEST['relevanssi_polylang_all_languages'] ) ) {
-			$_REQUEST['relevanssi_polylang_all_languages'] = 'off';
-		}
-
-		if ( ! isset( $_REQUEST['relevanssi_exact_match_bonus'] ) ) {
-			$_REQUEST['relevanssi_exact_match_bonus'] = 'off';
-		}
-	}
-
-	if ( 'logging' === $_REQUEST['tab'] ) {
-		if ( ! isset( $_REQUEST['relevanssi_log_queries'] ) ) {
-			$_REQUEST['relevanssi_log_queries'] = 'off';
-		}
-
-		if ( ! isset( $_REQUEST['relevanssi_log_queries_with_ip'] ) ) {
-			$_REQUEST['relevanssi_log_queries_with_ip'] = 'off';
-		}
-	}
-
-	if ( 'excerpts' === $_REQUEST['tab'] ) {
-		if ( ! isset( $_REQUEST['relevanssi_excerpts'] ) ) {
-			$_REQUEST['relevanssi_excerpts'] = 'off';
-		}
-
-		if ( ! isset( $_REQUEST['relevanssi_show_matches'] ) ) {
-			$_REQUEST['relevanssi_show_matches'] = 'off';
-		}
-
-		if ( ! isset( $_REQUEST['relevanssi_hilite_title'] ) ) {
-			$_REQUEST['relevanssi_hilite_title'] = 'off';
-		}
-
-		if ( ! isset( $_REQUEST['relevanssi_highlight_docs'] ) ) {
-			$_REQUEST['relevanssi_highlight_docs'] = 'off';
-		}
-
-		if ( ! isset( $_REQUEST['relevanssi_highlight_comments'] ) ) {
-			$_REQUEST['relevanssi_highlight_comments'] = 'off';
-		}
-
-		if ( ! isset( $_REQUEST['relevanssi_excerpt_custom_fields'] ) ) {
-			$_REQUEST['relevanssi_excerpt_custom_fields'] = 'off';
-		}
-
-		if ( ! isset( $_REQUEST['relevanssi_word_boundaries'] ) ) {
-			$_REQUEST['relevanssi_word_boundaries'] = 'off';
-		}
-	}
-
-	if ( isset( $_REQUEST['relevanssi_excerpt_length'] ) ) {
-		$value = intval( $_REQUEST['relevanssi_excerpt_length'] );
-		if ( 0 !== $value ) {
-			update_option( 'relevanssi_excerpt_length', $value );
-		}
-	}
-
-	if ( isset( $_REQUEST['relevanssi_synonyms'] ) ) {
-		$linefeeds = array( "\r\n", "\n", "\r" );
-		$value     = str_replace( $linefeeds, ';', $_REQUEST['relevanssi_synonyms'] );
-		$value     = stripslashes( $value );
-		update_option( 'relevanssi_synonyms', $value );
-	}
-
-	if ( isset( $_REQUEST['relevanssi_show_matches'] ) ) {
-		update_option( 'relevanssi_show_matches', $_REQUEST['relevanssi_show_matches'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_show_matches_text'] ) ) {
-		$value = $_REQUEST['relevanssi_show_matches_text'];
-		$value = str_replace( '"', "'", $value );
-		update_option( 'relevanssi_show_matches_text', $value );
-	}
-
-	$relevanssi_punct = array();
-	if ( isset( $_REQUEST['relevanssi_punct_quotes'] ) ) {
-		$relevanssi_punct['quotes'] = $_REQUEST['relevanssi_punct_quotes'];
-	}
-	if ( isset( $_REQUEST['relevanssi_punct_hyphens'] ) ) {
-		$relevanssi_punct['hyphens'] = $_REQUEST['relevanssi_punct_hyphens'];
-	}
-	if ( isset( $_REQUEST['relevanssi_punct_ampersands'] ) ) {
-		$relevanssi_punct['ampersands'] = $_REQUEST['relevanssi_punct_ampersands'];
-	}
-	if ( isset( $_REQUEST['relevanssi_punct_decimals'] ) ) {
-		$relevanssi_punct['decimals'] = $_REQUEST['relevanssi_punct_decimals'];
-	}
-	if ( ! empty( $relevanssi_punct ) ) {
-		update_option( 'relevanssi_punctuation', $relevanssi_punct );
-	}
-
-	$post_type_weights     = array();
-	$index_post_types      = array();
-	$index_taxonomies_list = array();
-	$index_terms_list      = array();
-	foreach ( $_REQUEST as $key => $value ) {
-		if ( empty( $value ) ) {
-			$value = 0;
-		}
-
-		if ( 'relevanssi_weight_' === substr( $key, 0, strlen( 'relevanssi_weight_' ) ) ) {
-			$type                       = substr( $key, strlen( 'relevanssi_weight_' ) );
-			$post_type_weights[ $type ] = $value;
-		}
-		if ( 'relevanssi_taxonomy_weight_' === substr( $key, 0, strlen( 'relevanssi_taxonomy_weight_' ) ) ) {
-			$type                       = 'post_tagged_with_' . substr( $key, strlen( 'relevanssi_taxonomy_weight_' ) );
-			$post_type_weights[ $type ] = $value;
-		}
-		if ( 'relevanssi_term_weight_' === substr( $key, 0, strlen( 'relevanssi_term_weight_' ) ) ) {
-			$type                       = 'taxonomy_term_' . substr( $key, strlen( 'relevanssi_term_weight_' ) );
-			$post_type_weights[ $type ] = $value;
-		}
-		if ( 'relevanssi_index_type_' === substr( $key, 0, strlen( 'relevanssi_index_type_' ) ) ) {
-			$type = substr( $key, strlen( 'relevanssi_index_type_' ) );
-			if ( 'on' === $value ) {
-				$index_post_types[ $type ] = true;
-			}
-		}
-		if ( 'relevanssi_index_taxonomy_' === substr( $key, 0, strlen( 'relevanssi_index_taxonomy_' ) ) ) {
-			$type = substr( $key, strlen( 'relevanssi_index_taxonomy_' ) );
-			if ( 'on' === $value ) {
-				$index_taxonomies_list[ $type ] = true;
-			}
-		}
-		if ( 'relevanssi_index_terms_' === substr( $key, 0, strlen( 'relevanssi_index_terms_' ) ) ) {
-			$type = substr( $key, strlen( 'relevanssi_index_terms_' ) );
-			if ( 'on' === $value ) {
-				$index_terms_list[ $type ] = true;
-			}
-		}
-	}
-
-	if ( 'indexing' === $_REQUEST['tab'] ) {
-		update_option( 'relevanssi_index_taxonomies_list', array_keys( $index_taxonomies_list ), false );
-		if ( RELEVANSSI_PREMIUM ) {
-			update_option( 'relevanssi_index_terms', array_keys( $index_terms_list ), false );
-		}
-	}
-
-	if ( count( $post_type_weights ) > 0 ) {
-		update_option( 'relevanssi_post_type_weights', $post_type_weights );
-	}
-
-	if ( count( $index_post_types ) > 0 ) {
-		update_option( 'relevanssi_index_post_types', array_keys( $index_post_types ), false );
-	}
-
-	if ( isset( $_REQUEST['relevanssi_index_fields_select'] ) ) {
-		$fields_option = '';
-		if ( 'all' === $_REQUEST['relevanssi_index_fields_select'] ) {
-			$fields_option = 'all';
-		}
-		if ( 'visible' === $_REQUEST['relevanssi_index_fields_select'] ) {
-			$fields_option = 'visible';
-		}
-		if ( 'some' === $_REQUEST['relevanssi_index_fields_select'] ) {
-			if ( isset( $_REQUEST['relevanssi_index_fields'] ) ) {
-				$fields_option = rtrim( $_REQUEST['relevanssi_index_fields'], " \t\n\r\0\x0B," );
-			}
-		}
-		update_option( 'relevanssi_index_fields', $fields_option, false );
-	}
-
-	if ( isset( $_REQUEST['relevanssi_trim_logs'] ) ) {
-		$trim_logs = $_REQUEST['relevanssi_trim_logs'];
-		if ( ! is_numeric( $trim_logs ) || $trim_logs < 0 ) {
-			$trim_logs = 0;
-		}
-		update_option( 'relevanssi_trim_logs', $trim_logs );
-	}
-
-	if ( isset( $_REQUEST['relevanssi_cat'] ) ) {
-		if ( is_array( $_REQUEST['relevanssi_cat'] ) ) {
-			$csv_cats = implode( ',', $_REQUEST['relevanssi_cat'] );
-			update_option( 'relevanssi_cat', $csv_cats );
-		}
-	} else {
-		if ( isset( $_REQUEST['relevanssi_cat_active'] ) ) {
-			update_option( 'relevanssi_cat', '' );
-		}
-	}
-
-	if ( isset( $_REQUEST['relevanssi_excat'] ) ) {
-		if ( is_array( $_REQUEST['relevanssi_excat'] ) ) {
-			$array_excats = $_REQUEST['relevanssi_excat'];
-			$cat          = get_option( 'relevanssi_cat' );
-			if ( $cat ) {
-				$array_cats   = explode( ',', $cat );
-				$valid_excats = array();
-				foreach ( $array_excats as $excat ) {
-					if ( ! in_array( $excat, $array_cats, true ) ) {
-						$valid_excats[] = $excat;
-					}
-				}
-			} else {
-				// No category restrictions, so everything's good.
-				$valid_excats = $array_excats;
-			}
-			$csv_excats = implode( ',', $valid_excats );
-			update_option( 'relevanssi_excat', $csv_excats );
-		}
-	} else {
-		if ( isset( $_REQUEST['relevanssi_excat_active'] ) ) {
-			update_option( 'relevanssi_excat', '' );
-		}
-	}
-
-	if ( isset( $_REQUEST['relevanssi_admin_search'] ) ) {
-		update_option( 'relevanssi_admin_search', $_REQUEST['relevanssi_admin_search'], false );
-	}
-	if ( isset( $_REQUEST['relevanssi_excerpts'] ) ) {
-		update_option( 'relevanssi_excerpts', $_REQUEST['relevanssi_excerpts'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_excerpt_type'] ) ) {
-		update_option( 'relevanssi_excerpt_type', $_REQUEST['relevanssi_excerpt_type'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_excerpt_allowable_tags'] ) ) {
-		update_option( 'relevanssi_excerpt_allowable_tags', $_REQUEST['relevanssi_excerpt_allowable_tags'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_log_queries'] ) ) {
-		update_option( 'relevanssi_log_queries', $_REQUEST['relevanssi_log_queries'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_log_queries_with_ip'] ) ) {
-		update_option( 'relevanssi_log_queries_with_ip', $_REQUEST['relevanssi_log_queries_with_ip'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_highlight'] ) ) {
-		update_option( 'relevanssi_highlight', $_REQUEST['relevanssi_highlight'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_highlight_docs'] ) ) {
-		update_option( 'relevanssi_highlight_docs', $_REQUEST['relevanssi_highlight_docs'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_highlight_comments'] ) ) {
-		update_option( 'relevanssi_highlight_comments', $_REQUEST['relevanssi_highlight_comments'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_txt_col'] ) ) {
-		update_option( 'relevanssi_txt_col', $_REQUEST['relevanssi_txt_col'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_bg_col'] ) ) {
-		update_option( 'relevanssi_bg_col', $_REQUEST['relevanssi_bg_col'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_css'] ) ) {
-		update_option( 'relevanssi_css', $_REQUEST['relevanssi_css'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_class'] ) ) {
-		update_option( 'relevanssi_class', $_REQUEST['relevanssi_class'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_expst'] ) ) {
-		update_option( 'relevanssi_exclude_posts', trim( $_REQUEST['relevanssi_expst'], ' ,' ) );
-	}
-	if ( isset( $_REQUEST['relevanssi_hilite_title'] ) ) {
-		update_option( 'relevanssi_hilite_title', $_REQUEST['relevanssi_hilite_title'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_index_comments'] ) ) {
-		update_option( 'relevanssi_index_comments', $_REQUEST['relevanssi_index_comments'], false );
-	}
-	if ( isset( $_REQUEST['relevanssi_index_author'] ) ) {
-		update_option( 'relevanssi_index_author', $_REQUEST['relevanssi_index_author'], false );
-	}
-	if ( isset( $_REQUEST['relevanssi_index_excerpt'] ) ) {
-		update_option( 'relevanssi_index_excerpt', $_REQUEST['relevanssi_index_excerpt'], false );
-	}
-	if ( isset( $_REQUEST['relevanssi_index_image_files'] ) ) {
-		update_option( 'relevanssi_index_image_files', $_REQUEST['relevanssi_index_image_files'], false );
-	}
-	if ( isset( $_REQUEST['relevanssi_fuzzy'] ) ) {
-		update_option( 'relevanssi_fuzzy', $_REQUEST['relevanssi_fuzzy'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_expand_shortcodes'] ) ) {
-		update_option( 'relevanssi_expand_shortcodes', $_REQUEST['relevanssi_expand_shortcodes'], false );
-	}
-	if ( isset( $_REQUEST['relevanssi_implicit_operator'] ) ) {
-		update_option( 'relevanssi_implicit_operator', $_REQUEST['relevanssi_implicit_operator'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_omit_from_logs'] ) ) {
-		update_option( 'relevanssi_omit_from_logs', $_REQUEST['relevanssi_omit_from_logs'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_disable_or_fallback'] ) ) {
-		update_option( 'relevanssi_disable_or_fallback', $_REQUEST['relevanssi_disable_or_fallback'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_respect_exclude'] ) ) {
-		update_option( 'relevanssi_respect_exclude', $_REQUEST['relevanssi_respect_exclude'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_throttle'] ) ) {
-		update_option( 'relevanssi_throttle', $_REQUEST['relevanssi_throttle'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_wpml_only_current'] ) ) {
-		update_option( 'relevanssi_wpml_only_current', $_REQUEST['relevanssi_wpml_only_current'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_polylang_all_languages'] ) ) {
-		update_option( 'relevanssi_polylang_all_languages', $_REQUEST['relevanssi_polylang_all_languages'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_word_boundaries'] ) ) {
-		update_option( 'relevanssi_word_boundaries', $_REQUEST['relevanssi_word_boundaries'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_default_orderby'] ) ) {
-		update_option( 'relevanssi_default_orderby', $_REQUEST['relevanssi_default_orderby'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_excerpt_custom_fields'] ) ) {
-		update_option( 'relevanssi_excerpt_custom_fields', $_REQUEST['relevanssi_excerpt_custom_fields'] );
-	}
-	if ( isset( $_REQUEST['relevanssi_exact_match_bonus'] ) ) {
-		update_option( 'relevanssi_exact_match_bonus', $_REQUEST['relevanssi_exact_match_bonus'] );
-	}
-
-	if ( function_exists( 'relevanssi_update_premium_options' ) ) {
-		relevanssi_update_premium_options();
-	}
-	// phpcs:enable
-}
-
-/**
  * Prints out the 'User searches' page.
  */
 function relevanssi_search_stats() {
@@ -499,11 +121,6 @@ function relevanssi_search_stats() {
 		}
 	}
 
-	wp_enqueue_style( 'dashboard' );
-	wp_print_styles( 'dashboard' );
-	wp_enqueue_script( 'dashboard' );
-	wp_print_scripts( 'dashboard' );
-
 	printf( "<div class='wrap'><h2>%s</h2>", esc_html( $options_txt ) );
 
 	if ( 'on' === get_option( 'relevanssi_log_queries' ) ) {
@@ -522,11 +139,6 @@ function relevanssi_admin_search_page() {
 	$relevanssi_hide_branding = get_option( 'relevanssi_hide_branding' );
 
 	$options_txt = __( 'Admin Search', 'relevanssi' );
-
-	wp_enqueue_style( 'dashboard' );
-	wp_print_styles( 'dashboard' );
-	wp_enqueue_script( 'dashboard' );
-	wp_print_scripts( 'dashboard' );
 
 	printf( "<div class='wrap'><h2>%s</h2>", esc_html( $options_txt ) );
 
@@ -779,39 +391,6 @@ function relevanssi_date_queries( $days, $title, $version = 'good' ) {
 }
 
 /**
- * Returns 'checked' if the option is enabled.
- *
- * @param string $option Value to check.
- *
- * @return string If the option is 'on', returns 'checked', otherwise returns an
- * empty string.
- */
-function relevanssi_check( $option ) {
-	$checked = '';
-	if ( 'on' === $option ) {
-		$checked = 'checked';
-	}
-	return $checked;
-}
-
-/**
- * Returns 'selected' if the option matches a value.
- *
- * @param string $option Value to check.
- * @param string $value  The 'selected' value.
- *
- * @return string If the option matches the value, returns 'selected', otherwise
- * returns an empty string.
- */
-function relevanssi_select( $option, $value ) {
-	$selected = '';
-	if ( $option === $value ) {
-		$selected = 'selected';
-	}
-	return $selected;
-}
-
-/**
  * Prints out the Relevanssi options form.
  *
  * @global object $wpdb                 The WP database interface.
@@ -819,11 +398,6 @@ function relevanssi_select( $option, $value ) {
  */
 function relevanssi_options_form() {
 	global $relevanssi_variables, $wpdb;
-
-	wp_enqueue_style( 'dashboard' );
-	wp_print_styles( 'dashboard' );
-	wp_enqueue_script( 'dashboard' );
-	wp_print_scripts( 'dashboard' );
 
 	echo "<div class='postbox-container'>";
 	echo "<form method='post'>";
@@ -883,7 +457,7 @@ function relevanssi_options_form() {
 		),
 		array(
 			'slug'     => 'excerpts',
-			'name'     => __( 'Excerpts and Highlights', 'relevanssi' ),
+			'name'     => __( 'Excerpts and highlights', 'relevanssi' ),
 			'require'  => 'tabs/excerpts-tab.php',
 			'callback' => 'relevanssi_excerpts_tab',
 			'save'     => true,
@@ -907,6 +481,13 @@ function relevanssi_options_form() {
 			'name'     => __( 'Redirects', 'relevanssi' ),
 			'require'  => 'tabs/redirects-tab.php',
 			'callback' => 'relevanssi_redirects_tab',
+			'save'     => false,
+		),
+		array(
+			'slug'     => 'debugging',
+			'name'     => __( 'Debugging', 'relevanssi' ),
+			'require'  => 'tabs/debugging-tab.php',
+			'callback' => 'relevanssi_debugging_tab',
 			'save'     => false,
 		),
 	);
@@ -980,7 +561,18 @@ function relevanssi_add_admin_scripts( $hook ) {
 		'settings_page_relevanssi/relevanssi',
 		'dashboard_page_relevanssi_admin_search',
 	);
-	if ( ! in_array( $hook, $acceptable_hooks, true ) ) {
+	/**
+	 * Filters the hooks where Relevanssi scripts are enqueued.
+	 *
+	 * By default Relevanssi only enqueues the Relevanssi admin javascript on
+	 * specific admin page hooks to avoid polluting the admin. If you want to
+	 * move things around, this means the javascript bits won't work. You can
+	 * introduce new hooks with this filter hook.
+	 *
+	 * @param array An array of page hook strings where Relevanssi scripts are
+	 * added.
+	 */
+	if ( ! in_array( $hook, apply_filters( 'relevanssi_acceptable_hooks', $acceptable_hooks ), true ) ) {
 		return;
 	}
 
