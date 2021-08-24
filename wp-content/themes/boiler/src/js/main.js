@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
 
 // WINDOW RESIZE FUNCTIONS -----------------------
-var windowWidth = window.outerWidth,
+let windowWidth = window.outerWidth,
     windowHeight = window.outerHeight;
     
 window.addEventListener("resize", function(){
@@ -23,16 +23,16 @@ window.addEventListener("resize", function(){
 
 
 //returns the direct path to the theme
-function getHomeUrl() {
-  var href = window.location.hostname;
+getHomeUrl = () => {
+  const href = window.location.hostname;
+  console.log("getting home url");
   if(href == "boiler.test"){
-    var index = ('http://' + href + '/wp-content/themes/boiler');
+    const index = ('http://' + href + '/wp-content/themes/boiler');
   } else {
-    var index = ('https://' + href + '/wp-content/themes/boiler');
+    const index = ('https://' + href + '/wp-content/themes/boiler');
   }
   return index;
 }
-
 
 
 // badhawk tag!!

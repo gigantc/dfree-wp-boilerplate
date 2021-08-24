@@ -3,14 +3,15 @@ const gulp = require('gulp');
 
 
 /* PLUGINS */
-const sass = require('gulp-sass'),
+const sass = require('gulp-sass')(require('sass')),
     browserSync = require("browser-sync").create(),
     postcss = require("gulp-postcss"),
     sourcemaps = require('gulp-sourcemaps'),
+    babel = require('gulp-babel'),
     cssnano = require("cssnano"),
     autoprefixer = require("autoprefixer"),
     concat = require('gulp-concat'),
-    terser = require('gulp-terser');
+    terser = require('gulp-terser'),
     plumber = require('gulp-plumber');
 
 
@@ -51,6 +52,10 @@ function blocksScssTask(){
 /* SCRIPTS */
 function libsTask(){    
     return src([files.libsPath])
+    .pipe(sourcemaps.init())
+    .pipe(babel({
+        presets: ['@babel/env']
+    }))
     .pipe(concat('libs.min.js'))
     .pipe(terser())
     .pipe(gulp.dest('js/libs/'));
@@ -64,6 +69,10 @@ function scriptsTask(){
         console.log(error.message);
         this.emit('end');
     }}))
+    .pipe(sourcemaps.init())
+    .pipe(babel({
+        presets: ['@babel/env']
+    }))
     .pipe(concat('main.min.js'))
     .pipe(terser())
     .pipe(gulp.dest('js/'))
