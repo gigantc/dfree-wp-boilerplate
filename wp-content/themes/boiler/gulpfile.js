@@ -10,7 +10,7 @@ const sass = require('gulp-sass'),
     cssnano = require("cssnano"),
     autoprefixer = require("autoprefixer"),
     concat = require('gulp-concat'),
-    uglify = require('gulp-uglify'),
+    terser = require('gulp-terser');
     plumber = require('gulp-plumber');
 
 
@@ -52,7 +52,7 @@ function blocksScssTask(){
 function libsTask(){    
     return src([files.libsPath])
     .pipe(concat('libs.min.js'))
-    .pipe(uglify())
+    .pipe(terser())
     .pipe(gulp.dest('js/libs/'));
 }
 
@@ -65,7 +65,7 @@ function scriptsTask(){
         this.emit('end');
     }}))
     .pipe(concat('main.min.js'))
-    .pipe(uglify())
+    .pipe(terser())
     .pipe(gulp.dest('js/'))
     .pipe(browserSync.stream());
 }
