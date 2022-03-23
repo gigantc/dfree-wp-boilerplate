@@ -88,21 +88,15 @@ function lawfirm_scripts() {
   wp_register_script('slick', "http" . ($_SERVER['SERVER_PORT'] == 443 ? "s" : "") . "://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js", false, null);
 
   //scrollmagic and tweenmagic
-  wp_register_script( 'tween-max', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.4/TweenMax.min.js', array(), '1.20.4', true );
-  wp_register_script( 'scrollmagic', 'https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.5/ScrollMagic.min.js', array(), '2.0.5', true );
-  wp_register_script( 'scrollmagic-ani', 'https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.5/plugins/animation.gsap.min.js', array(), '2.0.5', true );
-  wp_register_script( 'add-indicators', 'https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.5/plugins/debug.addIndicators.js', array(), '2.0.5', true );
-
-  //vimeo api
-  wp_register_script( 'vimeo', 'https://player.vimeo.com/api/player.js', array(), '1.0.0', true );
+  wp_register_script( 'gsap', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js', array(), '3.8.0', true );
+  wp_register_script( 'scrolltrigger', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/ScrollTrigger.min.js', array(), '3.8.0', true );
 
   //wp_enqueue_script( 'jquery' );
   wp_enqueue_script( 'lawfirm-js' );
   wp_enqueue_script('libs');
   wp_enqueue_script('slick');
-  wp_enqueue_script('tween-max');
-  wp_enqueue_script('scrollmagic');
-  wp_enqueue_script('scrollmagic-ani');
+  wp_enqueue_script('gsap');
+  wp_enqueue_script('scrolltrigger');
 
   //only use add indicators on a dev server
   if ($_SERVER['HTTP_HOST']==="lawfirm.test") {

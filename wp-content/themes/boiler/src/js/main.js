@@ -36,9 +36,7 @@ const getHomeUrl = () => {
 
 
 // badhawk tag!!
-console.log('--------------------------------------');
-console.log('-=   built by badhawkworkshop.com   =-');
-console.log('--------------------------------------');
+console.log('-=   built with ♥ by badhawkworkshop.com   =-');
 
 
 
