@@ -1,3 +1,6 @@
+/*!****************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].use[2]!./src/advanced-custom-fields-pro/assets/src/sass/acf-input.scss ***!
+  \****************************************************************************************************************************************************************************************************************/
 /*--------------------------------------------------------------------------------------------
 *
 *	Vars
@@ -293,10 +296,8 @@ html[dir=rtl] .acf-fields.-left > .acf-field > .acf-input {
   position: relative;
 }
 .acf-postbox > .inside {
-  margin: 0 !important;
-  /* override WP style - do not delete - you have tried this before */
-  padding: 0 !important;
-  /* override WP style - do not delete - you have tried this before */
+  margin: 0 !important; /* override WP style - do not delete - you have tried this before */
+  padding: 0 !important; /* override WP style - do not delete - you have tried this before */
 }
 .acf-postbox .acf-hndle-cog {
   color: #72777c;
@@ -346,8 +347,7 @@ html[dir=rtl] .acf-fields.-left > .acf-field > .acf-input {
   display: none !important;
 }
 .acf-postbox.seamless > .inside {
-  display: block !important;
-  /* stop metabox from hiding when closed */
+  display: block !important; /* stop metabox from hiding when closed */
   margin-left: -12px !important;
   margin-right: -12px !important;
 }
@@ -647,6 +647,9 @@ html[dir=rtl] .select2-container.-acf .select2-choice .select2-arrow {
 .select2-container.-acf li {
   margin-bottom: 0;
 }
+.select2-container.-acf[data-select2-id^=select2-data] .select2-selection--multiple {
+  overflow: hidden;
+}
 .select2-container.-acf .select2-selection {
   border-color: #7e8993;
 }
@@ -661,6 +664,14 @@ html[dir=rtl] .select2-container.-acf .select2-choice .select2-arrow {
 }
 .select2-container.-acf .select2-selection--multiple .select2-selection__rendered {
   padding-right: 0;
+}
+.select2-container.-acf .select2-selection--multiple .select2-selection__rendered[id^=select2-acf-field] {
+  display: inline;
+  padding: 0;
+  margin: 0;
+}
+.select2-container.-acf .select2-selection--multiple .select2-selection__rendered[id^=select2-acf-field] .select2-selection__choice {
+  margin-right: 0;
 }
 .select2-container.-acf .select2-selection--multiple .select2-selection__choice {
   background-color: #f7f7f7;
@@ -679,6 +690,11 @@ html[dir=rtl] .select2-container.-acf .select2-choice .select2-arrow {
 .select2-container.-acf .select2-selection--multiple .select2-selection__choice.ui-sortable-helper span {
   visibility: hidden;
 }
+.select2-container.-acf .select2-selection--multiple .select2-selection__choice .select2-selection__choice__remove {
+  position: static;
+  border-right: none;
+  padding: 0;
+}
 .select2-container.-acf .select2-selection--multiple .select2-selection__choice.ui-sortable-placeholder {
   background-color: #f7f7f7;
   border-color: #f7f7f7;
@@ -693,6 +709,10 @@ html[dir=rtl] .select2-container.-acf .select2-choice .select2-arrow {
 }
 .acf-row .select2-container.-acf .select2-selection--single .select2-selection__rendered {
   white-space: normal;
+}
+
+.select2-dropdown .select2-results__option {
+  margin-bottom: 0;
 }
 
 .select2-container .select2-dropdown {
@@ -1147,8 +1167,7 @@ html[dir=rtl] .pac-container .pac-item {
 }
 .acf-relationship .filters .filter input, .acf-relationship .filters .filter select {
   margin: 0;
-  float: none;
-  /* potential fix for media popup? */
+  float: none; /* potential fix for media popup? */
 }
 .acf-relationship .filters .filter input:focus, .acf-relationship .filters .filter input:active, .acf-relationship .filters .filter select:focus, .acf-relationship .filters .filter select:active {
   outline: none;
@@ -1449,8 +1468,7 @@ html[dir=rtl] .acf-fields.-left > .acf-tab-wrap .acf-tab-group {
   left: 0;
   width: 20%;
   border: 0 none;
-  padding: 0 !important;
-  /* important overrides 'left aligned labels' */
+  padding: 0 !important; /* important overrides 'left aligned labels' */
   margin: 1px 0 0;
 }
 .acf-tab-wrap.-left .acf-tab-group li {
@@ -2930,3 +2948,5 @@ body.is-dragging-metaboxes #acf_after_title-sortables {
   min-height: 60px;
   margin-bottom: 3px !important;
 }
+
+/*# sourceMappingURL=acf-input.css.map*/
