@@ -9,6 +9,30 @@
  */
 
 add_filter( 'relevanssi_index_get_post_type', 'relevanssi_index_get_post_type', 1, 2 );
+add_filter( 'relevanssi_indexing_restriction', 'relevanssi_image_filter' );
+
+/**
+ * Blocks image attachments from the index.
+ *
+ * @param array $restriction An array with two values: 'mysql' for the MySQL
+ * query and 'reason' for the blocking reason.
+ *
+ * @return array The image attachment blocking MySQL code, if the image
+ * attachments are blocked.
+ */
+function relevanssi_image_filter( $restriction ) {
+	if ( 'off' === get_option( 'relevanssi_index_image_files', 'off' ) ) {
+		global $wpdb;
+
+		$restriction['mysql']  .= "
+		AND post.ID NOT IN (
+		SELECT ID FROM $wpdb->posts WHERE post_type = 'attachment'
+		AND post_mime_type LIKE 'image%' )";
+		$restriction['reason'] .= ' ' . __( 'Relevanssi image attachment filter', 'relevanssi' );
+	}
+
+	return $restriction;
+}
 
 /**
  * Returns the total number of posts to index.
@@ -99,14 +123,6 @@ function relevanssi_generate_indexing_query( $valid_status, $extend = false, $re
 	global $wpdb, $relevanssi_variables;
 	$relevanssi_table = $relevanssi_variables['relevanssi_table'];
 
-	if ( 'off' === get_option( 'relevanssi_index_image_files', 'off' ) ) {
-		$restriction .= "
-		AND post.ID NOT IN (
-		SELECT ID FROM $wpdb->posts WHERE post_type = 'attachment'
-		AND post_mime_type LIKE 'image%' )
-	";
-	}
-
 	/**
 	 * Filters the WHERE restriction for indexing queries.
 	 *
@@ -133,8 +149,9 @@ function relevanssi_generate_indexing_query( $valid_status, $extend = false, $re
 	 * 2.8.0 in March 2020. Remove this eventually.
 	 */
 	if ( is_string( $restriction ) ) {
-		$restriction['mysql']  = $restriction;
-		$restriction['reason'] = 'relevanssi_indexing_restriction filter';
+		$restriction_array['mysql']  = $restriction;
+		$restriction_array['reason'] = 'relevanssi_indexing_restriction filter';
+		$restriction                 = $restriction_array;
 	}
 
 	if ( ! $extend ) {
@@ -821,8 +838,9 @@ function relevanssi_publish( $post_id, $bypass_global_post = false ) {
  * @param int $post_id The post ID.
  *
  * @return string|int Returns 'auto-draft' if the post is an auto draft and
- * thus skipped, 'revision' for revisions, 'removed' if the post is removed or
- * the relevanssi_index_doc() return value from relevanssi_publish().
+ * thus skipped, 'revision' for revisions, 'nav_menu_item' for navigation menu
+ * items, 'removed' if the post is removed or the relevanssi_index_doc() return
+ * value from relevanssi_publish().
  *
  * @see relevanssi_publish()
  */
@@ -830,6 +848,10 @@ function relevanssi_insert_edit( $post_id ) {
 	global $wpdb;
 	if ( 'revision' === relevanssi_get_post_type( $post_id ) ) {
 		return 'revision';
+	}
+
+	if ( 'nav_menu_item' === relevanssi_get_post_type( $post_id ) ) {
+		return 'nav_menu_item';
 	}
 
 	$post_status = get_post_status( $post_id );
@@ -1440,6 +1462,10 @@ function relevanssi_index_content( &$insert_data, $post_object, $min_word_length
 	 * @param boolean Return false to prevent post content from being indexed. Default true.
 	 */
 	if ( ! apply_filters( 'relevanssi_index_content', true ) ) {
+		return $n;
+	}
+
+	if ( 'on' === get_post_meta( $post_object->ID, '_relevanssi_hide_content', true ) ) {
 		return $n;
 	}
 

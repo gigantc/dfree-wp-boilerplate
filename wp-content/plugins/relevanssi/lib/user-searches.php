@@ -163,15 +163,26 @@ function relevanssi_query_log() {
 		printf( '<h3>%s</h3>', esc_html__( 'Reset Logs', 'relevanssi' ) );
 		print( "<form method='post'>" );
 		wp_nonce_field( 'relevanssi_reset_logs', '_relresnonce', true, true );
+
+		// Translators: do not translate "reset".
+		$message = esc_html__(
+			'To reset the logs, type "reset" into the box here and click the Reset button',
+			'relevanssi'
+		);
+
+		if ( RELEVANSSI_PREMIUM ) {
+			// Translators: do not translate "reset".
+			$message = esc_html__(
+				'To reset the logs, type "reset" into the box here and click the Reset button. This will reset both the search log and the click tracking log.',
+				'relevanssi'
+			);
+		}
+
 		printf(
 			'<p><label for="relevanssi_reset_code">%s</label>
 			<input type="text" id="relevanssi_reset_code" name="relevanssi_reset_code" />
 			<input type="submit" name="relevanssi_reset" value="%s" class="button" /></p></form>',
-			// Translators: do not translate "reset".
-			esc_html__(
-				'To reset the logs, type "reset" into the box here and click the Reset button',
-				'relevanssi'
-			),
+			$message, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- already escaped.
 			esc_html__( 'Reset', 'relevanssi' )
 		);
 	}
@@ -249,7 +260,11 @@ function relevanssi_date_queries( string $from, string $to, string $version = 'g
 	global $wpdb, $relevanssi_variables;
 	$log_table = $relevanssi_variables['log_table'];
 
-	/** Documented in lib/interface.php. */
+	/**
+	 * Filters the number of most common queries to show.
+	 *
+	 * @param int The number of most common queries to show, default 100.
+	 */
 	$limit = apply_filters( 'relevanssi_user_searches_limit', 100 );
 
 	if ( 'good' === $version ) {
@@ -336,7 +351,7 @@ function relevanssi_date_queries( string $from, string $to, string $version = 'g
 			if ( function_exists( 'relevanssi_insights_link' ) ) {
 				$query_link = relevanssi_insights_link( $query );
 			} else {
-				$query_link = $query->query;
+				$query_link = wp_kses( relevanssi_hyphenate( $query->query ), 'strip' );
 			}
 
 			if ( 'good' === $version ) {
@@ -347,7 +362,7 @@ function relevanssi_date_queries( string $from, string $to, string $version = 'g
 						<td style='padding: 3px 5px; text-align: center'>%d</td>
 						<td style='padding: 3px 5px; text-align: center'>%s</td>
 					</tr>",
-					$query_link,  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					$query_link, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					esc_attr( $query_url ),
 					intval( $query->cnt ),
 					intval( $query->hits ),

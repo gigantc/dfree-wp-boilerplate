@@ -11,7 +11,7 @@
 /**
  * Adds the search result match breakdown to the post object.
  *
- * Reads in the number of matches and stores it in the relevanssi_hits filed
+ * Reads in the number of matches and stores it in the relevanssi_hits field
  * of the post object. The post object is passed as a reference and modified
  * on the fly.
  *
@@ -28,10 +28,14 @@ function relevanssi_add_matches( &$post, $data ) {
 	$hits['author']               = $data['author_matches'][ $post->ID ] ?? 0;
 	$hits['excerpt']              = $data['excerpt_matches'][ $post->ID ] ?? 0;
 	$hits['customfield']          = $data['customfield_matches'][ $post->ID ] ?? 0;
-	$hits['mysqlcolumn']          = $data['mysqlcolumn_matches'][ $post->ID ] ?? 0;
+	$hits['mysqlcolumn']          = 0;
 	$hits['score']                = isset( $data['doc_weights'][ $post->ID ] ) ? round( $data['doc_weights'][ $post->ID ], 2 ) : 0;
 	$hits['terms']                = $data['term_hits'][ $post->ID ] ?? array();
 	$hits['missing_terms']        = $data['missing_terms'][ $post->ID ] ?? array();
+
+	if ( function_exists( 'relevanssi_premium_add_matches' ) ) {
+		relevanssi_premium_add_matches( $hits, $data, $post->ID );
+	}
 
 	arsort( $hits['terms'] );
 
@@ -99,8 +103,9 @@ function relevanssi_show_matches( $post ) {
 	 * filter lets you modify the breakdown before it is added to the excerpt.
 	 *
 	 * @param string $result The breakdown.
+	 * @param object $post   The post object
 	 */
-	return apply_filters( 'relevanssi_show_matches', $result );
+	return apply_filters( 'relevanssi_show_matches', $result, $post );
 }
 
 /**
@@ -219,7 +224,7 @@ function relevanssi_default_post_ok( $post_ok, $post_id ) {
 		apply_filters( 'relevanssi_valid_admin_status', array( 'draft', 'pending', 'future' ) ),
 		true
 	)
-	&& is_admin() ) {
+	&& is_admin() && ! relevanssi_is_live_search() ) {
 		// Only show drafts, pending and future posts in admin search.
 		$post_ok = true;
 	}
@@ -530,7 +535,8 @@ function relevanssi_prevent_default_request( $request, $query ) {
 
 		if ( ! is_admin() && $prevent ) {
 			$request = "SELECT * FROM $wpdb->posts WHERE 1=2";
-		} elseif ( 'on' === get_option( 'relevanssi_admin_search' ) && $admin_search_ok ) {
+		}
+		if ( is_admin() && 'on' === get_option( 'relevanssi_admin_search' ) && $admin_search_ok ) {
 			$request = "SELECT * FROM $wpdb->posts WHERE 1=2";
 		}
 	}
@@ -976,7 +982,11 @@ function relevanssi_add_highlight( $permalink, $link_post = null ) {
 	$highlight_docs = get_option( 'relevanssi_highlight_docs', 'off' );
 	$query          = get_search_query();
 	if ( isset( $highlight_docs ) && 'off' !== $highlight_docs && ! empty( $query ) ) {
-		if ( ! relevanssi_is_front_page_id( isset( $link_post->ID ) ?? null ) ) {
+		if ( ! relevanssi_is_front_page_id( $link_post->ID ?? null ) ) {
+			global $wp_query;
+			if ( isset( $wp_query->query_vars['sentence'] ) && '&quot;' !== substr( $query, 0, 6 ) ) {
+				$query = relevanssi_add_quotes( $query );
+			}
 			$query     = str_replace( '&quot;', '"', $query );
 			$permalink = esc_attr( add_query_arg( array( 'highlight' => rawurlencode( $query ) ), $permalink ) );
 		}
@@ -1035,14 +1045,29 @@ function relevanssi_permalink( $link, $link_post = null ) {
 	}
 	// Using property_exists() to avoid troubles from magic variables.
 	if ( is_object( $link_post ) && property_exists( $link_post, 'relevanssi_link' ) ) {
-		$link = $link_post->relevanssi_link;
+		// $link_post->relevanssi_link can still be false.
+		if ( ! empty( $link_post->relevanssi_link ) ) {
+			$link = $link_post->relevanssi_link;
+		}
 	}
 
-	if ( is_search() && is_object( $link_post ) && property_exists( $link_post, 'relevance_score' ) ) {
+	global $wp_query;
+
+	$add_highlight_and_tracking = false;
+	if ( is_search() && ! is_admin() ) {
+		$add_highlight_and_tracking = true;
+	}
+	if ( is_search() && is_admin() &&
+		( isset( $wp_query->query_vars['relevanssi'] ) || isset( $wp_query->query_vars['rlvquery'] ) )
+		) {
+		$add_highlight_and_tracking = true;
+	}
+
+	if ( $add_highlight_and_tracking && is_object( $link_post ) && property_exists( $link_post, 'relevance_score' ) ) {
 		$link = relevanssi_add_highlight( $link, $link_post );
 	}
 
-	if ( function_exists( 'relevanssi_add_tracking' ) ) {
+	if ( $add_highlight_and_tracking && function_exists( 'relevanssi_add_tracking' ) ) {
 		$link = relevanssi_add_tracking( $link, $link_post );
 	}
 
@@ -1130,6 +1155,9 @@ function relevanssi_common_words( $limit = 25, $wp_cli = false ) {
  */
 function relevanssi_get_forbidden_post_types() {
 	return array(
+		'wp_template_part',     // WP template parts.
+		'wp_global_styles',     // WP global styles.
+		'wp_navigation',        // Navigation menus.
 		'nav_menu_item',        // Navigation menu items.
 		'revision',             // Never index revisions.
 		'acf',                  // Advanced Custom Fields.
@@ -1210,6 +1238,21 @@ function relevanssi_get_forbidden_post_types() {
 		'fl-builder-template',  // Beaver Builder.
 		'itsec-dashboard',      // iThemes Security.
 		'itsec-dash-card',      // iThemes Security.
+		'astra-advanced-hook',  // Astra.
+		'astra_adv_header',     // Astra.
+		'astra_adv_header',     // Astra.
+		'udb_widgets',          // Ultimate Dashboard.
+		'udb_admin_page',       // Ultimate Dashboard.
+		'oxy_user_library',     // Oxygen.
+		'aw_workflow',          // AutomateWoo.
+		'paypal_transaction',   // PayPal for WooCommerce.
+		'scheduled-action',
+		'divi_bars',            // Divi Bars.
+		'br_product_filter',    // BeRocket Product Filters.
+		'br_filters_group',     // BeRocket Product Filters.
+		'wfob_bump',            // WooFunnel.
+		'wfocu_funnel',         // WooFunnel.
+		'wfocu_offer',          // WooFunnel.
 	);
 }
 
@@ -1220,6 +1263,7 @@ function relevanssi_get_forbidden_post_types() {
  */
 function relevanssi_get_forbidden_taxonomies() {
 	return array(
+		'wp_template_part_area',        // WP templates.
 		'nav_menu',                     // Navigation menus.
 		'link_category',                // Link categories.
 		'amp_validation_error',         // AMP.
@@ -1258,6 +1302,10 @@ function relevanssi_filter_custom_fields( $values, $field ) {
 	);
 	if ( isset( $unwanted_custom_fields[ $field ] ) ) {
 		$values = array();
+	}
+
+	if ( ! $values ) {
+		return $values;
 	}
 
 	$values = array_map(
@@ -1709,6 +1757,9 @@ function relevanssi_replace_synonyms_in_terms( array $terms ) : array {
 		function ( $term ) use ( $synonyms ) {
 			$new_term = array();
 			foreach ( $synonyms as $pair ) {
+				if ( empty( $pair ) ) {
+					continue;
+				}
 				list( $key, $value ) = explode( '=', $pair );
 				if ( $value === $term ) {
 					$new_term[] = $key;
@@ -1782,6 +1833,44 @@ function relevanssi_bot_block_list() : array {
 		'Sogou'                => 'Sogou',
 		'Exalead'              => 'Exabot',
 		'Majestic'             => 'MJ12Bot',
+		'Ahrefs'               => 'AhrefsBot',
 	);
 	return $bots;
+}
+
+/**
+ * Removes unwanted metadata fields from custom field indexing.
+ *
+ * This function hooks on to relevanssi_index_custom_fields and stops Relevanssi
+ * from indexing a bunch of custom fields than only contain metadata that is
+ * not useful to index.
+ *
+ * @param array $custom_fields A list of custom field names.
+ *
+ * @return @array The custom fields with the excluded fields removed.
+ */
+function relevanssi_remove_metadata_fields( array $custom_fields ) : array {
+	$excluded_fields = array(
+		'_edit_last',
+		'_edit_lock',
+		'_encloseme',
+		'_pingme',
+		'_relevanssi_hide_content',
+		'_relevanssi_hide_content',
+		'_relevanssi_hide_post',
+		'_relevanssi_pin_for_all',
+		'_relevanssi_pin_keywords',
+		'_relevanssi_related_exclude_ids',
+		'_relevanssi_related_include_ids',
+		'_relevanssi_related_keywords',
+		'_relevanssi_related_no_append',
+		'_relevanssi_related_not_related',
+		'_relevanssi_related_posts',
+		'_relevanssi_unpin_keywords',
+		'_thumbnail_id',
+		'_wp_attachment_metadata',
+		'_wp_page_template',
+		'classic-editor-remember',
+	);
+	return array_diff( $custom_fields, $excluded_fields );
 }

@@ -122,7 +122,11 @@ function relevanssi_do_excerpt( $t_post, $query, $excerpt_length = null, $excerp
 
 	// Add the custom field content.
 	if ( 'on' === get_option( 'relevanssi_excerpt_custom_fields' ) ) {
-		$content .= relevanssi_get_custom_field_content( $post->ID );
+		if ( 'user' === $post->post_type && function_exists( 'relevanssi_get_user_custom_field_content' ) ) {
+			$content .= relevanssi_get_user_custom_field_content( $post->ID );
+		} else {
+			$content .= relevanssi_get_custom_field_content( $post->ID );
+		}
 	}
 
 	/**
@@ -153,6 +157,16 @@ function relevanssi_do_excerpt( $t_post, $query, $excerpt_length = null, $excerp
 
 	// Replace linefeeds and carriage returns with spaces.
 	$content = preg_replace( "/\n\r|\r\n|\n|\r/", ' ', $content );
+
+	// Replace spaces inside HTML tags to avoid splitting tags when doing
+	// word-based excerpts.
+	$content = preg_replace_callback(
+		'~<([!a-zA-Z\/][^>].*?)>~s',
+		function( $match ) {
+			return '<' . str_replace( ' ', '*VÄLILYÖNTI*', $match[1] ) . '>';
+		},
+		$content
+	);
 
 	if ( 'OR' === get_option( 'relevanssi_implicit_operator' ) || 'on' === get_option( 'relevanssi_index_synonyms' ) ) {
 		$query = relevanssi_add_synonyms( $query );
@@ -434,6 +448,12 @@ function relevanssi_create_excerpts( $content, $terms, $query, $excerpt_length =
 		}
 	}
 
+	array_walk(
+		$excerpts,
+		function( &$excerpt ) {
+			$excerpt['text'] = str_replace( '*VÄLILYÖNTI*', ' ', $excerpt['text'] );
+		}
+	);
 	return $excerpts;
 }
 
@@ -573,7 +593,7 @@ function relevanssi_highlight_terms( $content, $query, $convert_entities = false
 	);
 
 	if ( ! is_array( $query ) ) {
-		$query = explode( ' ', $query );
+		$query = explode( ' ', relevanssi_strtolower( $query ) );
 	}
 
 	$body_stopwords = function_exists( 'relevanssi_fetch_body_stopwords' )
@@ -617,7 +637,8 @@ function relevanssi_highlight_terms( $content, $query, $convert_entities = false
 	usort( $terms, 'relevanssi_strlen_sort' );
 
 	$content = strtr( $content, array( "\xC2\xAD" => '' ) );
-	$content = html_entity_decode( $content, ENT_QUOTES, 'UTF-8' );
+	$content = relevanssi_entity_decode( $content, ENT_QUOTES, 'UTF-8' );
+
 	if ( ! $convert_entities ) {
 		$content = str_replace( "\n", ' ', $content );
 	}
@@ -687,7 +708,7 @@ function relevanssi_highlight_terms( $content, $query, $convert_entities = false
 			$content
 		);
 
-		if ( preg_match_all( '/<.*>/U', $content, $matches ) > 0 ) {
+		if ( preg_match_all( '/<.*>/Usm', $content, $matches ) > 0 ) {
 			// Remove highlights from inside HTML tags.
 			foreach ( $matches as $match ) {
 				$new_match = str_replace( $start_emp_token, '', $match );
@@ -940,7 +961,7 @@ function relevanssi_remove_nested_highlights( $string, $begin, $end ) {
 }
 
 /**
- * Finds the  locations of each word.
+ * Finds the locations of each word.
  *
  * Originally lifted from http://www.boyter.org/2013/04/building-a-search-result-extract-generator-in-php/
  * Finds the location of each word in the fulltext.
@@ -992,9 +1013,11 @@ function relevanssi_extract_locations( $words, $fulltext ) {
  * @return int Number of times the words appear in the text.
  */
 function relevanssi_count_matches( $words, $complete_text ) {
-	$count          = 0;
-	$lowercase_text = relevanssi_strtolower( $complete_text, 'UTF-8' );
-	$text           = '';
+	$count = 0;
+	$text  = '';
+
+	// Add the space in case the match is the last word in the text.
+	$lowercase_text = relevanssi_strtolower( $complete_text, 'UTF-8' ) . ' ';
 
 	$count_words = count( $words );
 	for ( $t = 0; $t < $count_words; $t++ ) {
@@ -1528,4 +1551,30 @@ function relevanssi_add_excerpt( &$post, $query ) {
 	if ( isset( $post->blog_id ) ) {
 		restore_current_blog();
 	}
+}
+
+/**
+ * Runs html_entity_decode(), then restores entities inside data attributes.
+ *
+ * @uses html_entity_decode
+ *
+ * @param string $content The content to decode.
+ * @param int    $flags   The flags for html_entity_decode, default ENT_QUOTES.
+ * @param string $charset The charset for html_entity_decode, default 'UTF-8'.
+ *
+ * @return string The decoded content.
+ */
+function relevanssi_entity_decode( $content, $flags = ENT_QUOTES, $charset = 'UTF-8' ) {
+	$content = html_entity_decode( $content, $flags, $charset );
+	if ( preg_match_all( '/data-.+?="(.*?)"/sm', $content, $matches ) ) {
+		$source  = array();
+		$replace = array();
+		foreach ( $matches[1] as $match ) {
+			$source[]  = $match;
+			$replace[] = htmlentities( $match );
+		}
+		$content = str_replace( $source, $replace, $content );
+	}
+
+	return $content;
 }
