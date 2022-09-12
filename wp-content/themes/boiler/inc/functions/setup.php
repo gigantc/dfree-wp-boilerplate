@@ -85,11 +85,12 @@ function lawfirm_scripts() {
 
   wp_register_script( 'lawfirm-js', get_template_directory_uri() . '/js/main.min.js', array('jquery'), '1.0.0', true );
   wp_register_script( 'libs', get_template_directory_uri() . '/js/libs/libs.min.js', array('jquery'), '1.0.0', true );
-  wp_register_script('slick', "http" . ($_SERVER['SERVER_PORT'] == 443 ? "s" : "") . "://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js", false, null);
+  wp_register_script('slick', "https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js", array(), '1.8.1', true );
 
-  //scrollmagic and tweenmagic
-  wp_register_script( 'gsap', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/gsap.min.js', array(), '3.8.0', true );
-  wp_register_script( 'scrolltrigger', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.8.0/ScrollTrigger.min.js', array(), '3.8.0', true );
+  // gsap and scrolltrigger
+  // find more gsap libraries here -> https://cdnjs.com/libraries/gsap
+  wp_register_script( 'gsap', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js', array(), '3.11.1', true );
+  wp_register_script( 'scrolltrigger', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/ScrollTrigger.min.js', array(), '3.11.1', true );
 
   //wp_enqueue_script( 'jquery' );
   wp_enqueue_script( 'lawfirm-js' );
