@@ -9,9 +9,9 @@ Author: CAGE Web Design | Rolf van Gelder, Eindhoven, The Netherlands
 Contributors: cageehv
 Requires at least: 2.8
 Requires PHP: 5.0
-Tested up to: 5.8
-Stable tag: 5.0.9
-Version: 5.0.9
+Tested up to: 6.0
+Stable tag: 5.0.10
+Version: 5.0.10
 License: GPLv2 or later
 
 == Description ==
@@ -111,6 +111,9 @@ http://cagewebdev.com/category/news-tech-art/wordpress/
 * If you run the plugin from any of the sites, it will cleanup ALL the sites in the network!
 
 == Changelog ==
+= 5.0.10 [10/26/2021] =
+* BUG FIX: set_time_limit fixed
+
 = 5.0.9 [08/04/2021] =
 * BUG FIX: Syntax error corrected
 

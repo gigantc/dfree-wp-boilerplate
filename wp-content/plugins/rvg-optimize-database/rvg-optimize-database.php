@@ -1,7 +1,7 @@
 <?php
 /**
  * @package Optimize Database after Deleting Revisions
- * @version 5.0.9
+ * @version 5.0.10
  */
 /*
 Plugin Name: Optimize Database after Deleting Revisions
@@ -10,7 +10,7 @@ Description: Optimizes the Wordpress Database after Cleaning it out
 Author: CAGE Web Design | Rolf van Gelder, Eindhoven, The Netherlands
 Author URI: http://cagewebdev.com
 Network: True
-Version: 5.0.9
+Version: 5.0.110
 */
 
 /********************************************************************************************
@@ -19,17 +19,29 @@ Version: 5.0.9
  *
  ********************************************************************************************/
  
-// INCREASE THE TIME LIMIT v4.7.4
-@set_time_limit(4*3600);
- 
+//v5.0.10
+$action = '';
+if(isset($_REQUEST['action'])) {
+	$action = $_REQUEST['action'];
+}
+if ($action == 'analyze_summary' ||
+	$action == 'analyze_detail' ||
+	$action == 'run_summary' ||
+	$action == 'run_detail') {
+	@set_time_limit(4*3600);
+} else {
+	// GET DEFAULT VALUE FROM PHP.INI
+	$max = ini_get('max_execution_time');
+	@set_time_limit($max);
+}
 // CREATE INSTANCE
 global $odb_class;
 $odb_class = new OptimizeDatabase();
 
 class OptimizeDatabase {
 	// VERSION
-	var $odb_version           = '5.0.9';
-	var $odb_release_date      = '08/04/2021';
+	var $odb_version           = '5.0.10';
+	var $odb_release_date      = '10/26/2021';
 
 	// PLUGIN OPTIONS
 	var $odb_rvg_options       = array();

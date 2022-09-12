@@ -967,7 +967,7 @@ function odb_confirm_delete() {
 		} // if($odb_class->odb_logger_obj->odb_log_count() > 0)
 ?>
       </div><!-- /odb-done -->		
-<?php	
+<?php
 	} // odb_done()
 
 
