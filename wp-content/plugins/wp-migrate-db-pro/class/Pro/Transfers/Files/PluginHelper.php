@@ -182,16 +182,12 @@ class PluginHelper
 
         $slashed  = $this->filesystem->slash_one_direction($abs_path);
         $date     = isset($_POST['date']) ? $state_data['date'] : null;
-        $timezone = isset($_POST['timezone']) ? $state_data['timezone'] : null;
+        $timezone = !empty($_POST['timezone']) ? $state_data['timezone'] : 'UTC';
 
         $folders = unserialize($state_data['folders']);
 
         if ('media_files' === $stage) {
             $folders = apply_filters('wpmdb_mf_remote_uploads_folder', $folders, $state_data);
-        }
-
-        if (empty($folders)) {
-            return $this->http->end_ajax(new \WP_Error('wpmdb_empty_folder_list', __('Empty folder path provided.', 'wp-migrate-db')));
         }
 
         $items = $folders;
@@ -316,7 +312,9 @@ class PluginHelper
             'intent'          => 'string',
             'folders'         => 'array',
             'theme_folders'   => 'array',
+            'themes_option'   => 'string',
             'plugin_folders'  => 'array',
+            'plugins_option'  => 'string',
             'sig'             => 'string',
         );
 

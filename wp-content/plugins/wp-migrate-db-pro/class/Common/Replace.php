@@ -2,6 +2,8 @@
 
 namespace DeliciousBrains\WPMDB\Common;
 
+use DeliciousBrains\WPMDB\Common\DryRun\DiffEntity;
+use DeliciousBrains\WPMDB\Common\DryRun\DiffInterpreter;
 use DeliciousBrains\WPMDB\Common\Error\ErrorLog;
 use DeliciousBrains\WPMDB\Common\FormData\FormData;
 use DeliciousBrains\WPMDB\Common\Http\Helper;
@@ -20,11 +22,11 @@ class Replace
     /**
      * @var
      */
-    protected $search;
+    protected $search = [];
     /**
      * @var
      */
-    protected $replace;
+    protected $replace = [];
     /**
      * @var
      */
@@ -160,6 +162,11 @@ class Replace
      */
     private $http;
 
+    /**
+     * @var DiffInterpreter
+     */
+    private $diff_interpreter;
+
     public function __construct(
         MigrationStateManager $migration_state_manager,
         TableHelper $table_helper,
@@ -170,7 +177,8 @@ class Replace
         PairFactory $pairs_factory,
         WPMDBRestAPIServer $rest_api_server,
         Helper $http_helper,
-        Http $http
+        Http $http,
+        DiffInterpreter $diff_interpreter
     ) {
         $this->migration_state_manager = $migration_state_manager;
         $this->table_helper            = $table_helper;
@@ -181,6 +189,7 @@ class Replace
         $this->rest_api_server         = $rest_api_server;
         $this->http_helper             = $http_helper;
         $this->http                    = $http;
+        $this->diff_interpreter        = $diff_interpreter;
         self::$form_data               = $form_data;
 
         //Setup REST API routes
@@ -237,6 +246,9 @@ class Replace
         $this->json_replace_columns = '';
         $this->json_merged          = false;
 
+        // Set diff interpreter table name
+        $this->diff_interpreter->getGroup()->setTable($this->table);
+
         global $wpdb;
 
         $prefix = $wpdb->base_prefix;
@@ -274,8 +286,11 @@ class Replace
     {
         $find_replace_pairs     = [
             'regex'          => [],
-            'case_sensitive' => []
+            'case_sensitive' => [],
+            'replace_old'    => [],
+            'replace_new'    => []
         ];
+
         $tmp_find_replace_pairs = [];
         $migration_options     = self::$form_data->getFormData();
 
@@ -290,14 +305,12 @@ class Replace
 
 
         // Standard Pairs
-        if (
-            isset($migration_options['search_replace']['standard_search_replace'], $migration_options['search_replace']['standard_search_visible'])
-            && !empty($migration_options['search_replace']['standard_search_replace'])
+        if ( !empty($migration_options['search_replace']['standard_search_replace'])
             && $migration_options['search_replace']['standard_search_visible']
         ) {
             $standard_pairs = $migration_options['search_replace']['standard_search_replace'];
             foreach ($standard_pairs as $key => $pair) {
-                if (in_array($key, $migration_options['search_replace']['standard_options_enabled'])) {
+                if (in_array($key, $migration_options['search_replace']['standard_options_enabled'], true)) {
                     $tmp_find_replace_pairs[$pair['search']] = $pair['replace'];
                 }
             }
@@ -305,7 +318,6 @@ class Replace
 
         // Custom pairs
         if (
-            isset($migration_options['search_replace']['custom_search_replace']) &&
             !empty($migration_options['search_replace']['custom_search_replace'])
         ) {
             $standard_pairs_count = count($tmp_find_replace_pairs);
@@ -337,11 +349,6 @@ class Replace
                 $find_replace_pairs['replace_new'][$i] = $replace_new;
                 $i++;
             }
-        }
-
-        if (empty($find_replace_pairs)) {
-            $find_replace_pairs['replace_old'] = [];
-            $find_replace_pairs['replace_new'] = [];
         }
 
         return $find_replace_pairs;
@@ -550,6 +557,8 @@ class Replace
      */
     public function apply_replaces($subject)
     {
+        $original = $subject;
+
         if (empty($this->search) && empty($this->replace)) {
             return $subject;
         }
@@ -570,6 +579,10 @@ class Replace
 
         if (true === $this->is_protocol_mismatch) {
             $subject = $this->do_protocol_replace($subject, $this->destination_url);
+        }
+
+        if ('find_replace' === $this->intent) {
+            $this->diff_interpreter->compute(DiffEntity::create($original, $subject, $this->column, is_object($this->row) ? reset($this->row) : null));
         }
 
         return $subject;
@@ -640,7 +653,7 @@ class Replace
                         $objectName = array();
                         preg_match('/O:\d+:\"([^\"]+)\"/', $data, $objectName);
                         $objectName = $objectName[1] ? $objectName[1] : $data;
-                        $error      = sprintf(__("WP Migrate DB - Failed to instantiate object for replacement. If the serialized object's class is defined by a plugin, you should enable that plugin for migration requests. \nClass Name: %s", 'wp-migrate-db'), $objectName);
+                        $error      = sprintf(__("WP Migrate - Failed to instantiate object for replacement. If the serialized object's class is defined by a plugin, you should enable that plugin for migration requests. \nClass Name: %s", 'wp-migrate-db'), $objectName);
                         error_log($error);
 
                         return $data;
@@ -839,14 +852,19 @@ class Replace
      * @throws \DI\NotFoundException
      */
     public function validate_regex_pattern() {
-        $_POST = $this->http_helper->convert_json_body_to_post();
-
+       $_POST = $this->http_helper->convert_json_body_to_post();
+        if (isset($_POST['pattern'])) {
+            $pattern = Util::safe_wp_unslash($_POST['pattern']);
+            if (Util::is_regex_pattern_valid( $pattern ) === false) {
+                return $this->http->end_ajax(false);
+            }
+        }
         $key_rules = array(
-            'pattern' => 'string',
+            'pattern' => 'regex',
         );
 
         $state_data = $this->migration_state_manager->set_post_data( $key_rules );
-        return $this->http->end_ajax( Util::is_regex_pattern_valid( $state_data['pattern'] ) );
+        return $this->http->end_ajax(isset($state_data['pattern']) === true);
     }
 
     public function register_rest_routes() {
@@ -873,5 +891,27 @@ class Replace
      */
     public function reset_pairs() {
         $this->pairs = [];
+    }
+
+
+    /**
+     * @return DiffInterpreter
+     */
+    public function get_diff_interpreter() {
+        return $this->diff_interpreter;
+    }
+
+
+    /**
+     * Returns an array of json serialized entities.
+     *
+     * @return array
+     */
+    public function get_diff_result() {
+        $result = [];
+        foreach($this->diff_interpreter->getGroup()->getEntities() as $entity) {
+            $result[] = $entity->jsonSerialize();
+        }
+        return $result;
     }
 }

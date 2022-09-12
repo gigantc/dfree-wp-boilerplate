@@ -54,7 +54,7 @@ class FileProcessor
      *
      * @return array
      */
-    public function get_local_files($directories, $abs_path = '', $excludes = array(), $stage = '', $date = null, $timezone = null, $intent = null)
+    public function get_local_files($directories, $abs_path = '', $excludes = array(), $stage = '', $date = null, $timezone = 'UTC', $intent = null)
     {
         $count      = 0;
         $total_size = 0;
@@ -64,6 +64,9 @@ class FileProcessor
         $scan_completed = false;
         $directories = $this->recursive_scanner->unset_manifest_file($directories);
         $dirs_count = count($directories);
+        if ($dirs_count === 0 ) {
+            $scan_completed = true;
+        }
 
         $this->recursive_scanner->set_excludes($excludes);
         $this->recursive_scanner->set_intent($intent);
