@@ -93,11 +93,11 @@ function lawfirm_scripts() {
   wp_register_script( 'scrolltrigger', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/ScrollTrigger.min.js', array(), '3.11.1', true );
 
   //wp_enqueue_script( 'jquery' );
-  wp_enqueue_script( 'lawfirm-js' );
-  wp_enqueue_script('libs');
-  wp_enqueue_script('slick');
   wp_enqueue_script('gsap');
   wp_enqueue_script('scrolltrigger');
+  wp_enqueue_script('libs');
+  wp_enqueue_script('slick');
+  wp_enqueue_script( 'lawfirm-js' );
 
   //only use add indicators on a dev server
   if ($_SERVER['HTTP_HOST']==="lawfirm.test") {
