@@ -1,14 +1,14 @@
 === Custom Post Type UI ===
 Contributors: webdevstudios, pluginize, tw2113, vegasgeek, modemlooper, williamsba1
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3084056
-Tags: custom post types, CPT, CMS, post, types, post type, taxonomy, tax, custom, content types, post types
+Tags: custom post types, post type, taxonomy, content types, CPT, CMS, post, types, custom
 Requires at least: 5.9
-Tested up to: 6.0.2
-Stable tag: 1.13.1
+Tested up to: 6.2
+Stable tag: 1.13.5
 License: GPL-2.0+
 Requires PHP: 5.6
 
-Admin UI for creating custom post types and custom taxonomies for WordPress
+Admin UI for creating custom content types like post types and taxonomies
 
 == Description ==
 
@@ -35,6 +35,24 @@ Custom Post Type UI development is managed on GitHub, with official releases pub
 5. Help/support screen.
 
 == Changelog ==
+
+= 1.13.5 - 2023-03-27 =
+* Fixed: Security issue in CPTUI Debug Info screen.
+* Fixed: Added `empty()` check for `can_export` parameters.
+* Updated: Changed textdomain loading from `plugins_loaded` to `init`.
+
+= 1.13.4 - 2022-12-16 =
+* Fixed: Character encoding issue on CPTUI setting save in conjunction with PHP8 compatibility.
+
+= 1.13.3 - 2022-12-15 =
+* Fixed: Multiple PHP8 compatibility notices and warnings.
+* Fixed: "Invalid argument for foreach" based notices around labels.
+* Updated: Added taxonomy PHP global sanitization for 3rd party parameters.
+
+= 1.13.2 - 2022-11-29 =
+* Fixed: Removed forcing of underscores in place of dashes for taxonomy slugs. Yay!
+* Updated: tested up to WP 6.1.1
+* Updated: Documentation links in wordpress.org FAQ section.
 
 = 1.13.1 - 2022-09-08 =
 * Fixed: Various issues caused by a misplaced output for `ob_get_clean()` outside of function.
@@ -77,6 +95,24 @@ Custom Post Type UI development is managed on GitHub, with official releases pub
 * Fixed: PHP warnings around foreach loops in cptui_published_post_format_fix()
 
 == Upgrade Notice ==
+
+= 1.13.5 - 2023-03-27 =
+* Fixed: Security issue in CPTUI Debug Info screen.
+* Fixed: Added `empty()` check for `can_export` parameters.
+* Updated: Changed textdomain loading from `plugins_loaded` to `init`.
+
+= 1.13.4 - 2022-12-16 =
+* Fixed: Character encoding issue on CPTUI setting save in conjunction with PHP8 compatibility.
+
+= 1.13.3 - 2022-12-15 =
+* Fixed: Multiple PHP8 compatibility notices and warnings.
+* Fixed: "Invalid argument for foreach" based notices around labels.
+* Updated: Added taxonomy PHP global sanitization for 3rd party parameters.
+
+= 1.13.2 - 2022-11-29 =
+* Fixed: Removed forcing of underscores in place of dashes for taxonomy slugs. Yay!
+* Updated: tested up to WP 6.1.1
+* Updated: Documentation links in wordpress.org FAQ section.
 
 = 1.13.1 - 2022-09-08 =
 * Fixed: Various issues caused by a misplaced output for `ob_get_clean()` outside of function.
@@ -142,7 +178,4 @@ That's it! Now you can easily start creating custom post types and taxonomies in
 == Frequently Asked Questions ==
 
 #### User documentation
-Please see http://docs.pluginize.com/category/126-custom-post-type-ui
-
-#### Code/API documentation
-Please see http://codex.pluginize.com/cptui/
+Please see https://docs.pluginize.com/tutorials/custom-post-type-ui/
