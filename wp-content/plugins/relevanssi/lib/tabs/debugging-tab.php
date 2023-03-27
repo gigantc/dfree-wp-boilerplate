@@ -125,33 +125,42 @@ function relevanssi_debugging_tab() {
 
 	<?php echo $db_post_view; // phpcs:ignore WordPress.Security.EscapeOutput ?>
 
-	<?php do_action( 'relevanssi_debugging_tab' ); ?>
+	<h2><?php esc_html_e( 'Debugging information', 'relevanssi' ); ?></h2>
 
 	<?php
-}
-
-/**
- * Generates the debugging view for a post.
- *
- * @param int $post_id ID of the post.
- *
- * @return string The debugging view in a div container.
- */
-function relevanssi_generate_db_post_view( int $post_id ) {
 	global $wpdb;
+	$max_allowed_packet = $wpdb->get_var( 'SELECT @@global.max_allowed_packet' );
+	$max_allowed_packet = round( $max_allowed_packet / 1024 / 1024, 2 );
+	echo '<p>max_allowed_packet: ' . $max_allowed_packet . 'M</p>'; // phpcs:ignore WordPress.Security.EscapeOutput
 
-	$element = '<div id="relevanssi_db_view_container">';
+	$indexing_query = relevanssi_generate_indexing_query(
+		relevanssi_valid_status_array(),
+		false,
+		relevanssi_post_type_restriction(),
+		0
+	);
+	?>
+	<p><?php esc_html_e( 'Indexing query', 'relevanssi' ); ?>:</p>
+	<?php
+	echo '<code>' . $indexing_query . '</code>'; // phpcs:ignore WordPress.Security.EscapeOutput
+	?>
 
-	$post_object = get_post( $post_id );
+	<?php do_action( 'relevanssi_debugging_tab' ); ?>
 
-	if ( ! $post_object ) {
-		$element .= '<p>' . esc_html__( 'Post not found', 'relevanssi' ) . '</p>';
-		$element .= '</div>';
-		return $element;
-	}
+	<h2><?php esc_html_e( 'Debugging mode', 'relevanssi' ); ?></h2>
 
-	$element .= '<p>' . esc_html( $post_object->post_content ) . '</p>';
+	<?php
+	$enable_debugging_mode = relevanssi_check( get_option( 'relevanssi_debugging_mode' ) );
+	?>
 
-	$element .= '</div>';
-	return $element;
+	<fieldset>
+		<legend class="screen-reader-text"><?php esc_html_e( 'Enable the debugging mode.', 'relevanssi' ); ?></legend>
+		<label for='relevanssi_debugging_mode'>
+			<input type='checkbox' name='relevanssi_debugging_mode' id='relevanssi_debugging_mode' <?php echo esc_html( $enable_debugging_mode ); ?> />
+			<?php esc_html_e( 'Enable the debugging mode.', 'relevanssi' ); ?>
+		</label>
+		<p class="description"><?php esc_html_e( "Relevanssi support may ask you to enable the debugging mode. When you check this box, it's possible to see debugging information from the front-end.", 'relevanssi' ); ?></p>
+	</fieldset>
+
+	<?php
 }
