@@ -90,7 +90,7 @@ function reload(done) {
 /* WATCH */
 function watchTask(){
     browserSync.init({
-        proxy: "playground.test"
+        proxy: "boiler.local"
     });
     watch(
         [files.blocksPath],
