@@ -1,17 +1,21 @@
 === Force Regenerate Thumbnails ===
-Contributors: Pedro Elsner
-Requires at least: 2.8
-Tested up to: 4.0
-Stable tag: trunk
+Contributors: pedro-elsner, nosilver4u
+Requires at least: 4.9
+Tested up to: 6.2
+Requires PHP: 7.2
+Stable tag: 2.1.2
+License: GPLv2
 Tags: force, regenerate thumbnails, thumbnail, thumbnails
 
-Delete and REALLY force the regenerate thumbnail.
+Delete and REALLY force thumbnail regeneration.
 
 == Description ==
 
-Force Regenerate Thumbnails allows you to delete all old images size and REALLY regenerate the thumbnails for your image attachments.
+Force Regenerate Thumbnails allows you to delete all old images sizes and REALLY regenerate the thumbnails for your uploads.
 
-See the [screenshots tab](http://wordpress.org/extend/plugins/force-regenerate-thumbnails/screenshots/) for more details.
+Regenerate all thumbnails from the Tools admin menu. Regenerate batches of images via the Media Library list mode. Select the images to regenerate and then use the Bulk Actions drop-down menu to Force Regenerate Thumbnails. Use attachment actions to regenerate thumbnails for a single image.
+
+Several filters exist for advanced usage. See more via [this gist](https://gist.github.com/nosilver4u/eb858df10521aece2044a3a15ccdd17b).
 
 == Installation ==
 
@@ -19,6 +23,7 @@ See the [screenshots tab](http://wordpress.org/extend/plugins/force-regenerate-t
 2. Search for "Force Regenerate Thumbnails".
 3. Click install.
 4. Click activate.
+5. Go to Tools -> Force Regenerate Thumbnails OR select specific images from the Media Library list mode to regenerate.
 
 == Screenshots ==
 
@@ -26,6 +31,23 @@ See the [screenshots tab](http://wordpress.org/extend/plugins/force-regenerate-t
 2. You can resize specific multiples images using the checkboxes and the "Bulk Actions" dropdown
 
 == ChangeLog ==
+
+= 2.1.2 =
+* changed: improved i18n for page headings and menu entries, props @alexclassroom
+
+= 2.1.1 =
+* fixed: invalid trailing comma syntax in PHP 7.2
+
+= 2.1.0 =
+* added: PHP 8.0 compatibility
+* added: support generating thumbnails from original (pre-scaled), on by default
+* added: support for PDF thumbnail generation
+* added: ability to skip an image by regenerate_thumbs_skip_image filter
+* changed: escape all output, sanitize all input
+* changed: ensure all strings are i18n
+* changed: remove HTML from i18n strings
+* changed: improve path lookup function
+* fixed: call to set_time_limit() when it is not allowed
 
 = 2.0.6 =
 * Add PHP7 compatibility
@@ -47,35 +69,8 @@ See the [screenshots tab](http://wordpress.org/extend/plugins/force-regenerate-t
 = 2.0.1 =
 * Fix issue with get_option('upload_path') in Wordpress 3.5+ (thanks @DavidLingren)
 
-= 2.0.0 = 
+= 2.0.0 =
 * Fix error handle
 
-= 1.8 =
-* New function to display ajax results
-
-= 1.7 =
-* Fix issue with getters path in Linux/Windows/Unix servers
-
-= 1.6 =
-* New CORE to regenerate thumbnails
-
-= 1.5 =
-* Reviewed some messages
-
-= 1.4 =
-* Change default image editor to GB in Wordpress 3.5+ (thanks @nikcree)
-
-= 1.3 =
-* Fix message error when WP_DEBUG in wp_config.php
-
-= 1.2 =
-* Fix for JPEG images
-
-= 1.1 =
-* Delete all custom image sizes when regenerate thumbnails
-* Notifies you when thumbnails was deleted 
-
-= 1.0 =
-* First release.
-
-== Upgrade Notice ==
+= Earlier versions =
+Please refer to the separate changelog.txt file.
