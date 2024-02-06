@@ -54,3 +54,4 @@ config.codekit
 wp-content/db.php
 wp-content/w3tc-config/
 /local-xdebuginfo.php
+/wp-config.php
