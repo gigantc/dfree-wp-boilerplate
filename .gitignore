@@ -53,3 +53,4 @@ config.codekit
 .sass-cache
 wp-content/db.php
 wp-content/w3tc-config/
+/local-xdebuginfo.php
