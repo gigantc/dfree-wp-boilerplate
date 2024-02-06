@@ -3,8 +3,8 @@ Contributors: hijiri
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TT5NP352P6MCU
 Tags: post order, posts order, order post, order posts, custom post type order, custom taxonomy order
 Requires at least: 3.5.0
-Tested up to: 6.1.1
-Stable tag: 3.1.4.1
+Tested up to: 6.4.2
+Stable tag: 3.1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -101,6 +101,10 @@ Go to "screen options" and change "Number of items per page:".
 
 == Changelog ==
 
+= 3.1.5 =
+
+* Security fixes. ( @timohubois )
+
 = 3.1.4.1 =
 
 * fixed hicpo_add_capabilities: add capabilities only when role exists.
@@ -122,7 +126,7 @@ Go to "screen options" and change "Number of items per page:".
 = 3.1.2 =
 
 * Solved the problem of layout collapse during drag and drop sorting.
-  
+
 = 3.1.1 =
 
 * Remove deprecated function 'secreen_icon()'.
@@ -175,7 +179,7 @@ Go to "screen options" and change "Number of items per page:".
 
 * Support the Custom Taxonomy Order!!
   ( wp_list_categories, get_categories, the_terms, the_tags, get_terms, get_the_terms, get_the_term_list, the_category, wp_dropdown_categories, the_taxonomies )
-* Suuport the sorting in admin UI.
+* Support the sorting in admin UI.
   While having sorted, Drag and Drop Sortable Javascript don't run.
 * Support non public objects( show_ui=true, show_in_menu=true )
 * Add Japanese Translations.
