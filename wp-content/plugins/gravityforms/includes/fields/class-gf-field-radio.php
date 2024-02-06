@@ -124,7 +124,7 @@ class GF_Field_Radio extends GF_Field {
 		$id            = $this->id;
 		$field_id      = $is_entry_detail || $is_form_editor || $form_id == 0 ? "input_$id" : 'input_' . $form_id . "_$id";
 		$disabled_text = $is_form_editor ? 'disabled="disabled"' : '';
-		$tag           = GFCommon::is_legacy_markup_enabled( $form_id ) ? 'ul' : 'div';
+		$tag           = GFCommon::is_legacy_markup_enabled( $form ) ? 'ul' : 'div';
 
 		return sprintf( "<div class='ginput_container ginput_container_radio'><{$tag} class='gfield_radio' id='%s'>%s</{$tag}></div>", $field_id, $this->get_radio_choices( $value, $disabled_text, $form_id ) );
 
@@ -226,6 +226,7 @@ class GF_Field_Radio extends GF_Field {
 	 * Returns the choice HTML.
 	 *
 	 * @since 2.4.17
+	 * @since 2.7 Added `gchoice_other_control` class to Other choice text input.
 	 *
 	 * @param array  $choice        The choice properties.
 	 * @param int    &$choice_id    The choice number.
@@ -264,26 +265,26 @@ class GF_Field_Radio extends GF_Field {
 		$aria_describedby = $this->add_aria_description( $checked, $choice_id ) ? $this->get_aria_describedby() : '';
 
 		$tabindex = $this->get_tabindex();
-		$label    = sprintf( "<label for='choice_%s' id='label_%s'>%s</label>", $id, $id, $choice['text'] );
+		$label    = sprintf( "<label for='choice_%s' id='label_%s' class='gform-field-label gform-field-label--type-inline'>%s</label>", $id, $id, $choice['text'] );
 
 		// Handle 'other' choice.
 		if ( $this->enableOtherChoice && rgar( $choice, 'isOtherChoice' ) ) {
-			$other_default_value = empty( $choice['text'] ) ? GFCommon::get_other_choice_value( $this ) : $choice['text'];
-			$input_disabled_text = $value === 'gf_other_choice' || rgpost( "input_{$this->id}" ) === 'gf_other_choice' ? '' : " disabled='disabled'";
-
-			$value_exists = GFFormsModel::choices_value_match( $this, $this->choices, $value );
+			$input_disabled_text = $disabled_text;
 
 			if ( $value == 'gf_other_choice' && rgpost( "input_{$this->id}_other" ) ) {
 				$other_value = rgpost( "input_{$this->id}_other" );
-			} elseif ( ! $value_exists && ! empty( $value ) ) {
+			} elseif ( ! empty( $value ) && ! GFFormsModel::choices_value_match( $this, $this->choices, $value ) ) {
 				$other_value = $value;
 				$value       = 'gf_other_choice';
 				$checked     = "checked='checked'";
 			} else {
-				$other_value = $other_default_value;
+				if ( ! $input_disabled_text ) {
+					$input_disabled_text = "disabled='disabled'";
+				}
+				$other_value = empty( $choice['text'] ) ? GFCommon::get_other_choice_value( $this ) : $choice['text'];
 			}
 
-			$label .= "<br /><input id='input_{$this->formId}_{$this->id}_other' name='input_{$this->id}_other' type='text' value='" . esc_attr( $other_value ) . "' aria-label='" . esc_attr__( 'Other Choice, please specify', 'gravityforms' ) . "' $tabindex $input_disabled_text />";
+			$label .= "<br /><input id='input_{$this->formId}_{$this->id}_other' class='gchoice_other_control' name='input_{$this->id}_other' type='text' value='" . esc_attr( $other_value ) . "' aria-label='" . esc_attr__( 'Other Choice, please specify', 'gravityforms' ) . "' $tabindex $input_disabled_text />";
 		}
 
 		$choice_markup = sprintf( "
@@ -345,7 +346,7 @@ class GF_Field_Radio extends GF_Field {
 		}
 
 		$tabindex    = $this->get_tabindex();
-		$label       = sprintf( "<label for='choice_%s' id='label_%s'>%s</label>", $id, $id, $choice['text'] );
+		$label       = sprintf( "<label for='choice_%s' id='label_%s' class='gform-field-label gform-field-label--type-inline'>%s</label>", $id, $id, $choice['text'] );
 		$input_focus = '';
 
 		// Handle 'other' choice.

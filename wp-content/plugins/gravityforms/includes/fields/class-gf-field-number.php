@@ -75,8 +75,10 @@ class GF_Field_Number extends GF_Field {
 				$v = $this->clean_value( $v );
 			}
 		} else {
-			$value = trim( $value );
-			$value = $this->clean_value( $value );
+			if ( is_string( $value ) ) {
+				$value = trim( $value );
+				$value = $this->clean_value( $value );
+			}
 		}
 
 		return $value;
@@ -114,22 +116,44 @@ class GF_Field_Number extends GF_Field {
 		// If the POST value is an array then the field is inside a repeater so use $value.
 		$raw_value = isset( $_POST[ 'input_' . $this->id ] ) && ! is_array( $_POST[ 'input_' . $this->id ] ) ? GFCommon::maybe_add_leading_zero( rgpost( 'input_' . $this->id ) ) : $value;
 
-		$requires_valid_number = ! rgblank( $raw_value ) && ! $this->has_calculation();
+		$has_raw_value         = ! rgblank( trim( $raw_value ) );
+		$requires_valid_number = $has_raw_value && ! $this->has_calculation();
 		$is_valid_number       = $this->validate_range( $value ) && GFCommon::is_numeric( $raw_value, $this->numberFormat );
 
 		if ( $requires_valid_number && ! $is_valid_number ) {
 			$this->failed_validation  = true;
 			$this->validation_message = empty( $this->errorMessage ) ? $this->get_range_message() : $this->errorMessage;
-		} elseif ( $this->type == 'quantity' ) {
+		} elseif ( $this->type == 'quantity' && $has_raw_value ) {
 			if ( intval( $value ) != $value ) {
 				$this->failed_validation  = true;
-				$this->validation_message = empty( $field['errorMessage'] ) ? esc_html__( 'Please enter a valid quantity. Quantity cannot contain decimals.', 'gravityforms' ) : $field['errorMessage'];
-			} elseif ( ! empty( $value ) && ( ! is_numeric( $value ) || intval( $value ) != floatval( $value ) || intval( $value ) < 0 ) ) {
+				$this->validation_message = empty( $this->errorMessage ) ? esc_html__( 'Please enter a valid quantity. Quantity cannot contain decimals.', 'gravityforms' ) : $this->errorMessage;
+			} elseif ( ( ! is_numeric( $value ) || intval( $value ) != floatval( $value ) || intval( $value ) < 0 ) ) {
 				$this->failed_validation  = true;
-				$this->validation_message = empty( $field['errorMessage'] ) ? esc_html__( 'Please enter a valid quantity', 'gravityforms' ) : $field['errorMessage'];
+				$this->validation_message = empty( $this->errorMessage ) ? esc_html__( 'Please enter a valid quantity', 'gravityforms' ) : $this->errorMessage;
 			}
 		}
 
+	}
+
+	/**
+	 * Is the given value considered empty for this field.
+	 *
+	 * Adds a check to the parent method because a value of 0 returns a false positive.
+	 *
+	 * @since 2.7.1
+	 *
+	 * @param $value
+	 *
+	 * @return bool
+	 */
+	public function is_value_empty( $value ) {
+		$empty = parent::is_value_empty( $value );
+
+		if ( $empty && ! rgblank( $value ) ) {
+			return false;
+		}
+
+		return $empty;
 	}
 
 	/**
@@ -149,7 +173,7 @@ class GF_Field_Number extends GF_Field {
 		$numeric_max = $this->numberFormat == 'decimal_comma' ? GFCommon::clean_number( $this->rangeMax, 'decimal_comma' ) : $this->rangeMax;
 
 		if ( ( is_numeric( $numeric_min ) && $value < $numeric_min ) ||
-		     ( is_numeric( $numeric_max ) && $value > $numeric_max )
+			 ( is_numeric( $numeric_max ) && $value > $numeric_max )
 		) {
 			return false;
 		} else {
@@ -158,27 +182,25 @@ class GF_Field_Number extends GF_Field {
 	}
 
 	public function get_range_message() {
-		$min     = $this->rangeMin;
-		$max     = $this->rangeMax;
+		$min = $this->rangeMin;
+		$max = $this->rangeMax;
 
 		$numeric_min = $min;
 		$numeric_max = $max;
 
-		if ( $this->numberFormat == 'decimal_comma' ){
-			$numeric_min = empty( $min ) ? '' : GFCommon::clean_number( $min, 'decimal_comma', '');
-			$numeric_max = empty( $max ) ? '' : GFCommon::clean_number( $max, 'decimal_comma', '');
+		if ( $this->numberFormat == 'decimal_comma' ) {
+			$numeric_min = empty( $min ) ? '' : GFCommon::clean_number( $min, 'decimal_comma', '' );
+			$numeric_max = empty( $max ) ? '' : GFCommon::clean_number( $max, 'decimal_comma', '' );
 		}
 
 		$message = '';
 
 		if ( is_numeric( $numeric_min ) && is_numeric( $numeric_max ) ) {
-			$message = sprintf( esc_html__( 'Please enter a number from %s to %s.', 'gravityforms' ), "<strong>$min</strong>", "<strong>$max</strong>" );
+			$message = sprintf( esc_html__( 'Please enter a number from %1$s to %2$s.', 'gravityforms' ), "<strong>$min</strong>", "<strong>$max</strong>" );
 		} elseif ( is_numeric( $numeric_min ) ) {
 			$message = sprintf( esc_html__( 'Please enter a number greater than or equal to %s.', 'gravityforms' ), "<strong>$min</strong>" );
 		} elseif ( is_numeric( $numeric_max ) ) {
 			$message = sprintf( esc_html__( 'Please enter a number less than or equal to %s.', 'gravityforms' ), "<strong>$max</strong>" );
-		} elseif ( $this->failed_validation && $this->isRequired ) {
-			$message = ''; // Required validation will take care of adding the message here.
 		} elseif ( $this->failed_validation ) {
 			$message = esc_html__( 'Please enter a valid number.', 'gravityforms' );
 		}
@@ -216,33 +238,32 @@ class GF_Field_Number extends GF_Field {
 				$validation_class = $this->failed_validation ? 'validation_message' : '';
 
 				if ( ! $this->failed_validation && ! empty( $message ) && empty( $this->errorMessage ) ) {
-					$instruction = "<div class='instruction $validation_class' id='gfield_instruction_{$this->formId}_{$this->id}'>" . $message . '</div>';
+					$instruction = "<div class='gfield_description instruction $validation_class' id='gfield_instruction_{$this->formId}_{$this->id}'>" . $message . '</div>';
 				}
 			}
-		} elseif ( rgget('view') == 'entry' ) {
+		} elseif ( rgget( 'view' ) == 'entry' ) {
 			$value = GFCommon::format_number( $value, $this->numberFormat, rgar( $entry, 'currency' ) );
 		}
 
-		$is_html5        = RGFormsModel::is_html5_enabled();
-		$html_input_type = $is_html5 && ! $this->has_calculation() && ( $this->numberFormat != 'currency' && $this->numberFormat != 'decimal_comma' ) ? 'number' : 'text'; // chrome does not allow number fields to have commas, calculations and currency values display numbers with commas
-		$step_attr       = $is_html5 ? "step='any'" : '';
+		$html_input_type = ! $this->has_calculation() && ( $this->numberFormat != 'currency' && $this->numberFormat != 'decimal_comma' ) ? 'number' : 'text'; // chrome does not allow number fields to have commas, calculations and currency values display numbers with commas
+		$step_attr       = "step='any'";
 
 		$min = $this->rangeMin;
 		$max = $this->rangeMax;
 
-		$min_attr = $is_html5 && is_numeric( $min ) ? "min='{$min}'" : '';
-		$max_attr = $is_html5 && is_numeric( $max ) ? "max='{$max}'" : '';
+		$min_attr = is_numeric( $min ) ? "min='{$min}'" : '';
+		$max_attr = is_numeric( $max ) ? "max='{$max}'" : '';
 
 		$include_thousands_sep = apply_filters( 'gform_include_thousands_sep_pre_format_number', $html_input_type == 'text', $this );
 		$value                 = GFCommon::format_number( $value, $this->numberFormat, rgar( $entry, 'currency' ), $include_thousands_sep );
 
-		$placeholder_attribute  = $this->get_field_placeholder_attribute();
-		$required_attribute     = $this->isRequired ? 'aria-required="true"' : '';
-		$invalid_attribute      = $this->failed_validation ? 'aria-invalid="true"' : 'aria-invalid="false"';
+		$placeholder_attribute = $this->get_field_placeholder_attribute();
+		$required_attribute    = $this->isRequired ? 'aria-required="true"' : '';
+		$invalid_attribute     = $this->failed_validation ? 'aria-invalid="true"' : 'aria-invalid="false"';
 
-		$range_message          = $this->get_range_message();
-		$describedby_extra_id   = empty( $range_message ) ? array() : array( "gfield_instruction_{$this->formId}_{$this->id}" );
-		$aria_describedby       = $this->get_aria_describedby( $describedby_extra_id );
+		$range_message        = $this->get_range_message();
+		$describedby_extra_id = empty( $range_message ) ? array() : array( "gfield_instruction_{$this->formId}_{$this->id}" );
+		$aria_describedby     = $this->get_aria_describedby( $describedby_extra_id );
 
 		$autocomplete_attribute = $this->enableAutocomplete ? $this->get_field_autocomplete_attribute() : '';
 

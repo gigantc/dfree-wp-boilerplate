@@ -8,6 +8,7 @@ use GFCommon;
 
 defined( 'ABSPATH' ) || die();
 
+#[\AllowDynamicProperties]
 class Base implements ArrayAccess {
 
 	/**
@@ -125,13 +126,157 @@ class Base implements ArrayAccess {
 	public $settings;
 
 	/**
+	 * Field id.
+	 *
+	 * @since 2.5
+	 *
+	 * @var int
+	 */
+	public $id;
+
+	/**
+	 * Field callback.
+	 *
+	 * @since 2.5
+	 *
+	 * @var callable
+	 */
+	protected $callback;
+
+	/**
+	 * Field feedback callback.
+	 *
+	 * @since 2.5
+	 *
+	 * @var callable
+	 */
+	protected $feedback_callback;
+
+	/**
+	 * Field hidden property.
+	 *
+	 * @since 2.5
+	 *
+	 * @var string
+	 */
+	public $hidden;
+
+	/**
+	 * Field html.
+	 *
+	 * @since 2.5
+	 *
+	 * @var string
+	 */
+	public $html;
+
+	/**
+	 * Field description.
+	 *
+	 * @since 2.5
+	 *
+	 * @var string
+	 */
+	protected $description;
+
+	/**
+	 * Field tooltip.
+	 *
+	 * @since 2.5
+	 *
+	 * @var string
+	 */
+	protected $tooltip;
+
+	/**
+	 * Field content after input.
+	 *
+	 * @since 2.5
+	 *
+	 * @var string
+	 */
+	protected $after_input;
+
+	/**
+	 * Field choices.
+	 *
+	 * @since 2.5
+	 *
+	 * @var array
+	 */
+	protected $choices;
+
+	/**
+	 * Field taxonomy.
+	 *
+	 * @since 2.5
+	 *
+	 * @var string
+	 */
+	protected $taxonomy;
+
+	/**
+	 * Field value.
+	 *
+	 * @since 2.5
+	 *
+	 * @var string
+	 */
+	protected $value;
+
+	/**
+	 * Field placeholder
+	 *
+	 * @since 2.5
+	 *
+	 * @var string
+	 */
+	protected $placeholder;
+
+	/**
+	 * Checkbox input attributes
+	 *
+	 * @since 2.5
+	 *
+	 * @var array
+	 */
+	protected $checkbox;
+
+	/**
+	 * Select input attributes
+	 *
+	 * @since 2.5
+	 *
+	 * @var array
+	 */
+	protected $select;
+
+	/**
+	 * Whether field is readonly
+	 *
+	 * @since 2.5
+	 *
+	 * @var string
+	 */
+	public $readonly;
+
+	/**
 	 * Field error message.
 	 *
 	 * @since 2.5
 	 *
 	 * @var string|false
 	 */
-	private $error = false;
+	protected $error = false;
+
+	/**
+	 * Field onchange attribute.
+	 *
+	 * @since 2.5
+	 *
+	 * @var string|false
+	 */
+	public $onchange;
 
 	/**
 	 * Current function rendering field.
@@ -141,6 +286,8 @@ class Base implements ArrayAccess {
 	 * @var callable
 	 */
 	protected static $current_render_callback;
+
+
 
 	/**
 	 * Initialize field.
@@ -296,8 +443,8 @@ class Base implements ArrayAccess {
 
 		// Merge field properties with default attributes.
 		$atts             = wp_parse_args( $this, $default_atts );
-		$atts['id'] = rgempty( 'id', $atts ) ? rgar( $atts, 'name' ) : rgar( $atts, 'id' );
-		$atts['id'] = str_replace( '[]', null, $atts['id'] );
+		$atts['id']       = rgempty( 'id', $atts ) ? rgar( $atts, 'name' ) : rgar( $atts, 'id' );
+		$atts['id']       = str_replace( '[]', '', $atts['id'] );
 		$atts['required'] = ( $atts['required'] === true ) ? 'required' : null;
 
 		// Remove disabled property.
@@ -371,11 +518,13 @@ class Base implements ArrayAccess {
 		}
 
 		// Adding default attributes: create new attribute or prepend to existing.
-		foreach ( $default_attributes as $attr_name => $attr_value ) {
-			if ( isset( $atts[ $attr_name ] ) ) {
-				$atts[ $attr_name ] = str_replace( "{$attr_name}='", "{$attr_name}='{$attr_value}", $atts[ $attr_name ] );
-			} else {
-				$atts[ $attr_name ] = "{$attr_name}='" . esc_attr( $attr_value ) . "'";
+		if ( is_array( $default_attributes ) ) {
+			foreach ( $default_attributes as $attr_name => $attr_value ) {
+				if ( isset( $atts[ $attr_name ] ) ) {
+					$atts[ $attr_name ] = str_replace( "{$attr_name}='", "{$attr_name}='{$attr_value}", $atts[ $attr_name ] );
+				} else {
+					$atts[ $attr_name ] = "{$attr_name}='" . esc_attr( $attr_value ) . "'";
+				}
 			}
 		}
 
@@ -446,7 +595,7 @@ class Base implements ArrayAccess {
 
 		if ( $is_invalid ) { $container_classes[] = 'gform-settings-input__container--invalid'; }
 		if ( isset( $this->append ) ) { $container_classes[] = 'gform-settings-input__container--with-append'; }
-		if ( strpos( $this->class, 'merge-tag-support' ) !== false ) { $container_classes[] = 'gform-settings-input__container--with-merge-tag'; }
+		if ( $this->class && strpos( $this->class, 'merge-tag-support' ) !== false ) { $container_classes[] = 'gform-settings-input__container--with-merge-tag'; }
 
 		return implode( ' ', $container_classes );
 
@@ -750,6 +899,7 @@ class Base implements ArrayAccess {
 	 *
 	 * @return bool
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetExists( $offset ) {
 
 		return isset( $this->$offset );
@@ -765,6 +915,7 @@ class Base implements ArrayAccess {
 	 *
 	 * @return mixed
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet( $offset ) {
 
 		if ( ! isset( $this->$offset ) ) {
@@ -783,6 +934,7 @@ class Base implements ArrayAccess {
 	 * @param mixed $offset The offset to assign the value to.
 	 * @param mixed $data   The value to set.
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetSet( $offset, $data ) {
 
 		if ( $offset === null ) {
@@ -800,6 +952,7 @@ class Base implements ArrayAccess {
 	 *
 	 * @param mixed $offset The offset to unset.
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetUnset( $offset ) {
 
 		unset( $this->$offset );

@@ -65,6 +65,19 @@ abstract class GFFeedAddOn extends GFAddOn {
 	protected $_bypass_feed_delay = false;
 
 	/**
+	 * An array of properties relating to the delayed payment functionality.
+	 *
+	 * Set by passing the array to `$this->add_delayed_payment_support()` in `init()`.
+	 *
+	 * @since 2.7.14 Was a dynamic property in earlier versions.
+	 *
+	 * @var array {
+	 *     @type string $option_label The label to displayed for the add-ons delay checkbox, in the Post Payment Actions section of the payment add-ons feed configuration page.
+	 * }
+	 */
+	public $delayed_payment_integration = array();
+
+	/**
 	 * @var string Version number of the Add-On Framework
 	 */
 	private $_feed_version = '0.14';
@@ -106,6 +119,7 @@ abstract class GFFeedAddOn extends GFAddOn {
 
 		add_filter( 'gform_entry_post_save', array( $this, 'maybe_process_feed' ), 10, 2 );
 		add_action( 'gform_after_delete_form', array( $this, 'delete_feeds' ) );
+		add_action( 'gform_update_status', array( $this, 'process_feed_when_unspammed' ), 10, 3 );
 
 		// Register GFFrontendFeeds.
 		if ( $this->_supports_frontend_feeds && ! has_action( 'gform_register_init_scripts', array( __class__, 'register_frontend_feeds_init_script' ) ) ) {
@@ -347,12 +361,13 @@ abstract class GFFeedAddOn extends GFAddOn {
 					// Add feed to processing queue.
 					gf_feed_processor()->push_to_queue(
 						array(
-							'addon' => $this,
+							'addon' => get_class( $this ),
 							'feed'  => $feed,
 							'entry_id' => $entry['id'],
 							'form_id'  => $form['id'],
 						)
 					);
+					$this->delay_feed( $feed, $entry, $form );
 
 				} else {
 
@@ -1147,6 +1162,97 @@ abstract class GFFeedAddOn extends GFAddOn {
 
 	}
 
+	/* Process feeds when an entry is marked as "not spam"
+	 *
+	 * @since  2.8.1
+	 * @access public
+	 *
+	 * @param int $entry_id The ID of the entry being processed.
+	 * @param string $status The status of the entry being processed.
+	 * @param string $prev_status The previous status of the entry being processed.
+	 */
+	public function process_feed_when_unspammed( $entry_id, $status, $prev_status ) {
+
+		// if this is a payment feed, do not process it.
+		if ( $this instanceof GFPaymentAddOn ) {
+			return;
+		}
+
+		$is_unspammed = $prev_status == 'spam' && $status == 'active';
+		if ( ! $is_unspammed ) {
+			return;
+		}
+
+		$this->log_debug( sprintf( __METHOD__ . '(): Entry has been unspammed (ID: %d). Triggering feed processor.', $entry_id ) );
+
+		$entry = GFAPI::get_entry( $entry_id );
+		$form  = GFAPI::get_form( $entry['form_id'] );
+
+		$this->set_payment_gateway( $entry, $form );
+		$this->maybe_process_feed( $entry, $form );
+
+	}
+
+	/**
+	 * Sets $gf_payment_gateway global for the current entry.
+	 *
+	 * @since 2.8.1
+	 *
+	 * @param array $entry The entry being processed.
+	 * @param array $form  The form that created the entry.
+	 *
+	 * @return void
+	 */
+	private function set_payment_gateway( $entry, $form ) {
+		if ( ! class_exists( 'GFPaymentAddOn' ) ) {
+			return;
+		}
+
+		global $gf_payment_gateway;
+		$entry_id = rgar( $entry, 'id' );
+
+		if ( ! empty( $gf_payment_gateway[ $entry_id ] ) ) {
+			$this->log_debug( __METHOD__ . '(): Already set to ' . $gf_payment_gateway[ $entry_id ] );
+
+			return;
+		}
+
+		$gateway = gform_get_meta( $entry_id, 'payment_gateway' );
+		if ( ! empty( $gateway ) ) {
+			$this->log_debug( __METHOD__ . '(): Setting using payment_gateway entry meta to ' . $gateway );
+			$gf_payment_gateway[ $entry_id ] = $gateway;
+
+			return;
+		}
+
+		$this->log_debug( __METHOD__ . '(): Evaluating payment add-ons.' );
+		$addons = GFAddOn::get_registered_addons( true );
+
+		foreach ( $addons as $addon ) {
+			if ( ! $addon instanceof GFPaymentAddOn ) {
+				continue;
+			}
+
+			$feed = $addon->get_single_submission_feed( $entry, $form );
+			if ( empty( $feed ) ) {
+				continue;
+			}
+
+			$submission_data = $addon->get_submission_data( $feed, $form, $entry );
+			if ( empty( $submission_data ) || ! $addon->is_valid_payment_amount( $submission_data, $feed, $form, $entry ) ) {
+				continue;
+			}
+
+			$slug = $addon->get_slug();
+			$this->log_debug( __METHOD__ . '(): Setting to ' . $slug );
+			$gf_payment_gateway[ $entry_id ] = $slug;
+
+			return;
+		}
+
+		$this->log_debug( __METHOD__ . '(): Submission was not processed by a payment add-on.' );
+	}
+
 	//---------- Form Settings Pages --------------------------
 
 	public function form_settings_init() {
@@ -1239,7 +1345,7 @@ abstract class GFFeedAddOn extends GFAddOn {
 		if ( $this->is_feed_list_page() ) {
 			$title = $this->form_settings_title();
 			$url = add_query_arg( array( 'fid' => 0 ) );
-			return $title . " <a class='add-new-h2' href='" . esc_html( $url ) . "'>" . esc_html__( 'Add New', 'gravityforms' ) . '</a>';
+			return $title . " <a class='add-new-h2' href='" . esc_url( $url ) . "'>" . esc_html__( 'Add New', 'gravityforms' ) . '</a>';
 		}
 	}
 
@@ -1279,7 +1385,7 @@ abstract class GFFeedAddOn extends GFAddOn {
 
 					// If feed IDs do not match, redirect.
 					if ( $feed_id !== $this->_current_feed_id && $this->_multiple_feeds ) {
-						wp_safe_redirect( add_query_arg( array( 'fid' => $this->_current_feed_id ) ) );
+						wp_safe_redirect( esc_url_raw( add_query_arg( array( 'fid' => $this->_current_feed_id ) ) ) );
 					}
 
 				},
@@ -2457,7 +2563,7 @@ class GFAddOnFeedsTable extends WP_List_Table {
 	function _column_is_active( $item, $classes, $data, $primary ) {
 
 		// Open cell as a table header.
-		echo '<th scope="row" class="manage-column column-is_active">';
+		echo '<td class="manage-column column-is_active">';
 
 		// Display the active/inactive toggle button.
 		if ( rgar( $item, 'is_active' ) ) {
@@ -2469,13 +2575,13 @@ class GFAddOnFeedsTable extends WP_List_Table {
 		}
 		?>
 		<button type="button" class="gform-status-indicator <?php echo esc_attr( $class ); ?>" onclick="gaddon.toggleFeedActive( this, '<?php echo esc_js( $this->_slug ); ?>', '<?php echo esc_js( $item['id'] ); ?>' );" onkeypress="gaddon.toggleFeedActive( this, '<?php echo esc_js( $this->_slug ); ?>', '<?php echo esc_js( $item['id'] ); ?>' );">
-			<svg viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="2" r="1" stroke-width="2"/></svg>
+			<svg role="presentation" viewBox="0 0 6 6" xmlns="http://www.w3.org/2000/svg"><circle cx="3" cy="2" r="1" stroke-width="2"/></svg>
 			<span class="gform-status-indicator-status"><?php echo esc_html( $text ); ?></span>
 		</button>
 		<?php
 
 		// Close cell.
-		echo '</th>';
+		echo '</td>';
 
 	}
 	/**

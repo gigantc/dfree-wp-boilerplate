@@ -27,6 +27,7 @@ class Textarea extends Base {
 	 */
 	public $allow_html = false;
 
+
 	/**
 	 * Initialize as Rich Text Editor.
 	 *
@@ -37,7 +38,25 @@ class Textarea extends Base {
 	public $use_editor = false;
 
 	/**
-	 * Initialize Save field.
+	 * Number of rows.
+	 *
+	 * @since 2.5
+	 *
+	 * @var int
+	 */
+	public $rows;
+
+	/**
+	 * Editor height.
+	 *
+	 * @since 2.5
+	 *
+	 * @var int
+	 */
+	public $editor_height;
+
+	/**
+	 * Initialize Textarea field.
 	 *
 	 * @since 2.5
 	 *
@@ -60,8 +79,9 @@ class Textarea extends Base {
 
 	}
 
-
-
+	private function get_editor_id() {
+		return esc_attr( $this->settings->get_input_name_prefix() ) . '_' . esc_attr( $this->name );
+	}
 
 
 	// # RENDER METHODS ------------------------------------------------------------------------------------------------
@@ -77,6 +97,10 @@ class Textarea extends Base {
 
 		// Get value.
 		$value = $this->get_value();
+
+		if ($value === null) {
+			$value = '';
+		}
 
 		// Initialize rich text editor.
 		if ( $this->use_editor ) {
@@ -97,10 +121,10 @@ class Textarea extends Base {
 			ob_start();
 			wp_editor(
 				$value,
-				esc_attr( $this->settings->get_input_name_prefix() ) . '_' . esc_attr( $this->name ),
+				$this->get_editor_id(),
 				array(
 					'autop'         => false,
-					'editor_class'  => 'merge-tag-support mt-wp_editor mt-manual_position mt-position-right',
+					'editor_class'  => $this->get_editor_class(),
 					'editor_height' => $this->editor_height,
 				)
 			);
@@ -114,6 +138,8 @@ class Textarea extends Base {
 
 		} else {
 
+			$escaped_value = $value !== null ? esc_textarea( $value ) : '';
+
 			// Prepare markup.
 			// Display description.
 			$html = $this->get_description();
@@ -125,7 +151,7 @@ class Textarea extends Base {
 				esc_attr( $this->name ),
 				$this->get_describer() ? sprintf( 'aria-describedby="%s"', $this->get_describer() ) : '',
 				implode( ' ', $this->get_attributes() ),
-				esc_textarea( $value ),
+				$escaped_value,
 				// If field failed validation, add error icon.
 				$this->get_error_icon()
 			);
@@ -134,6 +160,25 @@ class Textarea extends Base {
 
 		return $html;
 
+	}
+
+	/**
+	 * Get the CSS classes for the rich text editor.
+	 *
+	 * @since 2.6
+	 *
+	 * @return string
+	 */
+	public function get_editor_class() {
+		$editor_class = ! is_null( $this->class ) ? $this->class : 'merge-tag-support mt-wp_editor mt-manual_position mt-position-right';
+
+		// If a rich text editor has custom classes and merge tag support, make sure it includes the 'mt-manual_position' class to prevent layout problems.
+		$classes = explode( ' ', $editor_class );
+		if ( in_array( 'merge-tag-support', $classes ) && ! in_array( 'mt-manual_position', $classes ) ) {
+			$editor_class .= ' mt-manual_position';
+		}
+
+		return $editor_class;
 	}
 
 

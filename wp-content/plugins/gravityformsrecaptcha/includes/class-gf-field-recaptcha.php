@@ -99,7 +99,16 @@ class GF_Field_RECAPTCHA extends GF_Field {
 			return $validation_data;
 		}
 
-		return $this->is_valid_field_data() ? $validation_data : $this->invalidate( $validation_data );
+		if ( $this->is_valid_field_data() ) {
+
+			// Set is_spam value.
+			$validation_data['is_spam'] = gf_recaptcha()->is_spam_submission( GFAPI::get_form( $this->formId ) );
+
+			return $validation_data;
+		}
+
+		// Set is_valid to false and return the validation data.
+		return $this->invalidate( $validation_data );
 	}
 
 	/**
@@ -140,10 +149,15 @@ class GF_Field_RECAPTCHA extends GF_Field {
 	 * Returns the value of the input name attribute.
 	 *
 	 * @since 1.1
+	 * @since 1.2 Added optional form_id parameter.
 	 *
 	 * @return string
 	 */
-	public function get_input_name() {
+	public function get_input_name( $form_id = null ) {
+		if ( $form_id ) {
+			$this->formId = absint( $form_id );
+		}
+
 		return 'input_' . md5( 'recaptchav3' . gf_recaptcha()->get_version() . $this->formId );
 	}
 

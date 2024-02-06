@@ -45,6 +45,17 @@ class Select extends Base {
 	public $enhanced_ui = false;
 
 	/**
+	 * Field content after select.
+	 *
+	 * @since 2.5
+	 *
+	 * @var string
+	 */
+	public $after_select;
+
+	public $disabled;
+
+	/**
 	 * Register scripts to enqueue when displaying field.
 	 *
 	 * @since 2.5
@@ -152,13 +163,18 @@ class Select extends Base {
 	 */
 	public static function get_options( $choices, $selected ) {
 
+		// Return blank if $choices is not an array.
+		if ( ! is_array( $choices ) ) {
+			return '';
+		}
+
 		$html = '';
 
 		// Loop through choices, prepare HTML.
 		foreach ( $choices as $choice ) {
 
 			// If choice has choices, render as option group.
-			if ( rgar( $choice, 'choices') ) {
+			if ( isset( $choice['choices'] ) ) {
 
 				$html .= sprintf(
 					'<optgroup label="%s">%s</optgroup>',

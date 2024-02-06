@@ -150,7 +150,7 @@ function getCorrectDefaultFieldId( field ) {
 		return null;
 	}
 
-	if ( field.type === 'checkbox' || field.type === 'radio' || ! field.inputs || ! field.inputs.length ) {
+	if ( field.type === 'checkbox' || field.type === 'radio' || field.inputType === 'checkbox' || field.inputType === 'radio' || ! field.inputs || ! field.inputs.length ) {
 		return field.id;
 	}
 
@@ -324,12 +324,13 @@ function generateGFConditionalLogic( fieldId, objectType ) {
  * @return {boolean}
  */
 function isValidFlyoutClick( e ) {
-	return (
+	var isValidFlyoutClick = (
 		'jsConditonalToggle' in e.target.dataset ||
 		'jsAddRule' in e.target.dataset ||
 		'jsDeleteRule' in e.target.dataset ||
 		e.target.classList.contains( 'gform-field__toggle-input' )
 	);
+	return gform.applyFilters( 'gform_conditional_logic_is_valid_flyout_click', isValidFlyoutClick, e );
 }
 
 /**
@@ -476,6 +477,8 @@ GFConditionalLogic.prototype.renderMainControls = function( echo ) {
 	var config = {
 		enabledClass: this.state.enabled ? 'active' : '',
 		logicDescription: this.renderLogicDescription(),
+		a11yWarning: this.objectType === 'button' ? gf_vars.conditionalLogic.views.a11yWarning : '',
+		a11yWarningText: gf_vars.conditional_logic_a11y,
 	};
 
 	var html = gf_vars.conditionalLogic.views.main;
@@ -569,7 +572,7 @@ GFConditionalLogic.prototype.renderOperatorOptions = function( rule ) {
 		ends_with: gf_vars.endsWith,
 	};
 
-	operators = gform.applyFilters( 'gform_conditional_logic_operators', operators, this.objectType, this.fieldId );
+	operators = gform.applyFilters( 'gform_conditional_logic_operators', operators, this.objectType, rule.fieldId );
 
 	for ( key in operators ) {
 		var label  = operators[ key ];
@@ -600,7 +603,7 @@ GFConditionalLogic.prototype.renderValueOptions = function( rule, idx ) {
 
 	// Field is actually a sub-field (such as the First Name or Country field), get the correct field from its ID.
 	if ( rule.fieldId.toString().indexOf( '.' ) !== -1 ) {
-		var parts   = rule.fieldId.split( '.' );
+		var parts   = rule.fieldId.toString().split( '.' );
 		var fieldId = parts[ 0 ];
 		field       = getFieldById( fieldId );
 	}
@@ -756,6 +759,26 @@ GFConditionalLogic.prototype.renderRules = function() {
 }
 
 /**
+ * Update the visibility of the conditional logic icon in compact view.
+ */
+GFConditionalLogic.prototype.updateCompactView = function() {
+	if( this.objectType == 'next_button' ) {
+		return;
+	}
+
+	const icon = document.querySelector( '#gfield_' + this.fieldId + '-conditional-logic-icon' );
+	if ( ! icon ) {
+		return;
+	}
+
+	if ( this.state.enabled ) {
+		icon.style.display = 'block';
+	} else {
+		icon.style.display = 'none';
+	}
+}
+
+/**
  * Gather an object populated with the DOM elements we'll be interacting with.
  *
  * @return {object}
@@ -765,10 +788,12 @@ GFConditionalLogic.prototype.gatherElements = function() {
 		field: document.querySelector( '.conditional_logic_field_setting' ),
 		page: document.querySelector( '.conditional_logic_page_setting' ),
 		next_button: document.querySelector( '.conditional_logic_nextbutton_setting' ),
+		button: document.querySelector( '.conditional_logic_submit_setting' ),
 		flyouts: {
 			page: document.getElementById( 'conditional_logic_flyout_container' ),
 			field: document.getElementById( 'conditional_logic_flyout_container' ),
 			next_button: document.getElementById( 'conditional_logic_next_button_flyout_container' ),
+			button: document.getElementById( 'conditional_logic_submit_flyout_container' ),
 		},
 	};
 };
@@ -814,6 +839,17 @@ GFConditionalLogic.prototype.getDefaultState = function() {
  * @return {obj}
  */
 GFConditionalLogic.prototype.getStateForField = function( fieldId ) {
+	// The submit field in the editor has a non-numeric ID.
+	if( 'submit' === fieldId ) {
+		var logic = form.button.conditionalLogic;
+		if( logic ) {
+			logic.enabled = true;
+		} else {
+			return this.getDefaultState();
+		}
+		return logic;
+	}
+
 	var field = getFieldById( fieldId );
 
 	if ( field === false ) {
@@ -852,6 +888,8 @@ GFConditionalLogic.prototype.getAccordionTitle = function() {
 		case 'next_button':
 			prefix = gf_vars.next_button + ' ';
 			break;
+		case 'button':
+			prefix = gf_vars.button + ' ';
 		case 'field':
 		default:
 			break;
@@ -993,6 +1031,7 @@ GFConditionalLogic.prototype.updateState = function( stateKey, stateValue ) {
 		this.renderSidebar();
 		this.renderMainControls( true );
 		this.renderRules();
+		this.updateCompactView();
 	}
 };
 
@@ -1049,6 +1088,11 @@ GFConditionalLogic.prototype.updateFormConditionalData = function( index, data )
 		return;
 	}
 
+	if ( this.objectType === 'button' ) {
+		form.button.conditionalLogic = data;
+		return;
+	}
+
 	form.fields[ index ].conditionalLogic = data;
 }
 
@@ -1056,6 +1100,11 @@ GFConditionalLogic.prototype.updateFormConditionalData = function( index, data )
  * Update the global form object so that data saves correctly.
  */
 GFConditionalLogic.prototype.updateForm = function() {
+
+	if ( 'submit' === this.fieldId ) {
+		this.updateFormButtonConditionalData( this.state );
+	}
+
 	for ( var i = 0; i < form.fields.length; i++ ) {
 		var field = form.fields[ i ];
 
@@ -1071,6 +1120,21 @@ GFConditionalLogic.prototype.updateForm = function() {
 		this.updateFormConditionalData( i, this.state );
 		return;
 	}
+}
+
+/**
+ * Update the submit button in the global form object so that data saves correctly.
+ *
+ * @since 2.6
+ *
+ * @params {array} data
+ */
+GFConditionalLogic.prototype.updateFormButtonConditionalData = function( data ) {
+	if ( !this.isEnabled() ) {
+		form.button.conditionalLogic = '';
+		return;
+	}
+	form.button.conditionalLogic = data;
 }
 
 /**
