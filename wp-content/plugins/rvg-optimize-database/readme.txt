@@ -1,22 +1,21 @@
 === Optimize Database after Deleting Revisions ===
-Contributors: CAGE Web Design | Rolf van Gelder
-Donate link: http://cagewebdev.com/donations-odb/
-Plugin Name: Optimize Database after Deleting Revisions
-Plugin URI: http://cagewebdev.com/optimize-database-after-deleting-revisions-wordpress-plugin
-Tags: database, delete, revisions, optimize, post, posts, page, pages, clean, clean up, trash, spam, trashed, spammed, database size, scheduler, transients, unused tags, pingback, trackback, unix cron tab, crontab, multisite, custom post types, oembed
-Author URI: http://cagewebdev.com
-Author: CAGE Web Design | Rolf van Gelder, Eindhoven, The Netherlands
-Contributors: cageehv
+Contributors: cageehv, nerdpressteam
+Tags: database, cleanup, delete, revisions, optimize, trash, spam, trashed, database size, scheduler, transients, unused tags
+Author URI: https://www.nerdpress.net
+Author: NerdPress
 Requires at least: 2.8
-Requires PHP: 5.0
-Tested up to: 6.0
-Stable tag: 5.0.10
-Version: 5.0.10
+Requires PHP: 5.6
+Tested up to: 6.4
+Stable tag: 5.2.1
+Version: 5.2.1
 License: GPLv2 or later
+One-click database optimization with precise revision cleanup and flexible scheduling. Speeding up sites since 2011!
 
 == Description ==
 
-This plugin is a 'One Click' WordPress Database Cleaner / Optimizer.
+NerdPress has adopted Optimize Database After Deleting Revisions! [Read the announcement here.](https://www.nerdpress.net/announcing-optimize-database/)
+
+This plugin is a 'One Click' WordPress database cleaner & optimizer, with precise revision cleanup and flexible scheduling.
 
 = Main Features =
 * Deletes revisions of posts, pages and / or custom post types (you optionally can keep an 'x'-amount of the most recent revisions and you can choose to delete revisions older than...)
@@ -81,21 +80,8 @@ Then, start the .php file from your crontab!<br>
 * Turkish [tr_TR] - translated by Keremcan Buyuktaskin
 * Ukranian [uk_UA] - translated by Anna Goriacha, Coupofy - http://coupofy.com
 
-= Author =
-CAGE Web Design | Rolf van Gelder, Eindhoven, The Netherlands - http://cagewebdev.com - http://rvg.cage.nl
-
-= Plugin URL =
-http://cagewebdev.com/optimize-database-after-deleting-revisions-wordpress-plugin
-
-= Download URL =
-http://wordpress.org/plugins/rvg-optimize-database/
-
 = Disclaimer =
-NO WARRANTY, USE IT AT YOUR OWN RISK!
-
-= Plugins by CAGE Web Design | Rolf van Gelder =
-WordPress plugins created by CAGE Web Design | Rolf van Gelder<br>
-http://cagewebdev.com/category/news-tech-art/wordpress/
+NO WARRANTY, USE IT AT YOUR OWN RISK! MAKE BACKUPS FIRST!
 
 == Installation ==
 
@@ -111,6 +97,25 @@ http://cagewebdev.com/category/news-tech-art/wordpress/
 * If you run the plugin from any of the sites, it will cleanup ALL the sites in the network!
 
 == Changelog ==
+= 5.2.1 [02/05/2024] =
+* Add missing nonce on "Optimize DB (1 click)" admin bar link.
+* Remove "Optimize" buttons from Log page.
+* Fix PHP 8 Deprecation Notices.
+
+= 5.2 [01/31/2024] =
+* NerdPress has adopted Optimize Database After Deleting Revisions! [Read the announcement here.](https://www.nerdpress.net/announcing-optimize-database/)
+* Security improvement: Additional CSRF hardening.
+* Security improvement: Add capability checks.
+* Security improvement: Improve sanitization of database queries.
+* Fix: PHP 8 Deprecation Notice.
+
+= 5.1.1 [01/24/2024] =
+* Security improvement: Hardens links to prevent CSRF.
+* Security fix: Implements proper preparation of queries.
+
+= 5.1 [08/02/2023] =
+* BUG FIX: Fixed the CSRF security issue
+
 = 5.0.10 [10/26/2021] =
 * BUG FIX: set_time_limit fixed
 
@@ -185,7 +190,7 @@ http://cagewebdev.com/category/news-tech-art/wordpress/
 = 4.7.3 [12/12/2018] =
 * CHANGE: The deletion of transients has been fully rewritten and is many times faster now!
 * CHANGE: Increased the time_limit
-* CHANGE: German translations have been updated 
+* CHANGE: German translations have been updated
 
 = 4.7.2 [11/12/2018] =
 * BUG FIX: Fixed a MySQL query
@@ -286,10 +291,10 @@ http://cagewebdev.com/category/news-tech-art/wordpress/
 
 = 4.1.2 [02/14/2016] =
 * NEW: Brasilian Portuguese (po_BR) translation added
-* NEW: Network: True added to the plugin header 
+* NEW: Network: True added to the plugin header
 
 = 4.1.1 [01/17/2016] =
-* CHANGE: Use can use the 'Delete revisions older than' AND 'Keep max number of revisions' options at the same time! 
+* CHANGE: Use can use the 'Delete revisions older than' AND 'Keep max number of revisions' options at the same time!
 
 = 4.1 [01/14/2016] =
 * NEW: New option: delete revisions older than...
@@ -458,10 +463,10 @@ http://cagewebdev.com/category/news-tech-art/wordpress/
 * NEW: '1-click run button' in the admin bar (thanks to JB ORSI)
 
 = 2.3.1 [05/03/2013] =
-* BUG FIX: fixed a problem with 'invalid header' (during installation) 
+* BUG FIX: fixed a problem with 'invalid header' (during installation)
 
 = 2.3 [04/26/2013] =
-* BUG FIX: fixed the 'Stealing Cron Schedules' issue 
+* BUG FIX: fixed the 'Stealing Cron Schedules' issue
 
 = 2.2.9 [04/10/2013] =
 * BUG FIX: bug fix for the 'check all NON-WordPress tables' link
@@ -519,7 +524,7 @@ http://cagewebdev.com/category/news-tech-art/wordpress/
 = 1.3 [10/06/2012] =
 * Extra button for starting optimization, shows savings (in bytes) now
 
-= 1.2 [10/03/2012] = 
+= 1.2 [10/03/2012] =
 * Major update: new options 'delete trash', 'delete spam', 'only optimize WordPress tables'
 
 = 1.1.9 [09/27/2012] =

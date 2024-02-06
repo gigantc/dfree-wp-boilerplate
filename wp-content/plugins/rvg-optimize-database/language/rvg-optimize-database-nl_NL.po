@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Optimize Database after Deleting Revisions v4.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-15 12:10+0200\n"
-"PO-Revision-Date: 2019-08-15 12:11+0200\n"
+"POT-Creation-Date: 2024-01-30 20:56-0500\n"
+"PO-Revision-Date: 2024-01-30 20:56-0500\n"
 "Last-Translator: Rolf van Gelder <info@cagewebdev.com>\n"
 "Language-Team: CAGE <info@cagewebdev.com>\n"
 "Language: nl_NL\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Poedit 2.2.3\n"
+"X-Generator: Poedit 3.4.2\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 "X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;"
 "_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2\n"
@@ -19,391 +19,395 @@ msgstr ""
 "X-Textdomain-Support: yes\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: classes/odb-cleaner.php:51
+#: classes/odb-cleaner.php:52
 msgid "Cleaning Database"
 msgstr "Opschonen Database"
 
-#: classes/odb-cleaner.php:104
+#: classes/odb-cleaner.php:105
 msgid "REVISIONS found to delete: "
 msgstr "Geen REVISIES gevonden om te verwijderen"
 
-#: classes/odb-cleaner.php:113
+#: classes/odb-cleaner.php:114
 msgid "REVISIONS deleted: "
 msgstr "verwijderde REVISIES:"
 
-#: classes/odb-cleaner.php:122
+#: classes/odb-cleaner.php:123
 msgid "REVISIONS"
 msgstr "REVISIES"
 
-#: classes/odb-cleaner.php:123
+#: classes/odb-cleaner.php:124
 msgid "total number of revisions"
 msgstr "totaal aantal revisies"
 
-#: classes/odb-cleaner.php:127
+#: classes/odb-cleaner.php:128
 msgid "DELETED REVISIONS"
 msgstr "VERWIJDERDE REVISIES"
 
-#: classes/odb-cleaner.php:128
+#: classes/odb-cleaner.php:129
 msgid "total number of revisions deleted"
 msgstr "totaal aantal verwijderde revisies"
 
-#: classes/odb-cleaner.php:140 classes/odb-cleaner.php:226
-#: classes/odb-cleaner.php:308 classes/odb-cleaner.php:393
-#: classes/odb-cleaner.php:487 classes/odb-cleaner.php:574
-#: classes/odb-cleaner.php:664 classes/odb-cleaner.php:749
+#: classes/odb-cleaner.php:141 classes/odb-cleaner.php:229
+#: classes/odb-cleaner.php:314 classes/odb-cleaner.php:401
+#: classes/odb-cleaner.php:497 classes/odb-cleaner.php:587
+#: classes/odb-cleaner.php:676 classes/odb-cleaner.php:764
 msgid "prefix"
 msgstr "prefix"
 
-#: classes/odb-cleaner.php:141
+#: classes/odb-cleaner.php:142
 msgid "post / page"
 msgstr "bericht / pagina"
 
-#: classes/odb-cleaner.php:142
+#: classes/odb-cleaner.php:143
 msgid "revision date"
 msgstr "revisiedatum"
 
-#: classes/odb-cleaner.php:169
+#: classes/odb-cleaner.php:172
 msgid "No REVISIONS found to delete"
 msgstr "Geen REVISIES gevonden om te verwijderen"
 
-#: classes/odb-cleaner.php:192
+#: classes/odb-cleaner.php:195
 msgid "TRASHED ITEMS found to delete: "
 msgstr "PRULLENBAK ITEMS gevonden om te verwijderen:"
 
-#: classes/odb-cleaner.php:201
+#: classes/odb-cleaner.php:204
 msgid "TRASHED ITEMS deleted: "
 msgstr "Verwijderde  PRULLENBAK ITEMS:"
 
-#: classes/odb-cleaner.php:210
+#: classes/odb-cleaner.php:213
 msgid "TRASHED ITEMS"
 msgstr "TRASHED ITEMS"
 
-#: classes/odb-cleaner.php:211
+#: classes/odb-cleaner.php:214
 msgid "total number of trashed items"
 msgstr "totaal aantal trashed items"
 
-#: classes/odb-cleaner.php:214
+#: classes/odb-cleaner.php:217
 msgid "DELETED TRASHED ITEMS"
 msgstr "VERWIJDERDE TRASHED ITEMS"
 
-#: classes/odb-cleaner.php:215
+#: classes/odb-cleaner.php:218
 msgid "total number of trashed items deleted"
 msgstr "totaal aantal verwijderede trashed items"
 
-#: classes/odb-cleaner.php:227 classes/odb-cleaner.php:575
-#: classes/odb-cleaner.php:750
+#: classes/odb-cleaner.php:230 classes/odb-cleaner.php:588
+#: classes/odb-cleaner.php:765
 msgid "type"
 msgstr "type"
 
-#: classes/odb-cleaner.php:228
+#: classes/odb-cleaner.php:231
 msgid "IP address / title"
 msgstr "IP adres / titel"
 
-#: classes/odb-cleaner.php:229 classes/odb-cleaner.php:577
-#: classes/odb-logger.php:114 classes/odb-logger.php:244
+#: classes/odb-cleaner.php:232 classes/odb-cleaner.php:590
+#: classes/odb-logger.php:112
 msgid "date"
 msgstr "datum"
 
-#: classes/odb-cleaner.php:251
+#: classes/odb-cleaner.php:257
 msgid "No TRASHED ITEMS found to delete"
 msgstr "Geen PRULLENBAK ITEMS gevonden om te verwijderen"
 
-#: classes/odb-cleaner.php:274
+#: classes/odb-cleaner.php:280
 msgid "SPAMMED ITEMS found to delete: "
 msgstr "SPAM gevonden om te verwijderen:"
 
-#: classes/odb-cleaner.php:283
+#: classes/odb-cleaner.php:289
 msgid "SPAMMED ITEMS deleted: "
 msgstr "Verwijderde  SPAM:"
 
-#: classes/odb-cleaner.php:291
+#: classes/odb-cleaner.php:297
 msgid "SPAMMED ITEMS"
 msgstr "SPAMMEND ITEMS"
 
-#: classes/odb-cleaner.php:292
+#: classes/odb-cleaner.php:298
 msgid "total number of spammed items"
 msgstr "totaal aantal spammed items"
 
-#: classes/odb-cleaner.php:296
+#: classes/odb-cleaner.php:302
 msgid "DELETED SPAMMED ITEMS"
 msgstr "VERWIJDERDE SPAMMEND ITEMS"
 
-#: classes/odb-cleaner.php:297
+#: classes/odb-cleaner.php:303
 msgid "total number of spammed items deleted"
 msgstr "totaal aantal verwijderde spammed items"
 
-#: classes/odb-cleaner.php:309
+#: classes/odb-cleaner.php:315
 msgid "comment author"
 msgstr "plaatser van de reactie"
 
-#: classes/odb-cleaner.php:310
+#: classes/odb-cleaner.php:316
 msgid "comment author email"
 msgstr "email van de plaatser van de reactie"
 
-#: classes/odb-cleaner.php:311
+#: classes/odb-cleaner.php:317
 msgid "comment date"
 msgstr "datum van de reactie"
 
-#: classes/odb-cleaner.php:334
+#: classes/odb-cleaner.php:342
 msgid "No SPAMMED ITEMS found to delete"
 msgstr "Geen SPAM gevonden om te verwijderen"
 
-#: classes/odb-cleaner.php:359
+#: classes/odb-cleaner.php:367
 msgid "UNUSED TAGS found to delete: "
 msgstr "ONGEBRUIKTE TAGS gevonden om te verwijderen:"
 
-#: classes/odb-cleaner.php:368
+#: classes/odb-cleaner.php:376
 msgid "UNUSED TAGS deleted: "
 msgstr "Verwijderde ONGEBRUIKTE TAGS:"
 
-#: classes/odb-cleaner.php:377
+#: classes/odb-cleaner.php:385
 msgid "UNUSED TAGS"
 msgstr "ONGEBRUIKTE TAGS"
 
-#: classes/odb-cleaner.php:378
+#: classes/odb-cleaner.php:386
 msgid "total number of unused tags"
 msgstr "totaal aantal trashed items"
 
-#: classes/odb-cleaner.php:381
+#: classes/odb-cleaner.php:389
 msgid "DELETED UNUSED TAGS"
 msgstr "VERWIJDERDE ONGEBRUIKTE TAGS"
 
-#: classes/odb-cleaner.php:382
+#: classes/odb-cleaner.php:390
 msgid "total number of unused tags deleted"
 msgstr "totaal aantal verwijderede trashed items"
 
-#: classes/odb-cleaner.php:394
+#: classes/odb-cleaner.php:402
 msgid "tag"
 msgstr "tag"
 
-#: classes/odb-cleaner.php:417
+#: classes/odb-cleaner.php:427
 msgid "No UNUSED TAGS found to delete"
 msgstr "Geen ONGEBRUIKTE TAGS gevonden om te verwijderen"
 
-#: classes/odb-cleaner.php:452
+#: classes/odb-cleaner.php:462
 msgid " TRANSIENTS found to delete: "
 msgstr "VERLOPEN TRANSIËNTS gevonden om te verwijderen:"
 
-#: classes/odb-cleaner.php:461
+#: classes/odb-cleaner.php:471
 msgid " TRANSIENTS deleted: "
 msgstr "Verwijderde  VERLOPEN TRANSIËNTS:"
 
-#: classes/odb-cleaner.php:471
+#: classes/odb-cleaner.php:481
 msgid " TRANSIENTS"
 msgstr "TRANSIENTS"
 
-#: classes/odb-cleaner.php:472 classes/odb-cleaner.php:476
+#: classes/odb-cleaner.php:482 classes/odb-cleaner.php:486
 msgid "total number of "
 msgstr "totaal aantal"
 
-#: classes/odb-cleaner.php:475
+#: classes/odb-cleaner.php:485
 msgid "DELETED "
 msgstr "VERWIJDERDE OEMBEDS"
 
-#: classes/odb-cleaner.php:488
+#: classes/odb-cleaner.php:498
 msgid "option name"
 msgstr "optienaam"
 
-#: classes/odb-cleaner.php:540
+#: classes/odb-cleaner.php:553
 msgid "PINGBACKS AND/OR TRACKBACKS found to delete: "
 msgstr "PINGBACKS en TRACKBACKS gevonden om te verwijderen:"
 
-#: classes/odb-cleaner.php:549
+#: classes/odb-cleaner.php:562
 msgid "PINGBACKS AND/OR TRACKBACKS deleted: "
 msgstr "Verwijderde PINGBACKS EN TRACKBACKS:"
 
-#: classes/odb-cleaner.php:558
+#: classes/odb-cleaner.php:571
 msgid "PINGBACKS AND TRACKBACKS"
 msgstr "PINGBACKS EN TRACKBACKS"
 
-#: classes/odb-cleaner.php:559
+#: classes/odb-cleaner.php:572
 msgid "total number of pingbacks and trackbacks"
 msgstr "total aantal pingbacks en trackbacks"
 
-#: classes/odb-cleaner.php:562
+#: classes/odb-cleaner.php:575
 msgid "DELETED PINGBACKS AND TRACKBACKS"
 msgstr "VERWIJDERDE PINGBACKS EN TRACKBACKS"
 
-#: classes/odb-cleaner.php:563
+#: classes/odb-cleaner.php:576
 msgid "total number of pingbacks and trackbacks deleted"
 msgstr "totaal aantal verwijderede trashed items"
 
-#: classes/odb-cleaner.php:576
+#: classes/odb-cleaner.php:589
 msgid "comment_author"
 msgstr "plaatser van de reactie"
 
-#: classes/odb-cleaner.php:604
+#: classes/odb-cleaner.php:616
 msgid "No PINGBACKS nor TRACKBACKS found to delete"
 msgstr "Geen PINGBACKS en TRACKBACKS gevonden om te verwijderen"
 
-#: classes/odb-cleaner.php:630
+#: classes/odb-cleaner.php:642
 msgid "OEMBED CACHE ITEMS found to delete: "
 msgstr "OEMBED CACHE ITEMS gevonden om te verwijderen:"
 
-#: classes/odb-cleaner.php:639
+#: classes/odb-cleaner.php:651
 msgid "OEMBED CACHE ITEMS deleted: "
 msgstr "Verwijderde OEMBED CACHE ITEMS:"
 
-#: classes/odb-cleaner.php:648
+#: classes/odb-cleaner.php:660
 msgid "OEMBED CACHE items"
 msgstr "OEMBED CACHE items"
 
-#: classes/odb-cleaner.php:649
+#: classes/odb-cleaner.php:661
 msgid "total number of oembed cache items"
 msgstr "totaal aantal oembed cache items"
 
-#: classes/odb-cleaner.php:652
+#: classes/odb-cleaner.php:664
 msgid "DELETED OEMBED CACHE ITEMS"
 msgstr "VERWIJDERDE OEMBED CACHE ITEMS"
 
-#: classes/odb-cleaner.php:653
+#: classes/odb-cleaner.php:665
 msgid "total number of oembed cache items deleted"
 msgstr "totaal aantal verwijderede oembed cache items"
 
-#: classes/odb-cleaner.php:665 classes/odb-cleaner.php:754
+#: classes/odb-cleaner.php:677 classes/odb-cleaner.php:770
 msgid "meta key"
 msgstr "meta sleutel"
 
-#: classes/odb-cleaner.php:666 classes/odb-cleaner.php:755
+#: classes/odb-cleaner.php:678 classes/odb-cleaner.php:771
 msgid "meta value"
 msgstr "meta waarde"
 
-#: classes/odb-cleaner.php:689
+#: classes/odb-cleaner.php:703
 msgid "No OEMBED CACHE ITEMS found to delete"
 msgstr "Geen OEMBED CACHE ITEMS gevonden om te verwijderen"
 
-#: classes/odb-cleaner.php:714
+#: classes/odb-cleaner.php:729
 msgid "ORPHANS found to delete: "
 msgstr "POSTMETA WEZEN gevonden om te verwijderen:"
 
-#: classes/odb-cleaner.php:723
+#: classes/odb-cleaner.php:738
 msgid "ORPHANS deleted: "
 msgstr "Verwijderde WEZEN:"
 
-#: classes/odb-cleaner.php:733
+#: classes/odb-cleaner.php:748
 msgid "ORPHANS"
 msgstr "POSTMETA WEZEN"
 
-#: classes/odb-cleaner.php:734
+#: classes/odb-cleaner.php:749
 msgid "total number of orphans"
 msgstr "totaal aantal wezen"
 
-#: classes/odb-cleaner.php:737
+#: classes/odb-cleaner.php:752
 msgid "DELETED ORPHANS"
 msgstr "VERWIJDERDE POSTMETA WEZEN"
 
-#: classes/odb-cleaner.php:738
+#: classes/odb-cleaner.php:753
 msgid "total number of orphans deleted"
 msgstr "totaal aantal verwijderde  wezen"
 
-#: classes/odb-cleaner.php:751 classes/odb-logger.php:243
+#: classes/odb-cleaner.php:766
 msgid "id"
 msgstr "id"
 
-#: classes/odb-cleaner.php:752
+#: classes/odb-cleaner.php:767
 msgid "title"
 msgstr "titel"
 
-#: classes/odb-cleaner.php:753
+#: classes/odb-cleaner.php:768
 msgid "modified"
 msgstr "gewijzigd"
 
-#: classes/odb-cleaner.php:774
+#: classes/odb-cleaner.php:769
+msgid "taxonomy"
+msgstr ""
+
+#: classes/odb-cleaner.php:793
 msgid "No ORPHANS found to delete"
 msgstr "Geen POSTMETA WEZEN gevonden om te verwijderen"
 
-#: classes/odb-cleaner.php:783
+#: classes/odb-cleaner.php:801
 msgid "TOTAL NUMBER OF ITEMS: "
 msgstr "TOTAAL ANTAL ITEMS:"
 
-#: classes/odb-cleaner.php:802
+#: classes/odb-cleaner.php:820
 msgid "Optimizing Database Tables"
 msgstr "Optimaliseren van Databasetabellen"
 
-#: classes/odb-cleaner.php:809
+#: classes/odb-cleaner.php:827
 msgid "table name"
 msgstr "tabelnaam"
 
-#: classes/odb-cleaner.php:810
+#: classes/odb-cleaner.php:828
 msgid "optimization result"
 msgstr "resultaat optimalisatie"
 
-#: classes/odb-cleaner.php:811
+#: classes/odb-cleaner.php:829
 msgid "engine"
 msgstr "engine"
 
-#: classes/odb-cleaner.php:812
+#: classes/odb-cleaner.php:830
 msgid "table rows"
 msgstr "tabelrijen"
 
-#: classes/odb-cleaner.php:813
+#: classes/odb-cleaner.php:831
 msgid "table size"
 msgstr "tabelgrootte"
 
-#: classes/odb-cleaner.php:864
+#: classes/odb-cleaner.php:882
 msgid "Savings"
 msgstr "Besparingen"
 
-#: classes/odb-cleaner.php:871
+#: classes/odb-cleaner.php:889
 msgid "size of the database"
 msgstr "grootte van de database"
 
-#: classes/odb-cleaner.php:874
+#: classes/odb-cleaner.php:892
 msgid "BEFORE optimization"
 msgstr "VOOR de optimalisatie"
 
-#: classes/odb-cleaner.php:878
+#: classes/odb-cleaner.php:896
 msgid "AFTER optimization"
 msgstr "NA de optimalisatie"
 
-#: classes/odb-cleaner.php:882
+#: classes/odb-cleaner.php:900
 msgid "SAVINGS THIS TIME"
 msgstr "DIT KEER BESPAARD"
 
-#: classes/odb-cleaner.php:886
+#: classes/odb-cleaner.php:904
 msgid "TOTAL SAVINGS SINCE THE FIRST RUN"
 msgstr "TOTALE BESPARING SINDS DE EERSTE UITVOERING"
 
-#: classes/odb-cleaner.php:914
+#: classes/odb-cleaner.php:932
 msgid "DONE!"
 msgstr "KLAAR!"
 
-#: classes/odb-cleaner.php:922
+#: classes/odb-cleaner.php:940
 msgid "Optimization took"
 msgstr "Optimalizatie duurde"
 
-#: classes/odb-cleaner.php:922 classes/odb-displayer.php:139
-#: classes/odb-displayer.php:174
+#: classes/odb-cleaner.php:940 classes/odb-displayer.php:127
+#: classes/odb-displayer.php:175
 msgid "seconds"
 msgstr "seconden"
 
-#: classes/odb-cleaner.php:936 classes/odb-displayer.php:196
-#: classes/odb-logger.php:157
+#: classes/odb-cleaner.php:955 classes/odb-displayer.php:201
+#: classes/odb-logger.php:155
 msgid "Clear the log?"
 msgstr "Logs wissen?"
 
-#: classes/odb-cleaner.php:946 classes/odb-displayer.php:215
+#: classes/odb-cleaner.php:965 classes/odb-displayer.php:219
 msgid "View Log"
 msgstr "Bekijk Logs"
 
-#: classes/odb-cleaner.php:948 classes/odb-displayer.php:217
-#: classes/odb-logger.php:170
+#: classes/odb-cleaner.php:967 classes/odb-displayer.php:221
+#: classes/odb-logger.php:168
 msgid "Clear Log"
 msgstr "Wis Logs"
 
-#: classes/odb-cleaner.php:1201
+#: classes/odb-cleaner.php:1211
 msgid "of"
 msgstr "van"
 
-#: classes/odb-cleaner.php:1895
+#: classes/odb-cleaner.php:1917
 msgid "InnoDB table: skipped..."
 msgstr "InnoDB tabel overgeslagen..."
 
-#: classes/odb-cleaner.php:1902 classes/odb-cleaner.php:1912
+#: classes/odb-cleaner.php:1924 classes/odb-cleaner.php:1934
 msgid "<span class=\"odb-optimized\">TABLE OPTIMIZED</span>"
 msgstr "<span class=\"odb-optimized\">TABEL GEOPTIMALISEERD</span>"
 
-#: classes/odb-cleaner.php:1904 classes/odb-cleaner.php:1910
+#: classes/odb-cleaner.php:1926 classes/odb-cleaner.php:1932
 msgid "Table is already up to date"
 msgstr "Tabel is al optimaal"
 
@@ -413,10 +417,9 @@ msgstr "Optimize Database after Deleting Revisions"
 
 #: classes/odb-displayer.php:33
 msgid ""
-"A popular 'one-click' plugin to clean and optimize your WordPress database."
+"One-click database optimization with precise revision cleanup and flexible "
+"scheduling."
 msgstr ""
-"Een populaire 'one-click' plugin om de WordPress database op te schonen en "
-"te optimaliseren."
 
 #: classes/odb-displayer.php:34
 msgid "Plugin version"
@@ -438,270 +441,225 @@ msgstr "Auteur"
 msgid "Company"
 msgstr "Bedrijf"
 
-#: classes/odb-displayer.php:63
+#: classes/odb-displayer.php:56
 msgid "YES"
 msgstr "JA"
 
-#: classes/odb-displayer.php:64
+#: classes/odb-displayer.php:57
 msgid "NO"
 msgstr "NEE"
 
-#: classes/odb-displayer.php:72 includes/settings-page.php:325
+#: classes/odb-displayer.php:65 includes/settings-page.php:328
 msgid "DELETE EXPIRED TRANSIENTS"
 msgstr "AANTAL VERWIJDERDE VERLOPEN TRANSIËNTS"
 
-#: classes/odb-displayer.php:74 includes/settings-page.php:328
+#: classes/odb-displayer.php:67 includes/settings-page.php:331
 msgid "DELETE ALL TRANSIENTS"
 msgstr "VERWIJDER ALLE TRANSIENTS"
 
-#: classes/odb-displayer.php:86
+#: classes/odb-displayer.php:79
 msgid "EVERY FIVE MINUTES"
 msgstr "IEDERE VIJF MINUTEN"
 
-#: classes/odb-displayer.php:88
+#: classes/odb-displayer.php:81
 msgid "ONCE HOURLY"
 msgstr "ELK UUR"
 
-#: classes/odb-displayer.php:90
+#: classes/odb-displayer.php:83
 msgid "TWICE DAILY"
 msgstr "TWEEMAAL DAAGS"
 
-#: classes/odb-displayer.php:92
+#: classes/odb-displayer.php:85
 msgid "ONCE DAILY"
 msgstr "DAGELIJKS"
 
-#: classes/odb-displayer.php:94
+#: classes/odb-displayer.php:87
 msgid "ONCE WEEKLY"
 msgstr "WEKELIJKS"
 
-#: classes/odb-displayer.php:96
+#: classes/odb-displayer.php:89
 msgid "ONCE MONTHLY"
 msgstr "MAANDELIJKS"
 
-#: classes/odb-displayer.php:97 includes/settings-page.php:371
+#: classes/odb-displayer.php:90 includes/settings-page.php:374
 msgid "NOT SCHEDULED"
 msgstr "NIET GEPLAND"
 
-#: classes/odb-displayer.php:102
+#: classes/odb-displayer.php:95
 msgid "Current settings"
 msgstr "Huidige instellingen"
 
-#: classes/odb-displayer.php:117
+#: classes/odb-displayer.php:110
 msgid "NONE"
 msgstr "GEEN"
 
-#: classes/odb-displayer.php:119
+#: classes/odb-displayer.php:112
 msgid "Delete revisions of"
 msgstr "Verwijder revisies van"
 
-#: classes/odb-displayer.php:122 includes/settings-page.php:155
-#: includes/settings-page.php:267
+#: classes/odb-displayer.php:115 includes/settings-page.php:155
+#: includes/settings-page.php:270
 msgid "Delete revisions older than"
 msgstr "Verwijder revisies ouder dan"
 
-#: classes/odb-displayer.php:122 classes/odb-displayer.php:170
+#: classes/odb-displayer.php:115 classes/odb-displayer.php:171
 msgid "days"
 msgstr "dagen"
 
-#: classes/odb-displayer.php:126
+#: classes/odb-displayer.php:119
 msgid "Maximum number of - most recent - revisions to keep per post / page"
 msgstr ""
 "Maximaal aantal (meest recente) revisies die bewaard worden per bericht / "
 "pagina"
 
-#: classes/odb-displayer.php:130 includes/settings-page.php:300
-msgid "Delete trashed items"
-msgstr "Verwijder trashed items"
-
-#: classes/odb-displayer.php:131 includes/settings-page.php:306
-msgid "Delete spammed items"
-msgstr "Verwijder spammed items"
-
-#: classes/odb-displayer.php:132 includes/settings-page.php:312
-msgid "Delete unused tags"
-msgstr "Verwijder ongebruikte tags"
-
-#: classes/odb-displayer.php:133 includes/settings-page.php:318
-msgid "Delete transients"
-msgstr "Verwijder transiënts"
-
-#: classes/odb-displayer.php:134 includes/settings-page.php:337
-msgid "Delete pingbacks and trackbacks"
-msgstr "Verwijder pingback en trackbacks"
-
-#: classes/odb-displayer.php:135 includes/settings-page.php:343
-msgid "Clear oEmbed cache"
-msgstr "Leeg de oEmbed cache"
-
-#: classes/odb-displayer.php:136 includes/settings-page.php:361
-msgid "Keep a log"
-msgstr "Gebruik een logbestand"
-
-#: classes/odb-displayer.php:137
-msgid "Optimize InnoDB tables"
-msgstr "Optimaliseer InnoDB tabellen"
-
-#: classes/odb-displayer.php:138
-msgid "Number of excluded tables"
-msgstr "Aantal uitgesloten tabellen"
-
-#: classes/odb-displayer.php:139
+#: classes/odb-displayer.php:125 classes/odb-displayer.php:127
 msgid "Last run"
 msgstr "Laatste uitvoering"
 
-#: classes/odb-displayer.php:139 includes/settings-page.php:405
+#: classes/odb-displayer.php:127 includes/settings-page.php:411
 msgid "hrs"
 msgstr "uur"
 
-#: classes/odb-displayer.php:139
+#: classes/odb-displayer.php:127
 msgid "in"
 msgstr "in"
 
-#: classes/odb-displayer.php:140 includes/settings-page.php:367
+#: classes/odb-displayer.php:131 includes/settings-page.php:303
+msgid "Delete trashed items"
+msgstr "Verwijder trashed items"
+
+#: classes/odb-displayer.php:132 includes/settings-page.php:309
+msgid "Delete spammed items"
+msgstr "Verwijder spammed items"
+
+#: classes/odb-displayer.php:133 includes/settings-page.php:315
+msgid "Delete unused tags"
+msgstr "Verwijder ongebruikte tags"
+
+#: classes/odb-displayer.php:134 includes/settings-page.php:321
+msgid "Delete transients"
+msgstr "Verwijder transiënts"
+
+#: classes/odb-displayer.php:135 includes/settings-page.php:340
+msgid "Delete pingbacks and trackbacks"
+msgstr "Verwijder pingback en trackbacks"
+
+#: classes/odb-displayer.php:136 includes/settings-page.php:346
+msgid "Clear oEmbed cache"
+msgstr "Leeg de oEmbed cache"
+
+#: classes/odb-displayer.php:137 includes/settings-page.php:364
+msgid "Keep a log"
+msgstr "Gebruik een logbestand"
+
+#: classes/odb-displayer.php:138
+msgid "Optimize InnoDB tables"
+msgstr "Optimaliseer InnoDB tabellen"
+
+#: classes/odb-displayer.php:139
+msgid "Number of excluded tables"
+msgstr "Aantal uitgesloten tabellen"
+
+#: classes/odb-displayer.php:141 includes/settings-page.php:370
 msgid "Scheduler"
 msgstr "Planner"
 
-#: classes/odb-displayer.php:150
+#: classes/odb-displayer.php:151
 msgid "Next scheduled run"
 msgstr "Volgende geplande uitvoering"
 
-#: classes/odb-displayer.php:155
+#: classes/odb-displayer.php:156
 msgid "Total savings since the first run"
 msgstr "Totale besparing sinds de eerste uitvoering"
 
-#: classes/odb-displayer.php:171
+#: classes/odb-displayer.php:172
 msgid "hours"
 msgstr "uur"
 
-#: classes/odb-displayer.php:172
+#: classes/odb-displayer.php:173
 msgid "minutes"
 msgstr "minuten"
 
-#: classes/odb-displayer.php:173
+#: classes/odb-displayer.php:174
 msgid "and"
 msgstr "en"
 
-#: classes/odb-displayer.php:189 classes/odb-logger.php:168
+#: classes/odb-displayer.php:193 classes/odb-logger.php:166
 msgid "Change Settings"
 msgstr "Wijzig instellingen"
 
-#: classes/odb-displayer.php:225
+#: classes/odb-displayer.php:228
 msgid "Analyze (summary)"
 msgstr "Analiseer (samenvatting)"
 
 # @ rvg-optimize-database
-#: classes/odb-displayer.php:227
+#: classes/odb-displayer.php:230
 msgid "Analyze (detail)"
 msgstr "Analyze (detail)"
 
-#: classes/odb-displayer.php:229 classes/odb-logger.php:174
-#: rvg-optimize-database.php:723
+#: classes/odb-displayer.php:232 classes/odb-logger.php:170
+#: rvg-optimize-database.php:782
 msgid "Optimize (summary)"
 msgstr "Optimaliseer (samenvatting)"
 
 # @ rvg-optimize-database
-#: classes/odb-displayer.php:231 classes/odb-logger.php:176
-#: rvg-optimize-database.php:724
+#: classes/odb-displayer.php:234 classes/odb-logger.php:172
+#: rvg-optimize-database.php:783
 msgid "Optimize (detail)"
 msgstr "Optimaliseer (detail)"
 
-#: classes/odb-logger.php:102
+#: classes/odb-logger.php:100
 msgid "Logs"
 msgstr "Logs"
 
-#: classes/odb-logger.php:115
+#: classes/odb-logger.php:113
 msgid "deleted<br>revisions"
 msgstr "verw.<br >revisies"
 
-#: classes/odb-logger.php:116
+#: classes/odb-logger.php:114
 msgid "deleted<br>trash"
 msgstr "verw.<br >prullenbak items"
 
-#: classes/odb-logger.php:117
+#: classes/odb-logger.php:115
 msgid "deleted<br>spam"
 msgstr "verw.<br >spamitems"
 
-#: classes/odb-logger.php:118
+#: classes/odb-logger.php:116
 msgid "deleted<br>tags"
 msgstr "verw.<br > tags"
 
-#: classes/odb-logger.php:119
+#: classes/odb-logger.php:117
 msgid "deleted<br>transients"
 msgstr "verw.<br>transiënts"
 
-#: classes/odb-logger.php:120
+#: classes/odb-logger.php:118
 msgid "deleted<br>pingbacks<br>trackbacks"
 msgstr "verwijderde<br>pingbacks<br>trackbacks"
 
-#: classes/odb-logger.php:121
+#: classes/odb-logger.php:119
 msgid "deleted<br>oEmbed<br>records"
 msgstr "verwijderde<br>oEmbed<br>records"
 
-#: classes/odb-logger.php:122
+#: classes/odb-logger.php:120
 msgid "deleted<br>orphans"
 msgstr "verw.<br>wezen"
 
 # @ rvg-optimize-database
-#: classes/odb-logger.php:123
+#: classes/odb-logger.php:121
 msgid "nr of<br>optimized<br>tables"
 msgstr "aantal geoptima-<br>liseerde tabellen"
 
-#: classes/odb-logger.php:124
+#: classes/odb-logger.php:122
 msgid "database<br> size<br>BEFORE"
 msgstr "database<br>grootte<br>VOOR"
 
-#: classes/odb-logger.php:125
+#: classes/odb-logger.php:123
 msgid "database<br>size<br>AFTER"
 msgstr "database<br>grootte<br>NA"
 
-#: classes/odb-logger.php:126 classes/odb-logger.php:255
+#: classes/odb-logger.php:124
 msgid "SAVINGS"
 msgstr "BESPARINGEN"
-
-#: classes/odb-logger.php:172
-msgid "Export to CSV"
-msgstr "Exporteer naar CSV"
-
-#: classes/odb-logger.php:245
-msgid "deleted revisions"
-msgstr "verw. revisies"
-
-#: classes/odb-logger.php:246
-msgid "deleted trash"
-msgstr "verw. prullenbak items"
-
-#: classes/odb-logger.php:247
-msgid "deleted spam"
-msgstr "verw. spam items"
-
-#: classes/odb-logger.php:248
-msgid "deleted tags"
-msgstr "verw. tags"
-
-#: classes/odb-logger.php:249
-msgid "deleted transients"
-msgstr "Verwijderde transiënts"
-
-#: classes/odb-logger.php:250
-msgid "deleted pingbacks"
-msgstr "verwijderde pingbacks"
-
-#: classes/odb-logger.php:251
-msgid "deleted orphans"
-msgstr "verw. wezen"
-
-# @ rvg-optimize-database
-#: classes/odb-logger.php:252
-msgid "nr of optimized tables"
-msgstr "aantal geoptimaliseerde tabellen"
-
-#: classes/odb-logger.php:253
-msgid "database size BEFORE"
-msgstr "database grootte VOOR"
-
-#: classes/odb-logger.php:254
-msgid "database size AFTER"
-msgstr "database grootte NA"
 
 # @ default
 #: classes/odb-scheduler.php:38
@@ -723,11 +681,11 @@ msgstr "Optimize Database after Deleting Revisions INSTELLINGEN AANGEPAST"
 
 #: includes/settings-page.php:120
 msgid ""
-"Click <a href=\"tools.php?page=rvg-optimize-database\" class=\"odb-bold"
-"\">HERE</a> to run the optimization"
+"Click <a href=\"tools.php?page=rvg-optimize-database\" class=\"odb-"
+"bold\">HERE</a> to run the optimization"
 msgstr ""
-"Klik <a href=\"tools.php?page=rvg-optimize-database\" class=\"odb-bold"
-"\">HIER</a> om de optimalisatie te starten"
+"Klik <a href=\"tools.php?page=rvg-optimize-database\" class=\"odb-"
+"bold\">HIER</a> om de optimalisatie te starten"
 
 #: includes/settings-page.php:155
 msgid "You have to enter: "
@@ -745,134 +703,181 @@ msgstr "Je moet het <Maximaal aantal revisies> invullen"
 msgid "<Maximum number of revisions> should be a number"
 msgstr "<Maximaal aantal revisies> moet een getal zijn"
 
-#: includes/settings-page.php:231 rvg-optimize-database.php:485
+#: includes/settings-page.php:234 rvg-optimize-database.php:479
 msgid "Settings"
 msgstr "Instellingen"
 
-#: includes/settings-page.php:236
+#: includes/settings-page.php:239
 msgid "Delete revisions for the following (custom) post type(s):"
 msgstr "Verwijder revisies voor de volgende (custom) post type(s):"
 
-#: includes/settings-page.php:272
+#: includes/settings-page.php:275
 msgid "day(s)"
 msgstr "dag(en)"
 
-#: includes/settings-page.php:284
+#: includes/settings-page.php:287
 msgid "Maximum number of - most recent - revisions<br>to keep per post / page"
 msgstr ""
 "Maximaal aantal - meest recente - revisies<br>om te bewaren per post/pagina"
 
-#: includes/settings-page.php:290
+#: includes/settings-page.php:293
 msgid "('0' means: delete <u>ALL</u> revisions)"
 msgstr "('0' betekent: verwijder <u>ALLE</u> revisies)"
 
-#: includes/settings-page.php:322
+#: includes/settings-page.php:325
 msgid "DO NOT DELETE TRANSIENTS"
 msgstr "GEEN TRANSIENTS VERWIJDEREN"
 
-#: includes/settings-page.php:349
+#: includes/settings-page.php:352
 msgid "Clear orphans"
 msgstr "Verwijder wezen"
 
-#: includes/settings-page.php:355
+#: includes/settings-page.php:358
 msgid "Optimize InnoDB tables too"
 msgstr "Optimiliseer ook InnoDB tabellen"
 
-#: includes/settings-page.php:374
+#: includes/settings-page.php:377
 msgid "run optimization HOURLY"
 msgstr "voer de optimalisatie ELK UUR uit"
 
-#: includes/settings-page.php:377
+#: includes/settings-page.php:380
 msgid "run optimization TWICE A DAY"
 msgstr "voer de optimalisatie TWEE KEER PER DAG uit"
 
-#: includes/settings-page.php:380
+#: includes/settings-page.php:383
 msgid "run optimization DAILY"
 msgstr "voer de optimalisatie DAGELIJKS uit"
 
-#: includes/settings-page.php:383
+#: includes/settings-page.php:386
 msgid "run optimization WEEKLY"
 msgstr "voer de optimalisatie WEKELIJKS uit"
 
-#: includes/settings-page.php:386
+#: includes/settings-page.php:389
 msgid "run optimization MONTHLY"
 msgstr "voer de optimalisatie MAANDELIJKS uit"
 
-#: includes/settings-page.php:396
+#: includes/settings-page.php:392
+#, fuzzy
+#| msgid "run optimization WEEKLY"
+msgid "run optimization EVERY FIVE MINUTES"
+msgstr "voer de optimalisatie WEKELIJKS uit"
+
+#: includes/settings-page.php:402
 msgid "Time"
 msgstr "Tijd"
 
-#: includes/settings-page.php:420
+#: includes/settings-page.php:426
 msgid "Show '1-click' link in Admin Bar"
 msgstr "Toon de '1-klik' link in de Admin Balk"
 
-#: includes/settings-page.php:426
+#: includes/settings-page.php:432
 msgid "Show an icon in the Admin Menu"
 msgstr "Toon een icon in het Admin Menu"
 
-#: includes/settings-page.php:431
+#: includes/settings-page.php:437
 msgid "change will be visible after loading the next page"
 msgstr "wijziging wordt pas zichtbaar na het laden van de volgende pagina"
 
-#: includes/settings-page.php:436 includes/settings-page.php:482
+#: includes/settings-page.php:442 includes/settings-page.php:488
 msgid "Save Settings"
 msgstr "Bewaar instellingen"
 
-#: includes/settings-page.php:438 includes/settings-page.php:484
+#: includes/settings-page.php:444 includes/settings-page.php:490
 msgid "Go To Optimizer"
 msgstr "Ga naar Optimalisatie"
 
-#: includes/settings-page.php:445
+#: includes/settings-page.php:451
 msgid ""
-"EXCLUDE DATABASE TABLES FROM OPTIMIZATION:<br><span class=\"odb-underline-red"
-"\">CHECKED</span> TABLES <span class=\"odb-underline-red\">WON'T</span> BE "
-"OPTIMIZED!</span>"
+"EXCLUDE DATABASE TABLES FROM OPTIMIZATION:<br><span class=\"odb-underline-"
+"red\">CHECKED</span> TABLES <span class=\"odb-underline-red\">WON'T</span> "
+"BE OPTIMIZED!</span>"
 msgstr ""
 "SLUIT DE VOLGENDE TABELLEN UIT VAN OPTIMILIZATIE:<br><span class=\"odb-"
 "underline-red\">AANGEVINKTE</span> TABELLEN ZULLEN <span class=\"odb-"
 "underline-red\">NIET</span> GEOPTIMALISEERD WORDEN!</span>"
 
-#: includes/settings-page.php:451
+#: includes/settings-page.php:457
 msgid "check all tables"
 msgstr "vink alle tabellen aan"
 
-#: includes/settings-page.php:453
+#: includes/settings-page.php:459
 msgid "uncheck all tables"
 msgstr "vink alle tabellen uit"
 
-#: includes/settings-page.php:455
+#: includes/settings-page.php:461
 msgid "check all NON-WordPress tables"
 msgstr "vink alle NIET-WordPress tabellen aan"
 
 # @ rvg-optimize-database
-#: rvg-optimize-database.php:453 rvg-optimize-database.php:454
-#: rvg-optimize-database.php:470 rvg-optimize-database.php:471
-#: rvg-optimize-database.php:517 rvg-optimize-database.php:518
-#: rvg-optimize-database.php:537 rvg-optimize-database.php:538
+#: rvg-optimize-database.php:447 rvg-optimize-database.php:448
+#: rvg-optimize-database.php:464 rvg-optimize-database.php:465
+#: rvg-optimize-database.php:511 rvg-optimize-database.php:512
+#: rvg-optimize-database.php:531 rvg-optimize-database.php:532
 msgid "Optimize Database"
 msgstr "Optimaliseer Database"
 
 # @ optimize_db
-#: rvg-optimize-database.php:504
+#: rvg-optimize-database.php:498
 msgid "Optimize DB (1 click)"
 msgstr "Optimaliseer DB (1 klik)"
 
-#: rvg-optimize-database.php:672
+#: rvg-optimize-database.php:729
 msgid "Optimize Database after Deleting Revisions LOGS HAVE BEEN CLEARED"
 msgstr "Optimize Database after Deleting Revisions LOGS ZIJN VERWIJDERD"
 
-#: rvg-optimize-database.php:721
+#: rvg-optimize-database.php:780
 msgid "CLICK ONE OF THE 'OPTIMIZE' BUTTONS TO ACTUALLY DELETE THE FOUND ITEMS"
 msgstr ""
 "KLIK EEN VAN DE 'OPTIMALISEER' BUTTONS OM DE GEVONDEN ITEMS TE VERWIJDEREN"
 
-#: rvg-optimize-database.php:722
+#: rvg-optimize-database.php:781
 msgid "Cancel"
 msgstr "Annuleer"
 
-#: rvg-optimize-database.php:727
+#: rvg-optimize-database.php:786
 msgid "Analysis Done!"
 msgstr "Analyze Gereed!"
+
+#~ msgid ""
+#~ "A popular 'one-click' plugin to clean and optimize your WordPress "
+#~ "database."
+#~ msgstr ""
+#~ "Een populaire 'one-click' plugin om de WordPress database op te schonen "
+#~ "en te optimaliseren."
+
+#~ msgid "Export to CSV"
+#~ msgstr "Exporteer naar CSV"
+
+#~ msgid "deleted revisions"
+#~ msgstr "verw. revisies"
+
+#~ msgid "deleted trash"
+#~ msgstr "verw. prullenbak items"
+
+#~ msgid "deleted spam"
+#~ msgstr "verw. spam items"
+
+#~ msgid "deleted tags"
+#~ msgstr "verw. tags"
+
+#~ msgid "deleted transients"
+#~ msgstr "Verwijderde transiënts"
+
+#~ msgid "deleted pingbacks"
+#~ msgstr "verwijderde pingbacks"
+
+#~ msgid "deleted orphans"
+#~ msgstr "verw. wezen"
+
+# @ rvg-optimize-database
+#~ msgid "nr of optimized tables"
+#~ msgstr "aantal geoptimaliseerde tabellen"
+
+#~ msgid "database size BEFORE"
+#~ msgstr "database grootte VOOR"
+
+#~ msgid "database size AFTER"
+#~ msgstr "database grootte NA"
 
 #~ msgid "No TRANSIENTS found to delete"
 #~ msgstr "Geen VERLOPEN TRANSIËNTS gevonden om te verwijderen"
@@ -965,9 +970,9 @@ msgstr "Analyze Gereed!"
 #~ msgstr "OF"
 
 #~ msgid ""
-#~ "EXCLUDE DATABASE TABLES FROM OPTIMIZATION: <span class=\"odb-underline-red"
-#~ "\">CHECKED</span> TABLES <span class=\"odb-underline-red\">WON'T</span> "
-#~ "BE OPTIMIZED!</span>"
+#~ "EXCLUDE DATABASE TABLES FROM OPTIMIZATION: <span class=\"odb-underline-"
+#~ "red\">CHECKED</span> TABLES <span class=\"odb-underline-red\">WON'T</"
+#~ "span> BE OPTIMIZED!</span>"
 #~ msgstr ""
 #~ "SLUIT DE VOLGENDE TABELLEN UIT VAN OPTIMILIZATIE: <span class=\"odb-"
 #~ "underline-red\">AANGEVINKTE</span> TABELLEN ZULLEN <span class=\"odb-"
@@ -989,11 +994,11 @@ msgstr "Analyze Gereed!"
 #~ "bericht  / pagina"
 
 #~ msgid ""
-#~ "Click <a href=\"tools.php?page=rvg-optimize-db.php\" class=\"odb-bold"
-#~ "\">HERE</a> to run the optimization"
+#~ "Click <a href=\"tools.php?page=rvg-optimize-db.php\" class=\"odb-"
+#~ "bold\">HERE</a> to run the optimization"
 #~ msgstr ""
-#~ "Klik <a href=\"tools.php?page=rvg-optimize-db.php\" class=\"odb-bold"
-#~ "\">HIER</a. om de optimalisatie te starten"
+#~ "Klik <a href=\"tools.php?page=rvg-optimize-db.php\" class=\"odb-"
+#~ "bold\">HIER</a. om de optimalisatie te starten"
 
 #~ msgid "is an one-click plugin to clean and optimize your WordPress database"
 #~ msgstr ""

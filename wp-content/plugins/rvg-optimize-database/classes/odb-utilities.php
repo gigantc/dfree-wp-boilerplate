@@ -9,7 +9,7 @@
 class ODB_Utilities {
 	/********************************************************************************************
 	 *	CONSTRUCTOR
-	 ********************************************************************************************/	
+	 ********************************************************************************************/
     function __construct() {
 	} // __construct()
 
@@ -32,7 +32,7 @@ class ODB_Utilities {
 				array_push($relevant_pts, $posttype);
 			}
 		} // foreach ($posttypes as $posttype)
-		
+
 		return $relevant_pts;
 	} // odb_get_relevant_post_types()
 
@@ -42,53 +42,61 @@ class ODB_Utilities {
 	 ********************************************************************************************/
 	function odb_format_size($size, $precision=1) {
 		if($size > 1024*1024) return (round($size/(1024*1024),$precision)).' MB';
-		
+
 		return (round($size/1024,$precision)).' KB';
 	} // odb_format_size()
-	
+
 
 	/********************************************************************************************
 	 *	CALCULATE THE SIZE OF THE WORDPRESS DATABASE (IN BYTES)
 	 ********************************************************************************************/
 	function odb_get_db_size() {
 		global $wpdb;
-	
-		$sql = sprintf("
+
+		$sql = $wpdb->prepare("
 		  SELECT SUM(data_length + index_length) AS size
 			FROM information_schema.TABLES
-		   WHERE table_schema = '%s'
+		   WHERE table_schema = %s
 		GROUP BY table_schema
-		", DB_NAME);	
-		
+		", DB_NAME);
+
 		$res = $wpdb->get_results($sql);
-		
+
 		return $res[0]->size;
 	} // odb_get_db_size()
 
 
 	/********************************************************************************************
 	 *	PARSE A TIMESTAMP - v4.6
-	 ********************************************************************************************/	
+	 ********************************************************************************************/
 	function odb_parse_timestamp($timestamp) {
 		$d = substr($timestamp, 4, 2).'/'.substr($timestamp, 6, 2).'/'.substr($timestamp, 0, 4);
 		$d .= ' ' . substr($timestamp, 8, 2).':'.substr($timestamp, 10, 2).':'.substr($timestamp, 12, 2);
 		return $d;
 	} // odb_parse_timestamp($timestamp)
 
-	
+
 	/********************************************************************************************
 	 *	GET DATABASE TABLES
 	 ********************************************************************************************/
 	function odb_get_tables() {
 		global $wpdb;
 
-		$sql = sprintf("
-         SHOW FULL TABLES
-		 FROM `%s`
-		WHERE table_type = 'BASE TABLE'		
-		", DB_NAME);		
-		
 		// GET THE DATABASE BASE TABLES
-		return $wpdb->get_results($sql, ARRAY_N);
+		return $wpdb->get_results("
+			SHOW FULL TABLES
+			FROM `" . $this->odb_sanitize_key( DB_NAME ) . "`
+			WHERE table_type = 'BASE TABLE'
+		", ARRAY_N);
 	} // odb_get_tables()
+
+	/**
+	 * Key sanitization. Matches sanitize_key() but does not strtolower.
+	 *
+	 * @param string $key
+	 * @return string|string[]|null
+	 */
+	function odb_sanitize_key( string $key ) {
+		return preg_replace( '/[^a-z0-9_\-]/', '', $key );
+	}
 } // ODB_Utilities

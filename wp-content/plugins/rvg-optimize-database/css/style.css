@@ -2,12 +2,37 @@
 /* CSS Document */
 .odb-title-bar {
 	width: 96%;
-	background-color: #0074a2;
+	background-color: #0F145B;
 	color: #FFF !important;
 	display: inline-block;
 	padding-left: 16px;
 	margin-top: 30px;
 }
+.wp-core-ui #odb-options-wrap .button-primary,
+.wp-core-ui #odb-start-buttons .button-primary,
+.wp-core-ui #odb-done .button-primary {
+	background-color: #0F145B;
+	border-color: #0F145B;
+}
+
+.wp-core-ui #odb-options-wrap .button-primary:hover,
+.wp-core-ui #odb-start-buttons .button-primary:hover,
+.wp-core-ui #odb-done .button-primary:hover {
+	background-color: #fff;
+	color: #0F145B;
+	border-color: #0F145B;
+}
+
+.wp-core-ui #odb-options-wrap .button,
+.wp-core-ui #odb-options-wrap .button-secondary,
+.wp-core-ui #odb-start-buttons .button,
+.wp-core-ui #odb-start-buttons .button-secondary,
+.wp-core-ui #odb-done .button,
+.wp-core-ui #odb-done .button-secondary {
+	color: #0F145B;
+	border-color: #0F145B;
+}
+
 .odb-title-bar h2 {
 	color: #FFF;
 }
@@ -32,7 +57,7 @@
 }
 .odb-blue {
 	/*color: #00F;*/
-	color: #0074a2;
+	color: #0F145B;
 }
 .odb-red {
 	color: #C30;
@@ -54,7 +79,7 @@
 }
 .odb-wp-table {
 	font-weight: bold;
-	color: #0074a2;
+	color: #0F145B;
 }
 .odb-padding-left {
 	padding-left: 8px;
