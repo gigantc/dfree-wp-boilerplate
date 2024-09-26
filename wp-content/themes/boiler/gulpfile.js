@@ -1,6 +1,4 @@
 const { src, dest, watch, series, parallel } = require('gulp');
-const gulp = require('gulp');
-
 
 /* PLUGINS */
 const sass = require('gulp-sass')(require('sass')),
@@ -14,95 +12,97 @@ const sass = require('gulp-sass')(require('sass')),
     terser = require('gulp-terser'),
     plumber = require('gulp-plumber');
 
-
 /* FILE PATHS */
 const files = { 
     scssPath: 'src/scss/*.scss',
     scriptsPath: 'src/js/*.js',
     libsPath: 'src/js/libs/*.js',
     blocksPath: 'src/scss/blocks/*.scss'
+};
+
+/* STYLES TASK */
+function scssTask() {    
+    return src(files.scssPath)
+        .pipe(plumber({
+            errorHandler: function (error) {
+                console.log(error.message);
+                this.emit('end');
+            }
+        }))
+        .pipe(sourcemaps.init())
+        .pipe(sass())
+        .pipe(postcss([autoprefixer(), cssnano()]))
+        .pipe(sourcemaps.write('.'))
+        .pipe(dest('css/'))
+        .pipe(browserSync.stream());
 }
 
-/* STYLES */
-function scssTask(){    
-    return src([files.scssPath])
-    .pipe(plumber({
-      errorHandler: function (error) {
-        console.log(error.message);
-        this.emit('end');
-    }}))
-    .pipe(sass())
-    .pipe(postcss([autoprefixer(), cssnano()]))
-    .pipe(gulp.dest('css/'))
-    .pipe(browserSync.stream());
+/* BLOCKS SCSS TASK */
+function blocksScssTask() {    
+    return src(files.blocksPath)
+        .pipe(plumber({
+            errorHandler: function (error) {
+                console.log(error.message);
+                this.emit('end');
+            }
+        }))
+        .pipe(concat('_blocks_combined.scss'))
+        .pipe(dest('src/scss/'));
 }
 
-function blocksScssTask(){    
-    return src([files.blocksPath])
-    .pipe(plumber({
-      errorHandler: function (error) {
-        console.log(error.message);
-        this.emit('end');
-    }}))
-    .pipe(concat('_blocks_combined.scss'))
-    .pipe(gulp.dest('src/scss/'))
+/* LIBS TASK */
+function libsTask() {    
+    return src(files.libsPath)
+        .pipe(sourcemaps.init())
+        .pipe(babel({
+            presets: ['@babel/env']
+        }))
+        .pipe(concat('libs.min.js'))
+        .pipe(terser())
+        .pipe(sourcemaps.write('.'))
+        .pipe(dest('js/libs/'));
 }
 
-
-/* SCRIPTS */
-function libsTask(){    
-    return src([files.libsPath])
-    .pipe(sourcemaps.init())
-    .pipe(babel({
-        presets: ['@babel/env']
-    }))
-    .pipe(concat('libs.min.js'))
-    .pipe(terser())
-    .pipe(gulp.dest('js/libs/'));
+/* SCRIPTS TASK */
+function scriptsTask() {    
+    return src(files.scriptsPath)
+        .pipe(plumber({
+            errorHandler: function (error) {
+                console.log(error.message);
+                this.emit('end');
+            }
+        }))
+        .pipe(sourcemaps.init())
+        .pipe(babel({
+            presets: ['@babel/env']
+        }))
+        .pipe(concat('main.min.js'))
+        .pipe(terser())
+        .pipe(sourcemaps.write('.'))
+        .pipe(dest('js/'))
+        .pipe(browserSync.stream());
 }
 
-
-function scriptsTask(){    
-    return src([files.scriptsPath])
-    .pipe(plumber({
-      errorHandler: function (error) {
-        console.log(error.message);
-        this.emit('end');
-    }}))
-    .pipe(sourcemaps.init())
-    .pipe(babel({
-        presets: ['@babel/env']
-    }))
-    .pipe(concat('main.min.js'))
-    .pipe(terser())
-    .pipe(gulp.dest('js/'))
-    .pipe(browserSync.stream());
-}
-
-
-/* BROWSER SYNC */
+/* BROWSER SYNC TASK */
 function reload(done) {
-  browserSync.reload();
-  done();
+    browserSync.reload();
+    done();
 }
 
-
-/* WATCH */
-function watchTask(){
+/* WATCH TASK */
+function watchTask() {
     browserSync.init({
         proxy: "boiler.local"
     });
-    watch(
-        [files.blocksPath],
-        parallel(blocksScssTask)
-    );
-    watch(
-        [files.scssPath, files.scriptsPath, files.libsPath],
-        parallel(scssTask, libsTask, scriptsTask)
-    );
+    watch(files.blocksPath, blocksScssTask);
+    watch(files.scssPath, scssTask);
+    watch(files.libsPath, libsTask);
+    watch(files.scriptsPath, scriptsTask);
+    watch([files.scssPath, files.scriptsPath], reload);
 }
 
 /* DEFAULT TASK */
 exports.default = series(
     parallel(blocksScssTask, scssTask, libsTask, scriptsTask), 
-    watchTask);
+    watchTask
+);
