@@ -270,7 +270,7 @@ function relevanssi_search( $args ) {
 
 			$total_hits += count( $matches );
 
-			$idf = log( $doc_count + 1 / ( 1 + $df ) );
+			$idf = log( ( $doc_count + 1 ) / ( 1 + $df ) );
 			$idf = $idf * $idf; // Adjustment to increase the value of IDF.
 			if ( $idf < 1 ) {
 				$idf = 1;
@@ -460,10 +460,10 @@ function relevanssi_search( $args ) {
 				if ( ! is_wp_error( $post_object ) ) {
 					$hits[ intval( $i ) ]                  = $post_object;
 					$hits[ intval( $i ) ]->relevance_score = round( $weight, 2 );
-				}
 
-				if ( isset( $missing_terms[ $doc ] ) ) {
-					$hits[ intval( $i ) ]->missing_terms = $missing_terms[ $doc ];
+					if ( isset( $missing_terms[ $doc ] ) ) {
+						$hits[ intval( $i ) ]->missing_terms = $missing_terms[ $doc ];
+					}
 				}
 			}
 			++$i;
@@ -754,6 +754,8 @@ function relevanssi_limit_filter( $query ) {
 		} else {
 			$query = $query . " ORDER BY tf DESC LIMIT $limit";
 		}
+	} else {
+		$query = $query . " ORDER BY tf DESC";
 	}
 	return $query;
 }
@@ -1765,6 +1767,11 @@ function relevanssi_compile_common_args( $query ) {
 		$post_status = $query->query_vars['post_status'];
 	}
 
+	$post_mime_type = false;
+	if ( isset( $query->query_vars['post_mime_type'] ) ) {
+		$post_mime_type = $query->query_vars['post_mime_type'];
+	}
+
 	return array(
 		'orderby'             => $orderby,
 		'order'               => $order,
@@ -1777,6 +1784,7 @@ function relevanssi_compile_common_args( $query ) {
 		'date_query'          => $date_query,
 		'post_type'           => $post_type,
 		'post_status'         => $post_status,
+		'post_mime_type'      => $post_mime_type,
 	);
 }
 
@@ -1977,7 +1985,7 @@ function relevanssi_post_date_throttle_join( $query_join ) {
 	if ( 'post_date' === get_option( 'relevanssi_default_orderby' ) &&
 		'on' === get_option( 'relevanssi_throttle', 'on' ) ) {
 		global $wpdb;
-		$query_join = ', ' . $wpdb->posts . ' AS p';
+		$query_join .= ', ' . $wpdb->posts . ' AS p';
 	}
 	return $query_join;
 }
