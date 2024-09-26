@@ -443,7 +443,7 @@ class GF_System_Report {
 								'label'        => esc_html__( 'WordPress Multisite', 'gravityforms' ),
 								'label_export' => 'WordPress Multisite',
 								'value'        => is_multisite() ? __( 'Yes', 'gravityforms' ) : __( 'No', 'gravityforms' ),
-								'value_export' => is_multisite() ? 'Yes' : 'No',
+								'value_export' => is_multisite() ?  sprintf( 'Yes (%d sites)', rgar( wp_count_sites(), 'all' ) ) : 'No',
 							),
 							array(
 								'label'        => esc_html__( 'WordPress Memory Limit', 'gravityforms' ),
@@ -1116,23 +1116,46 @@ class GF_System_Report {
 
 		// Get plugins that support logging.
 		$supported_plugins = gf_logging()->get_supported_plugins();
+		$logs_dir_path     = gf_logging()->get_log_dir();
+		$logs_dir_url      = gf_logging()->get_log_dir_url();
 
 		// Loop through supported plugins.
 		foreach ( $supported_plugins as $plugin_slug => $plugin_name ) {
 
-			// If no log file exists, skip it.
-			if ( ! gf_logging()->log_file_exists( $plugin_slug ) ) {
+			$files = GFCommon::glob( $plugin_slug . '_*.txt', $logs_dir_path );
+
+			if ( empty( $files ) ) {
 				continue;
 			}
 
-			// Add plugin log to list.
-			$logs[] = array(
-				'label'        => '<a href="' . gf_logging()->get_log_file_url( $plugin_slug ) . '">' . esc_html( $plugin_name ) . '</a>',
-				'label_export' => esc_html( $plugin_name ),
-				'value'        => gf_logging()->get_log_file_size( $plugin_slug ),
-				'value_export' => gf_logging()->get_log_file_url( $plugin_slug ),
-			);
+            // Create an array to hold file info including the modification time.
+            $file_info = array();
 
+            foreach ( $files as $file ) {
+                $mod_time    = filemtime( $file );
+                $file_info[] = array(
+                    'file'     => $file,
+                    'mod_time' => $mod_time
+                );
+            }
+
+            // Sort the files by modification time.
+            usort( $file_info, function( $a, $b ) {
+                return $b['mod_time'] - $a['mod_time'];
+            } );
+
+            // Add sorted files to the logs array.
+            foreach ( $file_info as $info ) {
+                $file = $info['file'];
+                $url  = str_replace( $logs_dir_path, $logs_dir_url, $file );
+
+                $logs[] = array(
+                    'label'        => '<a href="' . $url . '">' . esc_html( $plugin_name ) . '</a>',
+                    'label_export' => esc_html( $plugin_name ),
+                    'value'        => gf_logging()->get_log_file_size( $file, true ) . ' (' . GFCommon::format_date( date( 'c', filemtime( $file ) ) ) . ')',
+                    'value_export' => $url,
+                );
+            }
 		}
 
 		return $logs;
