@@ -190,8 +190,7 @@ class ODB_Displayer {
 		<div id="odb-start-buttons" class="odb-padding-left">
 		  <br>
 		  <p>
-		  <input class="button odb-normal" type="button" name="change_options" value="'.__('Change Settings', 'rvg-optimize-database').'" onclick="self.location=\'options-general.php?page=odb_settings_page\'">
-		  <br><br>
+		  <a href="' . esc_url( add_query_arg( array( 'page' => 'odb_settings_page' ), admin_url( 'options-general.php' ) ) ) . '">' . __( 'Change Settings', 'rvg-optimize-database' ) . '</a>
 			';
 
 			// v4.6
@@ -211,14 +210,15 @@ function odb_confirm_delete() {
 </script>
 				";
 			} // if(file_exists($this->odb_plugin_path.'logs/rvg-optimize-db-log.html'))
+			else {
+				echo '<br><br>';
+			}
 
 			if($action != 'run') {
 				// NOT RUNNING: SHOW LOG- AND START BUTTONS
 				if($odb_class->odb_logger_obj->odb_log_count() > 0) {
 					echo '
-		  <input class="button odb-normal" type="button" name="view_log" value="'.__('View Log', 'rvg-optimize-database').'" onclick="self.location=\'tools.php?page=rvg-optimize-database&action=view_log&_wpnonce=' . $nonce . '\'">
-		  &nbsp;
-		  <input class="button odb-normal" type="button" name="clear_log" value="'.__('Clear Log', 'rvg-optimize-database').'" onclick="return odb_confirm_delete();">
+					&nbsp;&nbsp;&nbsp;<a href="' . esc_url( add_query_arg( array( 'page' => 'rvg-optimize-database&action', 'action' => 'view_log', '_wpnonce' => $nonce, ), admin_url( 'tools.php' ) ) ) . '">' . __( 'View Log', 'rvg-optimize-database' ) . '</a>
 		  <br><br>
 					';
 				} // if($odb_class->odb_logger_obj->odb_log_count() > 0)

@@ -85,7 +85,6 @@ class ODB_Utilities {
 		// GET THE DATABASE BASE TABLES
 		return $wpdb->get_results("
 			SHOW FULL TABLES
-			FROM `" . $this->odb_sanitize_key( DB_NAME ) . "`
 			WHERE table_type = 'BASE TABLE'
 		", ARRAY_N);
 	} // odb_get_tables()
@@ -97,6 +96,6 @@ class ODB_Utilities {
 	 * @return string|string[]|null
 	 */
 	function odb_sanitize_key( string $key ) {
-		return preg_replace( '/[^a-z0-9_\-]/', '', $key );
+		return preg_replace( '/[^a-zA-Z0-9_\-]/', '', $key );
 	}
 } // ODB_Utilities

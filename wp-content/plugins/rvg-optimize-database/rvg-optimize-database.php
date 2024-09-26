@@ -1,15 +1,15 @@
 <?php
 /**
  * @package Optimize Database after Deleting Revisions
- * @version 5.2.1
+ * @version 5.2.2
  */
 /*
 Plugin Name: Optimize Database after Deleting Revisions
 Description: One-click database optimization with precise revision cleanup and flexible scheduling. <a href="https://www.nerdpress.net/announcing-optimize-database/">Now managed by NerdPress!</a>
 Author: NerdPress
-Author URI: https://www..nerdpress.net
+Author URI: https://www.nerdpress.net
 Network: True
-Version: 5.2.1
+Version: 5.2.2
 */
 
 /********************************************************************************************
@@ -47,7 +47,7 @@ add_action( 'plugins_loaded', function() {
 
 	class OptimizeDatabase {
 		// VERSION
-		var $odb_version           = '5.2.1';
+		var $odb_version           = '5.2.2';
 
 		// PLUGIN OPTIONS
 		var $odb_rvg_options       = array();

@@ -89,6 +89,8 @@ class ODB_Logger {
 	function odb_view_log() {
 		global $odb_class, $wpdb;
 
+		$nonce = wp_create_nonce( 'rvg-optimize-database' );
+
 		$this->sql = "
 		SELECT * FROM `" . $odb_class->odb_logtable_name . "` ORDER BY odb_id ASC
 		";
@@ -157,15 +159,15 @@ class ODB_Logger {
 <script>
 function odb_confirm_delete() {
 	if(confirm('<?php echo $msg?>')) {
-		self.location = 'tools.php?page=rvg-optimize-database&action=clear_log'
+		self.location = 'tools.php?page=rvg-optimize-database&action=clear_log&_wpnonce=<?php echo esc_attr( $nonce ); ?>'
 		return;
 	}
 } // function odb_confirm_delete()
 </script>
 <br>
-<input class="button odb-normal" type="button" name="change_options" value="<?php _e('Change Settings', 'rvg-optimize-database')?>" onclick="self.location='options-general.php?page=odb_settings_page'" />
-&nbsp;
 <input class="button odb-normal" type="button" name="clear_log" value="<?php _e('Clear Log', 'rvg-optimize-database') ?>" onclick="return odb_confirm_delete();" />
+<br><br>
+<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'odb_settings_page' ), admin_url( 'options-general.php' ) ) ); ?>"><?php _e( 'Change Settings', 'rvg-optimize-database' ); ?></a>
 <?php
 	} // odb_view_log()
 

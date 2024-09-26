@@ -33,7 +33,7 @@ if (isset($_POST['info_update'])) {
 
 	if(isset($_POST['rvg_odb_older_than'])) $this->odb_rvg_options['older_than'] = sanitize_text_field($_POST['rvg_odb_older_than']);
 		else $this->odb_rvg_options['older_than'] = '';
-	
+
 	if(isset($_POST['rvg_odb_keep_revisions']))
 			$this->odb_rvg_options['rvg_revisions'] = sanitize_text_field($_POST['rvg_odb_keep_revisions']);
 		else
@@ -50,38 +50,38 @@ if (isset($_POST['info_update'])) {
 
 	if(isset($_POST['rvg_clear_tags'])) $this->odb_rvg_options['clear_tags'] = sanitize_text_field($_POST['rvg_clear_tags']);
 	else $this->odb_rvg_options['clear_tags'] = 'N';
-	
+
 	if(isset($_POST['rvg_clear_transients'])) $this->odb_rvg_options['clear_transients'] = sanitize_text_field($_POST['rvg_clear_transients']);
-	else $this->odb_rvg_options['clear_transients'] = 'N';	
+	else $this->odb_rvg_options['clear_transients'] = 'N';
 
 	if(isset($_POST['rvg_clear_pingbacks'])) $this->odb_rvg_options['clear_pingbacks'] = sanitize_text_field($_POST['rvg_clear_pingbacks']);
-	else $this->odb_rvg_options['clear_pingbacks'] = 'N';	
+	else $this->odb_rvg_options['clear_pingbacks'] = 'N';
 
 	if(isset($_POST['rvg_clear_oembed'])) $this->odb_rvg_options['clear_oembed'] = sanitize_text_field($_POST['rvg_clear_oembed']);
-	else $this->odb_rvg_options['clear_oembed'] = 'N';	
+	else $this->odb_rvg_options['clear_oembed'] = 'N';
 
 	if(isset($_POST['rvg_clear_orphans'])) $this->odb_rvg_options['clear_orphans'] = sanitize_text_field($_POST['rvg_clear_orphans']);
 	else $this->odb_rvg_options['clear_orphans'] = 'N';
 
 	if(isset($_POST['rvg_odb_logging_on'])) $this->odb_rvg_options['logging_on'] = sanitize_text_field($_POST['rvg_odb_logging_on']);
 	else $this->odb_rvg_options['logging_on'] = 'N';
-	
+
 	if(isset($_POST['rvg_odb_schedule'])) {
 		$type_old = $this->odb_rvg_options['schedule_type'];
 		$hour_old = $this->odb_rvg_options['schedule_hour'];
-		
+
 		if(sanitize_text_field($_POST['rvg_odb_schedule'] == '')
 			|| (sanitize_text_field($_POST['rvg_odb_schedule']) != 'daily'
 			&& sanitize_text_field($_POST['rvg_odb_schedule']) != 'weekly' && sanitize_text_field($_POST['rvg_odb_schedule']) != 'monthly' ))
 			$_POST['rvg_odb_schedulehour'] = '';
-		
+
 		$hour = '';
 		if(isset($_POST['rvg_odb_schedulehour'])) $hour = sanitize_text_field($_POST['rvg_odb_schedulehour']);
 
 		if($type_old != sanitize_text_field($_POST['rvg_odb_schedule']) || $hour_old != $hour) {
 			// SCHEDULE CHANGED
 			$this->odb_rvg_options['schedule_type'] = sanitize_text_field($_POST['rvg_odb_schedule']);
-			$this->odb_rvg_options['schedule_hour'] = $hour;	
+			$this->odb_rvg_options['schedule_hour'] = $hour;
 			if($this->odb_rvg_options['schedule_type'] == '')
 				// UN-SCHEDULED
 				wp_clear_scheduled_hook('odb_scheduler');
@@ -101,24 +101,24 @@ if (isset($_POST['info_update'])) {
 	else $this->odb_rvg_options['optimize_innodb'] = 'N';
 
 	$this->odb_multisite_obj->odb_ms_update_option('odb_rvg_options', $this->odb_rvg_options);
-	
+
 	// UPDATE EXCLUDED TABLES
 	// EMPTY ARRAY
 	$this->odb_rvg_excluded_tabs = array();
-		
+
 	// ADD CHECKED TABLES
 	foreach ($_POST as $key => $value)
 		if(substr($key,0,3) == 'cb_')
 			$this->odb_rvg_excluded_tabs[substr($key,3)] = 'Y';
 	// SAVE TO DB
-	$this->odb_multisite_obj->odb_ms_update_option('odb_rvg_excluded_tabs', $this->odb_rvg_excluded_tabs);	
+	$this->odb_multisite_obj->odb_ms_update_option('odb_rvg_excluded_tabs', $this->odb_rvg_excluded_tabs);
 
 	// UPDATED MESSAGE
 	echo "<div class='updated odb-bold'><p>".
 		__('Optimize Database after Deleting Revisions SETTINGS UPDATED',$this->odb_txt_domain).
 		" - ";
 	_e('Click <a href="tools.php?page=rvg-optimize-database" class="odb-bold">HERE</a> to run the optimization',$this->odb_txt_domain);
-	echo "</p></div>";	
+	echo "</p></div>";
 } // if (isset($_POST['info_update']))
 ?>
 <script type="text/javascript">
@@ -159,9 +159,9 @@ function rvg_odb_check_form()
 			jQuery("#rvg_odb_older_than").focus();
 			alert('<?php _e("<Delete revisions older than> should be a number", $this->odb_txt_domain)?>');
 			return false;
-		}	
+		}
 	} // if(jQuery('input[name=rvg_odb_delete_older]:checked').val())
-	
+
 	if(jQuery('input[name=rvg_odb_keep_revisions]:checked').val()) {
 		if(jQuery("#rvg_odb_number").val() == '') {
 			jQuery("#rvg_odb_number").focus();
@@ -172,7 +172,7 @@ function rvg_odb_check_form()
 			jQuery("#rvg_odb_number").focus();
 			alert('<?php _e("<Maximum number of revisions> should be a number", $this->odb_txt_domain)?>');
 			return false;
-		}		
+		}
 	} // if(jQuery('input[name=rvg_odb_keep_revisions]:checked').val())
 
 	return true;
@@ -220,7 +220,7 @@ $cb_optimize_innodb = ($this->odb_rvg_options['optimize_innodb']  == "Y") ? $c :
 $this->odb_displayer_obj->display_header();
 
 // GET THE DATABASE TABLES
-$odb_tables = $this->odb_utilities_obj->odb_get_tables();	
+$odb_tables = $this->odb_utilities_obj->odb_get_tables();
 
 // DISPLAY FORM
 echo '
@@ -245,7 +245,7 @@ $rel_posttypes = $this->odb_utilities_obj->odb_get_relevant_post_types();
 // LOOP THROUGH THE RELEVANT POST TYPES
 foreach ($rel_posttypes as $posttype) {
 
-	$cb_checked = ' checked';			
+	$cb_checked = ' checked';
 	if (isset($this->odb_rvg_options['post_types'][$posttype]) &&
 		$this->odb_rvg_options['post_types'][$posttype] == 'N') {
 		$cb_checked = '';
@@ -253,19 +253,19 @@ foreach ($rel_posttypes as $posttype) {
 
 	echo '
 		    <tr>
-              <td width="50%" align="right"><span class="odb-bold">' . $posttype . '</span></td>	
+              <td width="50%" align="right"><span class="odb-bold">' . $posttype . '</span></td>
 	';
-	
+
 	echo '
               <td width="50%" valign="top">
                 <span class="odb-bold">
-                  <input name="rvg_cb_cpt_' . $posttype . '" id="rvg_cb_cpt_' . $posttype . '" type="checkbox" value="Y" ' . $cb_checked . ' /></span>			  
+                  <input name="rvg_cb_cpt_' . $posttype . '" id="rvg_cb_cpt_' . $posttype . '" type="checkbox" value="Y" ' . $cb_checked . ' /></span>
 			  </td>
-			</tr>			  
+			</tr>
 	';
 } // foreach ($rel_posttypes as $posttype)
-			
-echo '			
+
+echo '
 			<tr>
 			  <td width="50%" align="right"><span class="odb-bold">'. __('Delete revisions older than',$this->odb_txt_domain).'</span></td>
 			  <td width="50%" valign="top"><table border="0" cellspacing="0" cellpadding="3">
@@ -276,13 +276,13 @@ echo '
 					  <script type="text/javascript">
 ';
 if($this->odb_rvg_options['delete_older'] == 'Y') echo 'jQuery("#rvg_odb_older").prop("checked", true)';
-echo '						
+echo '
 						jQuery("#rvg_odb_older_than").val("'.$this->odb_rvg_options['older_than'].'");
-					  </script>					  
+					  </script>
 			        </td>
 				  </tr>
 				</table></td>
-			</tr>		  
+			</tr>
 			<tr>
 			  <td width="50%" align="right" valign="top"><span class="odb-bold">'.__('Maximum number of - most recent - revisions<br>to keep per post / page',$this->odb_txt_domain).'</span></td>
 			  <td width="50%" valign="top"><table border="0" cellspacing="0" cellpadding="3">
@@ -297,7 +297,7 @@ echo '
             <tr>
               <td width="50%" align="right" valign="top" class="odb-bold">&nbsp;</td>
               <td width="50%" valign="top">&nbsp;</td>
-            </tr>					
+            </tr>
             <tr>
               <td width="50%" align="right" valign="top"><span class="odb-bold">
                 '. __('Delete trashed items',$this->odb_txt_domain).'
@@ -329,7 +329,7 @@ echo '
                   </option>
                   <option value="A">
                   '.__('DELETE ALL TRANSIENTS',$this->odb_txt_domain).'
-                  </option>				  	  
+                  </option>
                 </select>
 				<script type="text/javascript">
 					jQuery("#rvg_clear_transients").val("'.$this->odb_rvg_options['clear_transients'].'");
@@ -352,19 +352,19 @@ echo '
                 '.__('Clear orphans',$this->odb_txt_domain).'
                 </span></td>
               <td width="50%" valign="top"><input name="rvg_clear_orphans" type="checkbox" value="Y" '.$cb_orphans.'></td>
-            </tr>						
+            </tr>
             <tr>
               <td align="right" valign="top"><span class="odb-bold">
                 '. __('Optimize InnoDB tables too',$this->odb_txt_domain).'
                 </span></td>
               <td valign="top"><input name="rvg_odb_optimize_innodb" type="checkbox" value="Y" '.$cb_optimize_innodb.'></td>
-            </tr>			
+            </tr>
             <tr>
               <td width="50%" align="right" valign="top"><span class="odb-bold">
                 '.__('Keep a log',$this->odb_txt_domain).'
                 </span></td>
               <td width="50%" valign="top"><input name="rvg_odb_logging_on" type="checkbox" value="Y" '.$cb_logging.'></td>
-            </tr>	
+            </tr>
             <tr>
               <td width="50%" align="right"><span class="odb-bold">
                 '.__('Scheduler',$this->odb_txt_domain).'
@@ -400,7 +400,7 @@ echo '
 			<tr id="schedulehour">
               <td width="50%" align="right"><span class="odb-bold">
                 '.__('Time',$this->odb_txt_domain).'
-                </span></td>			
+                </span></td>
 			  <td>
 				<select name="rvg_odb_schedulehour" id="rvg_odb_schedulehour" class="odb-schedulehour-select">
 ';
@@ -409,18 +409,18 @@ for($i=0; $i<=23; $i++) {
 	if($i < 10) $i = '0'.$i;
 ?>
                   <option value="<?php echo $i?>"><?php echo $i.':00 '.__('hrs',$this->odb_txt_domain)?></option>
-<?php	
+<?php
 } // for($i=0; $i<=23; $i++)
 
-echo '				
+echo '
 				</select>
                 <script type="text/javascript">
 					jQuery("#rvg_odb_schedulehour").val("'.$this->odb_rvg_options['schedule_hour'].'");
-			    </script> 
-                </span> 
+			    </script>
+                </span>
 			  </td>
 			</tr>
-			<script type="text/javascript">schedule_changed();</script>		
+			<script type="text/javascript">schedule_changed();</script>
             <tr>
               <td align="right" valign="top"><span class="odb-bold">
                 '.__('Show \'1-click\' link in Admin Bar',$this->odb_txt_domain).'*
@@ -432,19 +432,19 @@ echo '
                 '. __('Show an icon in the Admin Menu',$this->odb_txt_domain).'*
                 </span></td>
               <td valign="top"><input name="rvg_odb_adminmenu" type="checkbox" value="Y" '.$cb_adminmenu.'></td>
-            </tr>		
+            </tr>
           </table>
 		  <div align="center"><em>* '.__('change will be visible after loading the next page', $this->odb_txt_domain).'</em></div>
           <br>
-		  
+
 		  <div id="odb-options-buttons" align="center">
-			<p>
+			<p style="display: flex; justify-content: center; align-items: center; gap: 0.6em;">
 			  <input class="button-primary button-large odb-bold" type="submit" name="info_update" value="'.__('Save Settings',$this->odb_txt_domain).'">
 			  &nbsp;
-			  <input class="button odb-normal" type="button" name="optimizer" value="'.__('Go To Optimizer',$this->odb_txt_domain).'" onclick="self.location=\'tools.php?page=rvg-optimize-database\'">
+			  <a href="' . esc_url( add_query_arg( array( 'page' => 'rvg-optimize-database' ), admin_url( 'tools.php' ) ) ) . '">' . __( 'Go To Optimizer', $this->odb_txt_domain ) . '</a>
 			</p>
 		  </div>
-          <!-- odb-options-buttons -->		  
+          <!-- odb-options-buttons -->
           <br>
           <div align="center">
             <span class="odb-bold">
@@ -473,7 +473,7 @@ for ($i=0; $i<count($odb_tables); $i++) {
 	for($j=0; $j<count($this->odb_ms_prefixes); $j++)
 		if(substr($odb_tables[$i][0], 0, strlen($this->odb_ms_prefixes[$j])) == $this->odb_ms_prefixes[$j]) $class = ' odb-wp-table';
 	$cb_checked = '';
-	if(isset($this->odb_rvg_excluded_tabs[$odb_tables[$i][0]])) $cb_checked = ' checked';			
+	if(isset($this->odb_rvg_excluded_tabs[$odb_tables[$i][0]])) $cb_checked = ' checked';
 ?>
 	  <div class="odb-options-table<?php echo $class;?>" title="<?php echo $odb_tables[$i][0];?>">
 		<input id="cb_<?php echo $odb_tables[$i][0];?>" name="cb_<?php echo $odb_tables[$i][0];?>" type="checkbox" value="1"<?php echo $cb_checked; ?>>
@@ -481,18 +481,18 @@ for ($i=0; $i<count($odb_tables); $i++) {
 <?php
 }
 
-echo '			  
+echo '
 			  </div><!-- /odb-options-tables-wrapper -->
               <div id="odb-options-buttons" align="center">
-                <p>
+			  	<p style="display: flex; justify-content: center; align-items: center; gap: 0.6em;">
                   <input class="button-primary button-large odb-bold" type="submit" name="info_update" value="'.__('Save Settings',$this->odb_txt_domain).'">
                   &nbsp;
-                  <input class="button odb-normal" type="button" name="optimizer" value="'.__('Go To Optimizer',$this->odb_txt_domain).'" onclick="self.location=\'tools.php?page=rvg-optimize-database\'">
+                  <a href="' . esc_url( add_query_arg( array( 'page' => 'rvg-optimize-database' ), admin_url( 'tools.php' ) ) ) . '">' . __( 'Go To Optimizer', $this->odb_txt_domain ) . '</a>
                 </p>
               </div>
-              <!-- odb-options-buttons -->			  
+              <!-- odb-options-buttons -->
 		    </div><!-- /odb-options-tables-container -->
-	      </div><!-- /center -->	  	  
+	      </div><!-- /center -->
         </div><!-- /odb-options-settings -->
 	  </div><!-- /odb-options-wrap -->
     </form>
