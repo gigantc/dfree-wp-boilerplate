@@ -77,8 +77,9 @@ add_filter( 'block_categories_all', 'my_plugin_block_categories', 10, 2 );
 
 
 
-//add only blocks that are needed
-function acf_allowed_block_types( $allowed_blocks ) {
+// Add only blocks that are needed
+function acf_allowed_block_types( $allowed_blocks, $block_editor_context ) {
+  global $post;
 
   //all default block types set
   $blocks = array(
@@ -89,18 +90,26 @@ function acf_allowed_block_types( $allowed_blocks ) {
   );
 
 
-  //document posts only block types
+  // If the post type is 'documents', restrict blocks
   // if( $post->post_type == 'documents' ) {
   //     $blocks = array(
-  //       'acf/document-download',
-  //       'acf/document-download-cat'
+  //         'acf/document-download',
+  //         'acf/document-download-cat'
   //     );
   // }
- 
+
+  // Restrict blocks for specific pages by ID, slug, or title
+  //replace XXIDXX with your page ID
+  // if( is_page( XXIDXX ) || is_page( 'example-page' ) ) { 
+  //     $blocks = array(
+  //         'acf/page-specific-block',
+  //         'acf/page-specific-hero',
+  //     );
+  // }
   return $blocks; 
 
 }
-add_filter( 'allowed_block_types_all', 'acf_allowed_block_types' );
+add_filter( 'allowed_block_types_all', 'acf_allowed_block_types', 10, 2 );
 
 
 
