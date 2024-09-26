@@ -27,8 +27,6 @@ if ( ! class_exists( 'acf_field' ) ) :
 		 * extending this class, use the `initialize()` method in the child class instead.
 		 *
 		 * @since 5.0.0
-		 *
-		 * @return void
 		 */
 		public function __construct() {
 			// Initialize the field type.
@@ -80,8 +78,9 @@ if ( ! class_exists( 'acf_field' ) ) :
 			$this->add_action( 'acf/field_group/admin_head', array( $this, 'field_group_admin_head' ), 10, 0 );
 			$this->add_action( 'acf/field_group/admin_footer', array( $this, 'field_group_admin_footer' ), 10, 0 );
 
-			// Most fields can use the "Required" validation setting as well as most presentation settings.
+			// Add field global settings configurable by supports on specific field types.
 			$this->add_field_action( 'acf/field_group/render_field_settings_tab/validation', array( $this, 'render_required_setting' ), 5 );
+			$this->add_field_action( 'acf/field_group/render_field_settings_tab/presentation', array( $this, 'render_bindings_setting' ), 5 );
 
 			foreach ( acf_get_combined_field_type_settings_tabs() as $tab_key => $tab_label ) {
 				$this->add_field_action( "acf/field_group/render_field_settings_tab/{$tab_key}", array( $this, "render_field_{$tab_key}_settings" ), 9, 1 );
@@ -92,8 +91,6 @@ if ( ! class_exists( 'acf_field' ) ) :
 		 * Initializes the field type. Overridden in child classes.
 		 *
 		 * @since 5.6.0
-		 *
-		 * @return void
 		 */
 		public function initialize() {
 			/* do nothing */
@@ -224,11 +221,10 @@ if ( ! class_exists( 'acf_field' ) ) :
 		/**
 		 * Add additional validation for fields being updated via the REST API.
 		 *
-		 * @param boolean $valid
-		 * @param mixed   $value
-		 * @param array   $field
-		 *
-		 * @return boolean|WP
+		 * @param  boolean $valid The current validity booleean
+		 * @param  integer $value The value of the field
+		 * @param  array   $field The field array
+		 * @return boolean|WP_Error
 		 */
 		public function validate_rest_value( $valid, $value, $field ) {
 			return $valid;
@@ -260,18 +256,18 @@ if ( ! class_exists( 'acf_field' ) ) :
 		 * under the `_embedded` response property.
 		 *
 		 * e.g;
-		 *    [
-		 *        [
-		 *            'rel' => 'acf:post',
-		 *            'href' => 'https://example.com/wp-json/wp/v2/posts/497',
-		 *            'embeddable' => true,
-		 *        ],
-		 *        [
-		 *            'rel' => 'acf:user',
-		 *            'href' => 'https://example.com/wp-json/wp/v2/users/2',
-		 *            'embeddable' => true,
-		 *        ],
-		 *    ]
+		 *   [
+		 *       [
+		 *           'rel' => 'acf:post',
+		 *           'href' => 'https://example.com/wp-json/wp/v2/posts/497',
+		 *           'embeddable' => true,
+		 *       ],
+		 *       [
+		 *           'rel' => 'acf:user',
+		 *           'href' => 'https://example.com/wp-json/wp/v2/users/2',
+		 *           'embeddable' => true,
+		 *       ],
+		 *   ]
 		 *
 		 * @param mixed          $value   The raw (unformatted) field value.
 		 * @param string|integer $post_id
@@ -319,6 +315,53 @@ if ( ! class_exists( 'acf_field' ) ) :
 					'name'         => 'required',
 					'ui'           => 1,
 					'class'        => 'field-required',
+				),
+				true
+			);
+		}
+
+		/**
+		 * Renders the "Allow in Bindings" setting on the field type "Presentation" settings tab.
+		 *
+		 * @since 6.3.6
+		 *
+		 * @param array $field The field type being rendered.
+		 * @return void
+		 */
+		public function render_bindings_setting( $field ) {
+			$supports_bindings = acf_field_type_supports( $field['type'], 'bindings', true );
+
+			// Only prevent rendering if explicitly disabled.
+			if ( ! $supports_bindings ) {
+				return;
+			}
+
+			/* translators: %s A "Learn More" link to documentation explaining the setting further. */
+			$binding_string       = esc_html__( 'Allow content editors to access and display the field value in the editor UI using Block Bindings or the ACF Shortcode. %s', 'acf' );
+			$binding_url          = '<a target="_blank" href="' . acf_add_url_utm_tags( 'https://www.advancedcustomfields.com/resources/bindings-security/', 'docs', 'field-settings' ) . '">' . esc_html__( 'Learn more.', 'acf' ) . '</a>';
+			$binding_instructions = sprintf(
+				$binding_string,
+				$binding_url
+			);
+
+			// This field setting has a unique behaviour. If the value isn't defined on the field object, it defaults to true, but for new fields, it defaults to off.
+			if ( ! isset( $field['allow_in_bindings'] ) ) {
+				if ( empty( $field['ID'] ) ) {
+					$field['allow_in_bindings'] = false;
+				} else {
+					$field['allow_in_bindings'] = true;
+				}
+			}
+
+			acf_render_field_setting(
+				$field,
+				array(
+					'label'        => __( 'Allow Access to Value in Editor UI', 'acf' ),
+					'instructions' => $binding_instructions,
+					'type'         => 'true_false',
+					'name'         => 'allow_in_bindings',
+					'ui'           => 1,
+					'class'        => 'field-show-in-bindings',
 				),
 				true
 			);
