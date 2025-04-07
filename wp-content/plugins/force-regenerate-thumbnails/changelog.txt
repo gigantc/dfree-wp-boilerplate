@@ -1,5 +1,10 @@
+= 2.2.1 =
+*Release Date - November 12, 2024*
+
+* added: list of active image sizes when regenerating thumbs for all images
+
 = 2.2.0 =
-*Release Date - September 17, 2023*
+*Release Date - September 17, 2024*
 
 * added: regen process can be resumed
 * fixed: nonce expiration stops regen process

@@ -1,9 +1,9 @@
 === Force Regenerate Thumbnails ===
 Contributors: pedro-elsner, nosilver4u
-Requires at least: 6.3
-Tested up to: 6.6
+Requires at least: 6.4
+Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 2.2.0
+Stable tag: 2.2.1
 License: GPLv2
 Tags: force, regenerate thumbnails, thumbnail, thumbnails
 
@@ -34,8 +34,13 @@ You may report security issues through our Patchstack Vulnerability Disclosure P
 
 == ChangeLog ==
 
+= 2.2.1 =
+*Release Date - November 12, 2024*
+
+* added: list of active image sizes when regenerating thumbs for all images
+
 = 2.2.0 =
-*Release Date - September 17, 2023*
+*Release Date - September 17, 2024*
 
 * added: regen process can be resumed
 * fixed: nonce expiration stops regen process
