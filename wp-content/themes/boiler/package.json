@@ -8,6 +8,7 @@
   },
   "author": "dFree",
   "devDependencies": {
+    "del": "^8.0.0",
     "gulp": "^5.0.0"
   },
   "dependencies": {
