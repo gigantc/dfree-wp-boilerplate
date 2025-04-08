@@ -1,6 +1,6 @@
 <?php
 /**
- * Block Name: Image Single
+ * Block Name: Image with Text
  *
  * 
  */
@@ -19,16 +19,16 @@ if (get_field('is_example')) : ?>
 // render the block in the browser
 else : 
 
-
-$image = get_field('image_single_image');
-$image_url = $image['url'];
-$image_alt = $image['alt'];
 ?>
 
-  <section class="image-single">
-    <div class="wrap">
-      <img src="<?= esc_url($image_url); ?>" alt="<?= $image_alt ?>"/>
-    </div>
+  <section class="image-with-text">
+      <div class="image">
+        <img src="https://placehold.co/600x400" />
+      </div>
+      <div class="text">
+        <h2>Is this an image?</h2>
+        <h4>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae.</h4>
+      </div>
   </section>
 
 <?php endif; ?>
