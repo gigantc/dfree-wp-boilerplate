@@ -1,0 +1,25 @@
+//////////////////////////////////////
+// TEXT BLOCK
+
+
+
+//basic text blocks
+.block-text{
+  margin:10px auto 40px;
+  p{
+    margin:10px auto 20px;
+  }
+}
+
+
+
+
+
+
+
+ //admin display overrides
+ .wp-admin{
+  .block-text{
+    
+  }
+}

@@ -1,10 +1,23 @@
 //////////////////////////////////////
 // HEADLINE BLOCK
 
-//basic text blocks
-.basic-headline{
+//basic headline blocks
+.block-headline{
   margin:40px auto 10px;
   h1, h2, h3, h4, h5, h6{
     letter-spacing: 1px;
+  }
+}
+
+
+
+
+
+
+
+ //admin display overrides
+ .wp-admin{
+  .block-headline{
+    
   }
 }
