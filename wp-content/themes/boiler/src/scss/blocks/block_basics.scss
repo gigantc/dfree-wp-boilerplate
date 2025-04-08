@@ -1,6 +1,5 @@
-/**
- * Basic Blocks
- */
+//////////////////////////////////////
+// BASIC BLOCKS
 
 //basic text blocks
 .basic-headline{
@@ -31,16 +30,16 @@
   ul{
     margin:30px 0px;
     li{
-      color:black;
-      font:400 16px/24px $roboto;
+      color:red;
+      font:400 16px/24px v.$roboto;
       margin:0px;
-      @include breakpoint(768px){font:400 14px/22px $roboto;}
+      @include breakpoint(768px){font:400 14px/22px v.$roboto;}
     }
   }
   strong{
-    font:700 16px/24px $roboto;
-    color:black;
-    @include breakpoint(768px){font:700 14px/22px $roboto;}
+    font:700 16px/24px v.$roboto;
+    color:red;
+    @include breakpoint(768px){font:700 14px/22px v.$roboto;}
   }
 }
 

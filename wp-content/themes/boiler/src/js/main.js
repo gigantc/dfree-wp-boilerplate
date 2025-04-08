@@ -1,6 +1,6 @@
 /*
 
-  dFree Boilerplate
+  dFree Boilerplate 
 
   Site Development by Badhawk Workshop
   Developer: Daniel Freeman [@dFree]
@@ -33,10 +33,6 @@ const getHomeUrl = () => {
   }
   return index;
 }
-
-
-// badhawk tag!!
-console.log('-=   built with ♥ by badhawkworkshop.com   =-');
 
 
 

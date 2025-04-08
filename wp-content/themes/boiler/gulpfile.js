@@ -14,40 +14,19 @@ const sass = require('gulp-sass')(require('sass')),
 
 /* FILE PATHS */
 const files = { 
-    scssPath: 'src/scss/*.scss',
+    scssPath: ['src/scss/*.scss'],
     scriptsPath: 'src/js/*.js',
     libsPath: 'src/js/libs/*.js',
     blocksPath: 'src/scss/blocks/*.scss'
 };
 
 /* STYLES TASK */
-function scssTask() {    
-    return src(files.scssPath)
-        .pipe(plumber({
-            errorHandler: function (error) {
-                console.log(error.message);
-                this.emit('end');
-            }
-        }))
-        .pipe(sourcemaps.init())
-        .pipe(sass())
-        .pipe(postcss([autoprefixer(), cssnano()]))
-        .pipe(sourcemaps.write('.'))
-        .pipe(dest('css/'))
-        .pipe(browserSync.stream());
-}
-
-/* BLOCKS SCSS TASK */
-function blocksScssTask() {    
-    return src(files.blocksPath)
-        .pipe(plumber({
-            errorHandler: function (error) {
-                console.log(error.message);
-                this.emit('end');
-            }
-        }))
-        .pipe(concat('_blocks_combined.scss'))
-        .pipe(dest('src/scss/'));
+function scssTask() {
+  return src('src/scss/main.scss', { sourcemaps: true })
+    .pipe(plumber())
+    .pipe(sass({ includePaths: ['src/scss'] }))
+    .pipe(postcss([autoprefixer(), cssnano()]))
+    .pipe(dest('css', { sourcemaps: '.' }));
 }
 
 /* LIBS TASK */
@@ -94,7 +73,6 @@ function watchTask() {
     browserSync.init({
         proxy: "boiler.local"
     });
-    watch(files.blocksPath, blocksScssTask);
     watch(files.scssPath, scssTask);
     watch(files.libsPath, libsTask);
     watch(files.scriptsPath, scriptsTask);
@@ -103,6 +81,6 @@ function watchTask() {
 
 /* DEFAULT TASK */
 exports.default = series(
-    parallel(blocksScssTask, scssTask, libsTask, scriptsTask), 
+    parallel(scssTask, libsTask, scriptsTask), 
     watchTask
 );

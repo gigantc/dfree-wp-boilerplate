@@ -1,6 +1,6 @@
 /*
 
-  dFree Boilerplate - v2.4
+  dFree Boilerplate - v3.0
 
   Site Development by Badhawk Workshop
   Developer: Daniel Freeman [@dFree]
@@ -10,8 +10,11 @@
 
 
 /*// IMPORTS ----------------------- */
-@import "normalize",
-        "variables",
-        "base",
-        "fonts",
-        "blocks_combined";
+// css reset        
+@use 'normalize';
+// fonts       
+@use 'fonts';
+// base styles          
+@use 'base';
+// combined block scss        
+@use 'blocks';
