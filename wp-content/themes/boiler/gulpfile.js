@@ -83,6 +83,7 @@ function reload(done) {
 
 //////////////////////////////////////
 // WATCH TASK
+//change the proxy to your local domain
 function watchTask() {
   browserSync.init({
     proxy: 'dfreeboilerplate.local'
@@ -90,7 +91,8 @@ function watchTask() {
   watch(files.scssPath, scssTask);
   watch(files.libsPath, libsTask);
   watch(files.scriptsPath, scriptsTask);
-  watch('**/*.php', reload); // Reload when PHP files change
+  // Reload when PHP files change
+  watch('**/*.php', reload); 
 }
 
 //////////////////////////////////////

@@ -6,76 +6,81 @@
  * @package lawfirm
  */
 
+
+
+
+
+//////////////////////////////////////
+// SCAN /blocks FOLDER
+// This dynamically renders ACF blocks by scanning all subfolders within the /blocks directory. 
+//  It extracts the block’s slug from its registered name (e.g., 'acf/headline' → 'headline').
 function my_acf_block_render_callback( $block ) {
   
   // convert name ("acf/block-name") into path friendly slug ("block-name")
   $slug = str_replace('acf/', '', $block['name']);
 
-  //all folder names in /blocks
-  //add new ones as needed
-  $block_folder_names = array(
-    'text',
-    'images',
-    'videos',
-    'heroes',
-    'carousels',
-    "misc"
+  // Scan all block folders recursively
+  $block_dirs = new RecursiveIteratorIterator(
+    new RecursiveDirectoryIterator( get_theme_file_path('/blocks'), RecursiveDirectoryIterator::SKIP_DOTS )
   );
 
-  foreach ($block_folder_names as $folder) {
-    if( file_exists( get_theme_file_path("/blocks/{$folder}/{$slug}.php") ) ) {
-      include( get_theme_file_path("/blocks/{$folder}/{$slug}.php") );
+  foreach ($block_dirs as $file) {
+    if (
+      $file->getFilename() === "{$slug}.php"
+      && strpos($file->getPathname(), '.php') !== false
+    ) {
+      include $file->getPathname();
+      return;
     }
   }
 
-
 }
 
-//create custom block categories
+
+
+
+//////////////////////////////////////
+// CREATE ALL CUSTOM BLOCK CATEGORIES
+//creates categories based on the top level folders names in /blocks
 function my_plugin_block_categories( $categories, $post ) {
-  // if ( $post->post_type !== 'post' ) {
-  //     return $categories;
-  // }
-  return array_merge(
-      $categories,
-      array(
-          array(
-            'slug' => 'block-text',
-            'title' => __( 'Text', 'block-text' ),
-            'icon'  => 'welcome-widgets-menus',
-          ),
-          array(
-            'slug' => 'block-images',
-            'title' => __( 'Images', 'block-images' ),
-            'icon'  => 'welcome-widgets-menus',
-          ),
-          array(
-            'slug' => 'block-videos',
-            'title' => __( 'Videos', 'block-video' ),
-            'icon'  => 'welcome-widgets-menus',
-          ),
-          array(
-            'slug' => 'block-heroes',
-            'title' => __( 'Heroes', 'block-heroes' ),
-            'icon'  => 'welcome-widgets-menus',
-          ),
-          array(
-            'slug' => 'block-carousels',
-            'title' => __( 'Carousels', 'block-carousels' ),
-            'icon'  => 'welcome-widgets-menus',
-          ),
-          array(
-            'slug' => 'block-misc',
-            'title' => __( 'Misc', 'block-misc' ),
-            'icon'  => 'welcome-widgets-menus',
-          ),
-      )
-  );
+  $block_base_path = get_theme_file_path('/blocks');
+  $block_categories = [];
+
+  // Define custom icons per category
+  //commented out unless you want to create custom icons
+  // $category_icons = [
+  //   'text'     => 'welcome-widgets-menus',
+  //   'images'   => 'welcome-widgets-menus',
+  //   'videos'   => 'welcome-widgets-menus',
+  //   'heroes'   => 'welcome-widgets-menus',
+  //   'carousels'=> 'welcome-widgets-menus',
+  //   'misc'     => 'welcome-widgets-menus',
+  // ];
+
+  // Get all first-level directories in /blocks
+  foreach (glob($block_base_path . '/*', GLOB_ONLYDIR) as $folder) {
+    $basename = basename($folder);
+    $slug     = 'block-' . $basename;
+    $title    = ucwords(str_replace('-', ' ', $basename));
+    $icon     = $category_icons[$basename] ?? 'welcome-widgets-menus'; // fallback
+
+    $block_categories[] = array(
+      'slug'  => $slug,
+      'title' => __($title, $slug),
+      'icon'  => $icon,
+    );
+  }
+
+  return array_merge($categories, $block_categories);
 }
 add_filter( 'block_categories_all', 'my_plugin_block_categories', 10, 2 );
 
 
 
+
+
+//////////////////////////////////////
+// DISPLAY BLOCKS IN THE ADMIN 
 // Add only blocks that are needed
 function acf_allowed_block_types( $allowed_blocks, $block_editor_context ) {
   global $post;
@@ -84,6 +89,7 @@ function acf_allowed_block_types( $allowed_blocks, $block_editor_context ) {
   $blocks = array(
     'acf/headline',
     'acf/text',
+    'acf/wysiwyg',
   );
 
 
@@ -110,57 +116,53 @@ add_filter( 'allowed_block_types_all', 'acf_allowed_block_types', 10, 2 );
 
 
 
-//block registration
+
+
+//////////////////////////////////////
+// BLOCK REGISTRATION
 add_action('acf/init', 'my_acf_init');
 function my_acf_init() {
   
   // check function exists
   if( function_exists('acf_register_block') ) {
 
+    // Scan all block folders recursively
+    $block_dirs = new RecursiveIteratorIterator(
+      new RecursiveDirectoryIterator( get_theme_file_path('/blocks'), RecursiveDirectoryIterator::SKIP_DOTS )
+    );
 
-    //////////////////////////////////////
-    // TEXT BLOCKS
+    foreach ($block_dirs as $file) {
+      if ($file->getExtension() === 'php') {
+        $folder = dirname($file->getPathname());
+        $slug = basename($folder);
+        $category = 'block-' . basename(dirname($folder));
+        $meta_path = $folder . '/block.json';
+        $meta = file_exists($meta_path) ? json_decode(file_get_contents($meta_path), true) : [];
+        
+        $title = $meta['title'] ?? ucwords(str_replace('-', ' ', $slug));
+        $description = $meta['description'] ?? __('A custom block for ' . $title);
+        $keywords = $meta['keywords'] ?? [];
 
-    // Register a Headline Block
-    acf_register_block(array(
-      'name'        => 'headline',
-      'title'       => __('Headline'),
-      'description'   => __('a simple headline element'),
-      'render_callback' => 'my_acf_block_render_callback',
-      'category'      => 'block-text',
-      'mode' => 'preview',
-      'icon'        => '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="heading" class="svg-inline--fa fa-heading fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M448 96v320h32a16 16 0 0 1 16 16v32a16 16 0 0 1-16 16H320a16 16 0 0 1-16-16v-32a16 16 0 0 1 16-16h32V288H160v128h32a16 16 0 0 1 16 16v32a16 16 0 0 1-16 16H32a16 16 0 0 1-16-16v-32a16 16 0 0 1 16-16h32V96H32a16 16 0 0 1-16-16V48a16 16 0 0 1 16-16h160a16 16 0 0 1 16 16v32a16 16 0 0 1-16 16h-32v128h192V96h-32a16 16 0 0 1-16-16V48a16 16 0 0 1 16-16h160a16 16 0 0 1 16 16v32a16 16 0 0 1-16 16z"></path></svg>',
-      'keywords'      => array( 'text', 'headline'),
-      'example' => [
-        'attributes' => [
-          'mode' => 'preview',
-          'data' => ['is_example' => true],
-        ]
-      ]
-    ));
+        $icon_path = $folder . '/admin-icon.svg';
+        $icon = file_exists($icon_path) ? file_get_contents($icon_path) : '';
 
-    // Register a Text Block
-    acf_register_block(array(
-      'name'        => 'text',
-      'title'       => __('Text'),
-      'description'   => __('a simple text block element'),
-      'render_callback' => 'my_acf_block_render_callback',
-      'category'      => 'block-text',
-      'mode' => 'preview',
-      'icon'        => '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="text-size" class="svg-inline--fa fa-text-size fa-w-20" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M624 32H272a16 16 0 0 0-16 16v96a16 16 0 0 0 16 16h32a16 16 0 0 0 16-16v-32h88v304h-40a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16v-32a16 16 0 0 0-16-16h-40V112h88v32a16 16 0 0 0 16 16h32a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM304 224H16a16 16 0 0 0-16 16v64a16 16 0 0 0 16 16h32a16 16 0 0 0 16-16v-16h56v128H96a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h128a16 16 0 0 0 16-16v-32a16 16 0 0 0-16-16h-24V288h56v16a16 16 0 0 0 16 16h32a16 16 0 0 0 16-16v-64a16 16 0 0 0-16-16z"></path></svg>',
-      'keywords'      => array( 'paragraph', 'text'),
-      'example' => [
-        'attributes' => [
-          'mode' => 'preview',
-          'data' => ['is_example' => true],
-        ]
-      ]
-    ));
-
-    
-
-    
-
-
+        acf_register_block(array(
+          'name'            => $slug,
+          'title'           => __($title, 'block-' . $slug),
+          'description'     => $description,
+          'render_callback' => 'my_acf_block_render_callback',
+          'category'        => $category,
+          'icon'            => $icon,
+          'keywords'        => $keywords,
+          'mode'            => 'preview',
+          'example'         => [
+            'attributes' => [
+              'mode' => 'preview',
+              'data' => ['is_example' => true],
+            ]
+          ]
+        ));
+      }
+    }
   }
 }

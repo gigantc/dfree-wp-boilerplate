@@ -8,8 +8,8 @@
 // render the example image pop-up in the gutenburg admin
 if (get_field('is_example')) : ?>
 
-
-  <img src="<?= get_template_directory_uri() ?>/blocks/basics/image-center.jpg" />
+  <!-- This will dynamically use an image in the folder called 'admin-image.jpg' for the pop-up display -->
+  <img src="<?= get_template_directory_uri() . str_replace(get_theme_file_path(), '', __DIR__) ?>/admin-image.jpg" alt="Block Preview">
 
 
 <?php 
@@ -17,11 +17,12 @@ if (get_field('is_example')) : ?>
 else : 
 
 $copy = get_field('block_text');
+
 ?>
   
-  <span class="block-text">
+  <div class="block-text">
     <p><?= $copy ?></p>
-  </span>
+  </div>
 
 
 <?php endif; ?>

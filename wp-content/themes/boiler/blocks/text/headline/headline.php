@@ -8,8 +8,8 @@
 // render the example image pop-up in the gutenburg admin
 if (get_field('is_example')) : ?>
 
-
-    <img src="<?= get_template_directory_uri() ?>/blocks/text/headline.jpg" />
+<!-- This will dynamically use an image in the folder called 'admin-image.jpg' for the pop-up display -->
+<img src="<?= get_template_directory_uri() . str_replace(get_theme_file_path(), '', __DIR__) ?>/admin-image.jpg" alt="Block Preview">
 
 
 <?php 
@@ -21,7 +21,7 @@ $headline_type = get_field('block_headline_type');
 
 ?>
 
-<span class="basic-headline">
+<div class="block-headline">
 
   <?php
   if($headline_type == 'h1'){ ?>
@@ -48,7 +48,7 @@ $headline_type = get_field('block_headline_type');
     <h6><?= $headline ?></h6>
   <?php } ?>
 
-</span>
+</div>
 
 
 
