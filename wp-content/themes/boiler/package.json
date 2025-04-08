@@ -1,17 +1,19 @@
 {
-  "name": "WPBoiler",
-  "version": "2.0.0",
-  "description": "Build for Someone Special",
+  "name": "dFrees WP Boilerplate",
+  "version": "3.0.0",
+  "description": "Built for Someone Special",
   "main": "gulpfile.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "NODE_OPTIONS='--no-deprecation' gulp",
+    "build": "NODE_OPTIONS='--no-deprecation' gulp build"
   },
   "author": "dFree",
   "devDependencies": {
-    "del": "^8.0.0",
-    "gulp": "^5.0.0"
+    "del": "^8.0.0"
   },
   "dependencies": {
+    "gulp": "^5.0.0",
     "@babel/preset-env": "^7.15.0",
     "autoprefixer": "^10.4.21",
     "browser-sync": "^3.0.4",

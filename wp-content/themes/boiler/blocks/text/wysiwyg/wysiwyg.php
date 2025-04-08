@@ -17,8 +17,8 @@ if (get_field('is_example')) : ?>
 // render the block in the browser
 else : ?>
 
-<span class="basic-text basic-headline basic-wysiwyg">
-  <?php the_field('block_basic_wysiwyg_editor'); ?>
-</span>
+<div class="block-wysiwyg">
+  <?php the_field('block_wysiwyg_editor'); ?>
+</div>
 
 <?php endif; ?>

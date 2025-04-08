@@ -7,27 +7,35 @@
 
 //basic wysiwyg block
 .block-wysiwyg{
+  h1, h2, h3, h4, h5, h6{
+    letter-spacing: 1px;
+    color:v.$black;
+  }
   a{
-    color:black;
-    @include trans(0.2s);
+    color:v.$black;
+    @include v.trans(0.2s);
     &:hover{
-      color:blue;
-      @include trans(0.2s);
+      color:v.$blue;
+      @include v.trans(0.2s);
     }
+  }
+  p{
+    margin:10px auto 20px;
+    color: v.$black;
   }
   ul{
     margin:30px 0px;
     li{
       color:v.$black;
-      font:400 16px/24px $roboto;
+      font:400 16px/24px v.$roboto;
       margin:0px;
-      @include breakpoint(768px){font:400 14px/22px $roboto;}
+      @include v.breakpoint(768px){font:400 14px/22px v.$roboto;}
     }
   }
   strong{
-    font:700 16px/24px $roboto;
-    color:black;
-    @include breakpoint(768px){font:700 14px/22px $roboto;}
+    font:700 16px/24px v.$roboto;
+    color:v.$black;
+    @include v.breakpoint(768px){font:700 14px/22px v.$roboto;}
   }
 }
 
