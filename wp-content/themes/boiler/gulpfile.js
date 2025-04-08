@@ -17,7 +17,7 @@ const files = {
     scssPath: ['src/scss/*.scss'],
     scriptsPath: 'src/js/*.js',
     libsPath: 'src/js/libs/*.js',
-    blocksPath: 'src/scss/blocks/*.scss'
+    blocksPath: 'blocks/**/*.scss',
 };
 
 /* STYLES TASK */
@@ -73,6 +73,7 @@ function watchTask() {
     browserSync.init({
         proxy: "boiler.local"
     });
+    watch(files.blocksPath, scssTask);
     watch(files.scssPath, scssTask);
     watch(files.libsPath, libsTask);
     watch(files.scriptsPath, scriptsTask);

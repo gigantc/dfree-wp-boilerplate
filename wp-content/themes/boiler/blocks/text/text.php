@@ -16,11 +16,11 @@ if (get_field('is_example')) : ?>
 // render the block in the browser
 else : 
 
-$copy = get_field('block_basic_text');
+$copy = get_field('block_text');
 ?>
   
-  <span class="basic-text">
-    <?= $copy ?>
+  <span class="block-text">
+    <p><?= $copy ?></p>
   </span>
 
 

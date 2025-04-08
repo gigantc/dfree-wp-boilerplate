@@ -1,13 +1,15 @@
 //////////////////////////////////////
 // TEXT BLOCK
 
-
+//imports
+@use 'variables' as v;
 
 //basic text blocks
 .block-text{
   margin:10px auto 40px;
   p{
     margin:10px auto 20px;
+    color: v.$black;
   }
 }
 

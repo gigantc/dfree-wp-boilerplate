@@ -15,7 +15,7 @@ function my_acf_block_render_callback( $block ) {
   //add new ones as needed
   $block_folder_names = array(
     'text',
-    'images'
+    'images',
     'videos',
     'heroes',
     'carousels',
@@ -124,7 +124,7 @@ function my_acf_init() {
     // Register a Headline Block
     acf_register_block(array(
       'name'        => 'headline',
-      'title'       => __('Simple Headline'),
+      'title'       => __('Headline'),
       'description'   => __('a simple headline element'),
       'render_callback' => 'my_acf_block_render_callback',
       'category'      => 'block-text',
@@ -142,7 +142,7 @@ function my_acf_init() {
     // Register a Text Block
     acf_register_block(array(
       'name'        => 'text',
-      'title'       => __('Simple Text'),
+      'title'       => __('Text'),
       'description'   => __('a simple text block element'),
       'render_callback' => 'my_acf_block_render_callback',
       'category'      => 'block-text',

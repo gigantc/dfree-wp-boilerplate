@@ -16,8 +16,10 @@ if (get_field('is_example')) : ?>
 // render the block in the browser
 else : 
 
-$headline = get_field('block_basic_headline');
-$headline_type = get_field('block_basic_headline_type'); ?>
+$headline = get_field('block_headline');
+$headline_type = get_field('block_headline_type'); 
+
+?>
 
 <span class="basic-headline">
 
