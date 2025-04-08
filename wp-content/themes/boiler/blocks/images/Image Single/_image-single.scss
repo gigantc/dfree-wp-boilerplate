@@ -1,0 +1,31 @@
+//////////////////////////////////////
+// IMAGE SINGLE
+
+//imports
+@use 'variables' as v;
+
+
+//basic headline blocks
+.image-single{
+  margin:40px auto 10px;
+  .wrap{
+    max-width:80%;
+    margin:0px auto;
+    img{
+      width:100%;
+    }
+  }
+}
+
+
+
+
+
+
+
+ //admin display overrides
+ .wp-admin{
+  .image-single{
+    
+  }
+}
