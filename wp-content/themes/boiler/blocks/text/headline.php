@@ -9,7 +9,7 @@
 if (get_field('is_example')) : ?>
 
 
-    <img src="<?= get_template_directory_uri() ?>/blocks/basics/image-center.jpg" />
+    <img src="<?= get_template_directory_uri() ?>/blocks/basics/headline.jpg" />
 
 
 <?php 
