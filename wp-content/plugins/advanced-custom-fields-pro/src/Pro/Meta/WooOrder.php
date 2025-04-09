@@ -124,7 +124,7 @@ class WooOrder extends MetaLocation {
 	 * @param string         $field_name The name of the field to get the reference for.
 	 * @return string|null
 	 */
-	public function get_reference( $object_id = 0, string $field_name = '' ) {
+	public function get_reference( $object_id = 0, $field_name = '' ) {
 		$order = wc_get_order( $object_id );
 		$key   = $this->reference_prefix . $field_name;
 

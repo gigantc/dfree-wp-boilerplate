@@ -1,0 +1,34 @@
+//////////////////////////////////////
+// IMAGE WITH TEXT
+
+//imports
+@use 'variables' as vars;
+
+
+//basic headline blocks
+.image-with-text{
+  margin:40px auto 10px;
+  display:flex;
+  .image{
+    width:50%;
+  }
+  .text{
+    width:50%;
+    color:vars.$blue;
+  }
+}
+
+
+
+
+
+
+
+ //admin display overrides
+ .wp-admin{
+  .image-with-text{
+    
+  }
+}
+
+
