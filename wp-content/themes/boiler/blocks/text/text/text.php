@@ -19,9 +19,9 @@ else :
 $copy = get_field('block_text');
 
 ?>
-  
+
   <div class="block-text">
-    <p><?= $copy ?></p>
+    <p><?= esc_html( $copy ) ?></p>
   </div>
 
 

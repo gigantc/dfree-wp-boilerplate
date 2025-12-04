@@ -174,7 +174,7 @@ function lawfirm_get_template_part( $file, $template_args = array(), $cache_args
             if ( is_scalar( $value ) || is_array( $value ) ) {
                 $cache_args[$key] = $value;
             } else if ( is_object( $value ) && method_exists( $value, 'get_id' ) ) {
-                $cache_args[$key] = call_user_method( 'get_id', $value );
+                $cache_args[$key] = $value->get_id();
             }
         }
         if ( ( $cache = wp_cache_get( $file, serialize( $cache_args ) ) ) !== false ) {
@@ -262,10 +262,18 @@ function file_get_contents_curl( $url ) {
   curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
   curl_setopt( $ch, CURLOPT_URL, $url );
   curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, TRUE );
-  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // For HTTPS
-  curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // For HTTPS
+  curl_setopt( $ch, CURLOPT_TIMEOUT, 10 ); // 10 second timeout
+  // SSL verification enabled for security - do not disable!
 
   $data = curl_exec( $ch );
+
+  // Handle CURL errors
+  if ( curl_errno( $ch ) ) {
+    error_log( 'CURL Error: ' . curl_error( $ch ) . ' for URL: ' . $url );
+    curl_close( $ch );
+    return false;
+  }
+
   curl_close( $ch );
 
   return $data;

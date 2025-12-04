@@ -29,25 +29,34 @@ Cleans output directories and compiles all assets for production. Outputs minifi
 This is a custom WordPress theme built on a modular architecture with Advanced Custom Fields (ACF) Pro for Gutenberg blocks.
 
 ### Automatic Block System
-The theme uses a **convention-based automatic block registration system** in `/blocks`. Key features:
+The theme uses a **convention-based automatic block registration system** with **cached manifest** in `/blocks`. Key features:
 
-1. **Auto-Discovery**: All PHP files in `/blocks` subfolders are automatically discovered and registered as ACF blocks
-2. **Folder Structure Creates Categories**: Top-level folders in `/blocks` (e.g., `text/`, `images/`, `heroes/`) automatically become block categories in the WordPress editor
-3. **Block Metadata**: Each block folder should contain:
+1. **Block Registry with Caching**: Uses `DFREE_Block_Registry` class to cache block metadata in `/blocks/manifest.json`, eliminating filesystem scans on every page load
+2. **Auto-Discovery**: All PHP files in `/blocks` subfolders are scanned once and cached
+3. **Folder Structure Creates Categories**: Top-level folders in `/blocks` (e.g., `text/`, `images/`, `heroes/`) automatically become block categories in the WordPress editor
+4. **Block Metadata**: Each block folder should contain:
    - `{block-name}.php` - Block template file
    - `block.json` - Optional metadata (title, description, keywords)
    - `admin-icon.svg` - Optional custom icon for the block picker
    - `admin-image.jpg` - Optional preview image shown in block editor
    - `_{block-name}.scss` - Block styles (must start with underscore)
 
-4. **Automatic SCSS Imports**: The Gulp task `generateBlocksScssTask` scans `/blocks` for all `_*.scss` files and auto-generates `@forward` statements in `src/scss/_blocks.scss`. This file is regenerated on every build/watch cycle.
+5. **Automatic SCSS Imports**: The Gulp task `generateBlocksScssTask` scans `/blocks` for all `_*.scss` files and auto-generates `@forward` statements in `src/scss/_blocks.scss`. This file is regenerated on every build/watch cycle.
+
+6. **Manifest Regeneration**: The block manifest is automatically rebuilt when:
+   - Theme is activated/switched
+   - You can manually trigger rebuild by visiting any page if `manifest.json` is missing
 
 ### Block Registration Flow
-Located in `inc/structure/blocks.php`:
-- `my_acf_init()` - Scans `/blocks` recursively, registers each block with ACF
-- `my_acf_block_render_callback()` - Dynamically includes the correct block template based on block slug
-- `my_plugin_block_categories()` - Creates categories from top-level `/blocks` folders
-- `acf_allowed_block_types()` - Controls which blocks appear in the editor (defaults to all discovered blocks)
+Located in `inc/structure/block-registry.php` and `inc/structure/blocks.php`:
+- `DFREE_Block_Registry` class - Manages cached block manifest in `/blocks/manifest.json`
+  - `get_blocks()` - Returns cached block list
+  - `rebuild_manifest()` - Scans `/blocks` and regenerates manifest file
+  - `get_block_file($slug)` - Returns file path for a block from cache
+- `my_acf_init()` - Registers blocks with ACF using cached manifest
+- `my_acf_block_render_callback()` - Includes the correct block template using registry lookup
+- `my_plugin_block_categories()` - Creates categories from registry cache
+- `acf_allowed_block_types()` - Controls which blocks appear in the editor using registry
 
 ### Asset Compilation (Gulp)
 The `gulpfile.js` handles:

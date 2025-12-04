@@ -11,27 +11,19 @@
 
 
 //////////////////////////////////////
-// SCAN /blocks FOLDER
-// This dynamically renders ACF blocks by scanning all subfolders within the /blocks directory. 
-//  It extracts the block’s slug from its registered name (e.g., 'acf/headline' → 'headline').
+// RENDER BLOCK USING REGISTRY
+// Uses cached block registry to avoid filesystem scans
 function my_acf_block_render_callback( $block ) {
-  
+
   // convert name ("acf/block-name") into path friendly slug ("block-name")
   $slug = sanitize_title(str_replace('acf/', '', $block['name']));
 
-  // Scan all block folders recursively
-  $block_dirs = new RecursiveIteratorIterator(
-    new RecursiveDirectoryIterator( get_theme_file_path('/blocks'), RecursiveDirectoryIterator::SKIP_DOTS )
-  );
+  // Get block file from registry
+  $registry = DFREE_Block_Registry::get_instance();
+  $file = $registry->get_block_file($slug);
 
-  foreach ($block_dirs as $file) {
-    if (
-      $file->getFilename() === "{$slug}.php"
-      && strpos($file->getPathname(), '.php') !== false
-    ) {
-      include $file->getPathname();
-      return;
-    }
+  if ($file && file_exists($file)) {
+    include $file;
   }
 
 }
@@ -41,35 +33,10 @@ function my_acf_block_render_callback( $block ) {
 
 //////////////////////////////////////
 // CREATE ALL CUSTOM BLOCK CATEGORIES
-//creates categories based on the top level folders names in /blocks
+// Uses cached registry to get categories
 function my_plugin_block_categories( $categories, $post ) {
-  $block_base_path = get_theme_file_path('/blocks');
-  $block_categories = [];
-
-  // Define custom icons per category
-  //commented out unless you want to create custom icons
-  // $category_icons = [
-  //   'text'     => 'welcome-widgets-menus',
-  //   'images'   => 'welcome-widgets-menus',
-  //   'videos'   => 'welcome-widgets-menus',
-  //   'heroes'   => 'welcome-widgets-menus',
-  //   'carousels'=> 'welcome-widgets-menus',
-  //   'misc'     => 'welcome-widgets-menus',
-  // ];
-
-  // Get all first-level directories in /blocks
-  foreach (glob($block_base_path . '/*', GLOB_ONLYDIR) as $folder) {
-    $basename = basename($folder);
-    $slug     = 'block-' . $basename;
-    $title    = ucwords(str_replace('-', ' ', $basename));
-    $icon     = $category_icons[$basename] ?? 'welcome-widgets-menus'; // fallback
-
-    $block_categories[] = array(
-      'slug'  => $slug,
-      'title' => __($title, $slug),
-      'icon'  => $icon,
-    );
-  }
+  $registry = DFREE_Block_Registry::get_instance();
+  $block_categories = $registry->get_categories();
 
   return array_merge($categories, $block_categories);
 }
@@ -80,24 +47,18 @@ add_filter( 'block_categories_all', 'my_plugin_block_categories', 10, 2 );
 
 
 //////////////////////////////////////
-// DISPLAY BLOCKS IN THE ADMIN 
+// DISPLAY BLOCKS IN THE ADMIN
 // Add only blocks that are needed
 function acf_allowed_block_types( $allowed_blocks, $block_editor_context ) {
   global $post;
 
-  // all default block types set automagically
-  // whatever is in the /blocks folder gets set as default
-  $blocks = [];
-  $block_dirs = new RecursiveIteratorIterator(
-    new RecursiveDirectoryIterator( get_theme_file_path('/blocks'), RecursiveDirectoryIterator::SKIP_DOTS )
-  );
+  // Get all blocks from registry (cached)
+  $registry = DFREE_Block_Registry::get_instance();
+  $all_blocks = $registry->get_blocks();
 
-  foreach ($block_dirs as $file) {
-    if ($file->getExtension() === 'php') {
-      $folder = dirname($file->getPathname());
-      $slug = sanitize_title(basename($folder));
-      $blocks[] = 'acf/' . $slug;
-    }
+  $blocks = array();
+  foreach ($all_blocks as $block) {
+    $blocks[] = 'acf/' . $block['slug'];
   }
 
   // use these functions to manually set pages or post to only get specific block
@@ -112,14 +73,14 @@ function acf_allowed_block_types( $allowed_blocks, $block_editor_context ) {
 
   // Restrict blocks for specific pages by ID, slug, or title
   //replace XXIDXX with your page ID
-  // if( is_page( XXIDXX ) || is_page( 'example-page' ) ) { 
+  // if( is_page( XXIDXX ) || is_page( 'example-page' ) ) {
   //     $blocks = array(
   //         'acf/page-specific-block',
   //         'acf/page-specific-hero',
   //     );
   // }
-  
-  return $blocks; 
+
+  return $blocks;
 
 }
 add_filter( 'allowed_block_types_all', 'acf_allowed_block_types', 10, 2 );
@@ -132,47 +93,39 @@ add_filter( 'allowed_block_types_all', 'acf_allowed_block_types', 10, 2 );
 // BLOCK REGISTRATION
 add_action('acf/init', 'my_acf_init');
 function my_acf_init() {
-  
+
   // check function exists
   if( function_exists('acf_register_block') ) {
 
-    // Scan all block folders recursively
-    $block_dirs = new RecursiveIteratorIterator(
-      new RecursiveDirectoryIterator( get_theme_file_path('/blocks'), RecursiveDirectoryIterator::SKIP_DOTS )
-    );
+    // Get blocks from registry (cached)
+    $registry = DFREE_Block_Registry::get_instance();
+    $blocks = $registry->get_blocks();
 
-    foreach ($block_dirs as $file) {
-      if ($file->getExtension() === 'php') {
-        $folder = dirname($file->getPathname());
-        $slug = sanitize_title(basename($folder));
-        $category = 'block-' . sanitize_title(basename(dirname($folder)));
-        $meta_path = $folder . '/block.json';
-        $meta = file_exists($meta_path) ? json_decode(file_get_contents($meta_path), true) : [];
-        
-        $title = $meta['title'] ?? ucwords(str_replace('-', ' ', $slug));
-        $description = $meta['description'] ?? __('A custom block for ' . $title);
-        $keywords = $meta['keywords'] ?? [];
-
-        $icon_path = $folder . '/admin-icon.svg';
-        $icon = file_exists($icon_path) ? file_get_contents($icon_path) : '';
-
-        acf_register_block(array(
-          'name'            => $slug,
-          'title'           => __($title, 'block-' . $slug),
-          'description'     => $description,
-          'render_callback' => 'my_acf_block_render_callback',
-          'category'        => $category,
-          'icon'            => $icon,
-          'keywords'        => $keywords,
-          'mode'            => 'preview',
-          'example'         => [
-            'attributes' => [
-              'mode' => 'preview',
-              'data' => ['is_example' => true],
-            ]
+    foreach ($blocks as $block) {
+      acf_register_block(array(
+        'name'            => $block['slug'],
+        'title'           => __($block['title'], 'block-' . $block['slug']),
+        'description'     => $block['description'],
+        'render_callback' => 'my_acf_block_render_callback',
+        'category'        => $block['category'],
+        'icon'            => $block['icon'],
+        'keywords'        => $block['keywords'],
+        'mode'            => 'preview',
+        'example'         => [
+          'attributes' => [
+            'mode' => 'preview',
+            'data' => ['is_example' => true],
           ]
-        ));
-      }
+        ]
+      ));
     }
   }
 }
+
+//////////////////////////////////////
+// REBUILD MANIFEST ON THEME ACTIVATION
+function dfree_rebuild_block_manifest_on_activation() {
+  $registry = DFREE_Block_Registry::get_instance();
+  $registry->rebuild_manifest();
+}
+add_action('after_switch_theme', 'dfree_rebuild_block_manifest_on_activation');

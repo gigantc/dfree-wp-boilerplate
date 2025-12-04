@@ -27,7 +27,7 @@ $image_alt = $image['alt'];
 
   <section class="image-single">
     <div class="wrap">
-      <img src="<?= esc_url($image_url); ?>" alt="<?= $image_alt ?>"/>
+      <img src="<?= esc_url($image_url); ?>" alt="<?= esc_attr($image_alt) ?>"/>
     </div>
   </section>
 

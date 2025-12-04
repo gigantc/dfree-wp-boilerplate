@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+css/*.css
+css/*.map
+js/*.min.js
+js/*.map
+js/libs/*.min.js
+js/libs/*.map
+
+# Generated files
+blocks/manifest.json
+src/scss/_blocks.scss
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace

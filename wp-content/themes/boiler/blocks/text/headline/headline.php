@@ -25,27 +25,27 @@ $headline_type = get_field('block_headline_type');
 
   <?php
   if($headline_type == 'h1'){ ?>
-    <h1><?= $headline ?></h1>
+    <h1><?= esc_html( $headline ) ?></h1>
   <?php }
 
   if($headline_type == 'h2'){ ?>
-    <h2><?= $headline ?></h2>
+    <h2><?= esc_html( $headline ) ?></h2>
   <?php }
 
   if($headline_type == 'h3'){ ?>
-    <h3><?= $headline ?></h3>
+    <h3><?= esc_html( $headline ) ?></h3>
   <?php }
 
   if($headline_type == 'h4'){ ?>
-    <h4><?= $headline ?></h4>
+    <h4><?= esc_html( $headline ) ?></h4>
   <?php }
 
   if($headline_type == 'h5'){ ?>
-    <h5><?= $headline ?></h5>
+    <h5><?= esc_html( $headline ) ?></h5>
   <?php }
 
   if($headline_type == 'h6'){ ?>
-    <h6><?= $headline ?></h6>
+    <h6><?= esc_html( $headline ) ?></h6>
   <?php } ?>
 
 </div>
