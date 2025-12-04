@@ -50,6 +50,21 @@ npm run js:libs         # Bundle libs only
 - Excludes dead browsers
 - Automatically adds vendor prefixes (-webkit-, -moz-, -ms-)
 
+### Sass Import Paths
+
+The build uses `--load-path=.` which sets the theme root as the base for imports.
+
+**This means you can use clean paths in your SCSS:**
+```scss
+// ✅ Clean path (works from anywhere)
+@use 'src/scss/variables' as v;
+
+// ❌ Old way (relative paths)
+@use '../../../src/scss/variables' as v;
+```
+
+**All block SCSS files should use the clean path format.** No more counting `../` levels!
+
 ## Architecture Overview
 
 ### WordPress Theme Structure
