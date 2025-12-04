@@ -2,7 +2,7 @@
 // IMAGE WITH TEXT
 
 //imports
-@use 'variables' as vars;
+@use '../../../src/scss/variables' as v;
 
 
 //basic headline blocks
@@ -14,7 +14,7 @@
   }
   .text{
     width:50%;
-    color:vars.$blue;
+    color:v.$blue;
   }
 }
 

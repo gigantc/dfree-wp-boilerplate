@@ -13,15 +13,42 @@ npm install
 ```bash
 npm run dev
 ```
-Runs Gulp with watch mode and BrowserSync. Auto-compiles SCSS, transpiles/minifies JS, and reloads on PHP changes.
+Runs modern build tools with watch mode and BrowserSync:
+- Auto-generates `_blocks.scss` from block partials
+- Watches and compiles SCSS with Dart Sass
+- Watches and bundles JS with esbuild (100x faster than webpack)
+- Live reloads on PHP, CSS, JS, and block SCSS changes
 
-**Important**: Update the BrowserSync proxy in `gulpfile.js:135` to match your local domain (currently set to `dfreeboilerplate.local`).
+**Important**: Update the BrowserSync proxy in `package.json` scripts to match your local domain (currently set to `dfreeboilerplate.local`).
 
 ### Production Build
 ```bash
 npm run build
 ```
-Cleans output directories and compiles all assets for production. Outputs minified CSS to `/css` and minified JS to `/js`.
+Compiles all assets for production:
+- Generates `_blocks.scss`
+- Compiles and minifies CSS (no source maps)
+- Bundles and minifies JS with esbuild
+- Outputs to `/css` and `/js`
+
+### Other Commands
+```bash
+npm run clean           # Remove all compiled CSS and JS files
+npm run blocks:generate # Manually regenerate _blocks.scss
+npm run css:compile     # Compile CSS with Sass only (no PostCSS)
+npm run css:prefix      # Run PostCSS autoprefixer on existing CSS
+npm run css:build       # Full CSS build (compile + prefix)
+npm run js:main         # Bundle main.js only
+npm run js:libs         # Bundle libs only
+```
+
+### Configuration Files
+
+**postcss.config.js** - PostCSS configuration with autoprefixer:
+- Targets last 2 browser versions
+- Browsers with >1% market share
+- Excludes dead browsers
+- Automatically adds vendor prefixes (-webkit-, -moz-, -ms-)
 
 ## Architecture Overview
 
@@ -58,13 +85,29 @@ Located in `inc/structure/block-registry.php` and `inc/structure/blocks.php`:
 - `my_plugin_block_categories()` - Creates categories from registry cache
 - `acf_allowed_block_types()` - Controls which blocks appear in the editor using registry
 
-### Asset Compilation (Gulp)
-The `gulpfile.js` handles:
-- **SCSS**: Compiles `src/scss/main.scss` → `css/main.css` with autoprefixer and minification
-- **JS Libraries**: Concatenates `src/js/libs/*.js` → `js/libs/libs.min.js` with Babel transpilation
-- **JS Main**: Concatenates `src/js/*.js` → `js/main.min.js` with Babel transpilation
-- **Blocks SCSS**: Auto-generates `src/scss/_blocks.scss` before every compile
-- **BrowserSync**: Live reload for SCSS, JS, and PHP changes
+### Asset Compilation (Modern Build)
+Modern npm scripts using esbuild, Dart Sass, and PostCSS:
+- **SCSS**: Compiles `src/scss/main.scss` → `css/main.css` (Dart Sass CLI)
+- **PostCSS**: Adds vendor prefixes with autoprefixer after Sass compilation
+- **JS Libraries**: Bundles `src/js/libs/modernizr.min.js` → `js/libs/libs.min.js` (esbuild)
+- **JS Main**: Bundles `src/js/main.js` → `js/main.min.js` (esbuild with IIFE format)
+- **Blocks SCSS**: Auto-generates `src/scss/_blocks.scss` via Node script (`scripts/generate-blocks-scss.js`)
+- **BrowserSync**: Live reload for SCSS, JS, PHP, and block changes
+
+**Build Tools**:
+- **esbuild** - Lightning-fast JavaScript bundler (written in Go, 100x faster than webpack)
+- **Dart Sass** - Official Sass implementation with modern features
+- **PostCSS** - CSS post-processor with autoprefixer for vendor prefixes
+- **concurrently** - Run multiple watch processes in parallel
+- **BrowserSync** - Live reload development server
+
+**Build Pipeline**:
+```
+SCSS → Sass (compile) → PostCSS (autoprefix) → CSS
+JS   → esbuild (bundle + minify) → JS
+```
+
+**No build tool abstraction** - Direct CLI commands in `package.json` for full control and transparency.
 
 ### PHP Initialization Chain
 1. `functions.php` - Requires `inc/init.php`

@@ -1,30 +1,29 @@
 {
   "name": "dFrees WP Boilerplate",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Built for Someone Special",
-  "main": "gulpfile.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "NODE_OPTIONS='--no-deprecation' gulp",
-    "build": "NODE_OPTIONS='--no-deprecation' gulp build"
+    "blocks:generate": "node scripts/generate-blocks-scss.js",
+    "css:compile": "sass src/scss/main.scss:css/main.css --style=compressed --no-source-map",
+    "css:prefix": "postcss css/main.css --replace",
+    "css:build": "npm run css:compile && npm run css:prefix",
+    "css:watch": "sass src/scss/main.scss:css/main.css --watch --embed-source-map",
+    "js:libs": "esbuild src/js/libs/modernizr.min.js --bundle --minify --outfile=js/libs/libs.min.js --sourcemap",
+    "js:main": "esbuild src/js/main.js --bundle --minify --outfile=js/main.min.js --sourcemap --format=iife",
+    "js:watch": "concurrently \"esbuild src/js/libs/modernizr.min.js --bundle --minify --outfile=js/libs/libs.min.js --sourcemap --watch\" \"esbuild src/js/main.js --bundle --minify --outfile=js/main.min.js --sourcemap --format=iife --watch\"",
+    "sync": "browser-sync start --proxy dfreeboilerplate.local --files '**/*.php' 'css/**/*.css' 'js/**/*.js' 'blocks/**/*.scss' --ignore 'node_modules' --reload-delay 100",
+    "dev": "npm run blocks:generate && concurrently --kill-others \"npm:css:watch\" \"npm:js:watch\" \"npm:sync\"",
+    "build": "npm run blocks:generate && npm run css:build && npm run js:libs && npm run js:main",
+    "clean": "rm -rf css/*.css css/*.map js/*.min.js js/*.map js/libs/*.min.js js/libs/*.map"
   },
   "author": "dFree",
   "devDependencies": {
-    "del": "^8.0.0"
-  },
-  "dependencies": {
-    "gulp": "^5.0.0",
-    "@babel/preset-env": "^7.15.0",
-    "autoprefixer": "^10.4.21",
-    "browser-sync": "^3.0.4",
-    "cssnano": "^7.0.6",
-    "gulp-babel": "^8.0.0",
-    "gulp-concat": "^2.6.1",
-    "gulp-plumber": "^1.2.1",
-    "gulp-postcss": "^10.0.0",
-    "gulp-sass": "^6.0.1",
-    "gulp-sourcemaps": "^3.0.0",
-    "gulp-terser": "^2.0.1",
+    "autoprefixer": "^10.4.22",
+    "browser-sync": "^3.0.3",
+    "concurrently": "^9.1.0",
+    "esbuild": "^0.24.2",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1",
     "sass": "^1.86.3"
   }
 }
