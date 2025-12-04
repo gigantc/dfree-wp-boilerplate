@@ -115,6 +115,10 @@ class DFREE_Block_Registry {
       $icon = file_get_contents($icon_path);
     }
 
+    // Check if block has JavaScript file
+    $js_path = $folder . '/' . $slug . '.js';
+    $has_js = file_exists($js_path);
+
     return array(
       'slug'        => $slug,
       'path'        => str_replace($this->blocks_dir . '/', '', $file->getPathname()),
@@ -123,6 +127,8 @@ class DFREE_Block_Registry {
       'category'    => $category,
       'keywords'    => $meta['keywords'] ?? array(),
       'icon'        => $icon,
+      'has_js'      => $has_js,
+      'js_path'     => $has_js ? str_replace($this->blocks_dir . '/', '', $js_path) : '',
     );
   }
 

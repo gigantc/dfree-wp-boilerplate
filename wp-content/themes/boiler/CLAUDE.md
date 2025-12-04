@@ -106,6 +106,7 @@ Modern npm scripts using esbuild, Dart Sass, and PostCSS:
 - **PostCSS**: Adds vendor prefixes with autoprefixer after Sass compilation
 - **JS Libraries**: Bundles `src/js/libs/modernizr.min.js` → `js/libs/libs.min.js` (esbuild)
 - **JS Main**: Bundles `src/js/main.js` → `js/main.min.js` (esbuild with IIFE format)
+- **Block JS**: Bundles each `blocks/**/*.js` → `js/blocks/{name}.min.js` (esbuild)
 - **Blocks SCSS**: Auto-generates `src/scss/_blocks.scss` via Node script (`scripts/generate-blocks-scss.js`)
 - **BrowserSync**: Live reload for SCSS, JS, PHP, and block changes
 
@@ -154,9 +155,10 @@ All block styles in `/blocks/**/_*.scss` are automatically imported via the `_bl
 2. Add required files:
    - `{block-name}.php` - Use lowercase-hyphenated name matching folder
    - `_{block-name}.scss` - Styles (must start with underscore)
+   - `{block-name}.js` - Optional JavaScript (will be auto-loaded when block is used)
    - `block.json` - Optional metadata
 3. The block template should check `get_field('is_example')` to show preview image in editor
-4. Run `npm run dev` - The block will be auto-registered and styles auto-imported
+4. Run `npm run build` - The block will be auto-registered, styles auto-imported, and JS bundled
 5. Configure ACF fields in WordPress admin under Custom Fields
 
 Example block structure:
@@ -166,15 +168,79 @@ blocks/
     Headline/
       headline.php
       _headline.scss
+      headline.js          ← Optional: Block-specific JavaScript
       block.json
       admin-icon.svg
       admin-image.jpg
 ```
+
+**Block JavaScript:**
+- Each block can have its own JS file (e.g., `carousel.js`)
+- Gets bundled to `js/blocks/{block-name}.min.js`
+- Only loads when the block is present on the page
+- Has access to jQuery by default
+- Runs after DOM is ready
+
+Example `carousel.js`:
+```javascript
+(function($) {
+  'use strict';
+
+  $(document).ready(function() {
+    $('.block-carousel').slick({
+      dots: true,
+      infinite: true,
+      speed: 300
+    });
+  });
+})(jQuery);
+```
+
+## Script Loading Strategy
+
+The theme uses **conditional script loading** to only load JavaScript libraries when needed:
+
+**Always Loaded:**
+- `libs.min.js` - Core libraries (Modernizr)
+- `main.min.js` - Theme JavaScript
+- jQuery (WordPress default)
+
+**Block-Specific JavaScript (Auto-Loaded):**
+The theme automatically enqueues block JavaScript files when blocks are present on the page:
+- Managed by `dfree_enqueue_block_scripts()` in `inc/structure/blocks.php:136-160`
+- Checks each block in the registry for `has_js` flag
+- Uses `has_block()` to detect if block is on current page
+- Only enqueues the block's JS file if block is present
+- Each block's JS is bundled separately to `js/blocks/{block-name}.min.js`
+- Zero configuration required - just add a `.js` file to your block folder
+
+**Conditionally Loaded Libraries:**
+- **GSAP + ScrollTrigger** - Only loaded on:
+  - Front page
+  - Specific pages (about, home)
+  - Pages with `acf/main-hero` block
+  - Add more conditions in `inc/functions/setup.php:88-109`
+
+- **Slick Carousel** - Only loaded on:
+  - Pages with `acf/carousel` block
+  - Pages with `acf/slider` block
+  - Add more carousel blocks in `inc/functions/setup.php:116-118`
+
+**To add conditional loading for a library:**
+```php
+// In inc/functions/setup.php
+if ( has_block( 'acf/your-block-name' ) ) {
+  wp_enqueue_script('gsap'); // or any other script
+}
+```
+
+**Performance Impact:**
+- Block JS: Only loads code for blocks actually used on the page
+- Conditional libraries: Reduces JS bundle by 20-30% on pages that don't need animations/carousels
 
 ## Important Notes
 
 - ACF Pro must be installed (currently version 6.4.0.1 included)
 - Theme text domain is `gigantc`
 - Custom image sizes registered: `lawfirm_img_small`, `lawfirm_img_medium`, `lawfirm_img_large`, `lawfirm_img_x_large`, `lawfirm_img_full`, `lawfirm_img_square`
-- The theme enqueues GSAP, ScrollTrigger, and Slick Carousel by default
 - Main compiled CSS is loaded in both frontend and Gutenberg editor for block styling consistency

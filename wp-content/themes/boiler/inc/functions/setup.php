@@ -75,41 +75,53 @@ function lawfirm_scripts() {
 	wp_enqueue_style( 'lawfirm-style', get_stylesheet_uri() );
 	wp_enqueue_style( 'lawfirm-main-style', get_template_directory_uri() . '/css/main.css', '$deps', '1.0.0', 'screen' );
 
-	//google fonts
+	// Google fonts
   wp_enqueue_style( 'custom-google-fonts', 'https://fonts.googleapis.com/css?family=Roboto:300,400,700', false );
 
-  //JQUERY
-  // wp_deregister_script('jquery');
-  // wp_register_script('jquery', "http" . ($_SERVER['SERVER_PORT'] == 443 ? "s" : "") . "://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js", false, null);
-
-
+  // Core scripts - always load
   wp_register_script( 'lawfirm-js', get_template_directory_uri() . '/js/main.min.js', array('jquery'), '1.0.0', true );
   wp_register_script( 'libs', get_template_directory_uri() . '/js/libs/libs.min.js', array('jquery'), '1.0.0', true );
-  wp_register_script('slick', "https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js", array(), '1.8.1', true );
 
-  // gsap and scrolltrigger
-  // find more gsap libraries here -> https://cdnjs.com/libraries/gsap
-  wp_register_script( 'gsap', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js', array(), '3.11.1', true );
-  wp_register_script( 'scrolltrigger', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/ScrollTrigger.min.js', array(), '3.11.1', true );
-
-  //wp_enqueue_script( 'jquery' );
-  wp_enqueue_script('gsap');
-  wp_enqueue_script('scrolltrigger');
   wp_enqueue_script('libs');
-  wp_enqueue_script('slick');
   wp_enqueue_script( 'lawfirm-js' );
 
-  //only use add indicators on a dev server
-  if ($_SERVER['HTTP_HOST']==="lawfirm.test") {
-    wp_enqueue_script('add-indicators');
+  // Conditional loading: GSAP + ScrollTrigger
+  // Only load on pages that need animations
+  $load_gsap = false;
+
+  // Load GSAP on front page and specific pages
+  if ( is_front_page() || is_page( array( 'about', 'home' ) ) ) {
+    $load_gsap = true;
   }
 
-
-  //any page speciic scripts
-  if (is_page('about')) {
-    
+  // Load GSAP if specific blocks are present
+  if ( has_block( 'acf/main-hero' ) ) {
+    $load_gsap = true;
   }
-  
+
+  // Register GSAP scripts
+  wp_register_script( 'gsap', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js', array(), '3.11.1', true );
+  wp_register_script( 'scrolltrigger', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/ScrollTrigger.min.js', array('gsap'), '3.11.1', true );
+
+  if ( $load_gsap ) {
+    wp_enqueue_script('gsap');
+    wp_enqueue_script('scrolltrigger');
+  }
+
+  // Conditional loading: Slick Carousel
+  // Only load when carousel blocks are present
+  wp_register_script('slick', "https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js", array('jquery'), '1.8.1', true );
+
+  // Example: Load Slick if carousel block exists
+  if ( has_block( 'acf/carousel' ) || has_block( 'acf/slider' ) ) {
+    wp_enqueue_script('slick');
+  }
+
+  // Development only: GSAP ScrollTrigger indicators
+  $current_host = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
+  if ( 'dfreeboilerplate.local' === $current_host ) {
+    // wp_enqueue_script('add-indicators');
+  }
 
 }
 add_action( 'wp_enqueue_scripts', 'lawfirm_scripts' );

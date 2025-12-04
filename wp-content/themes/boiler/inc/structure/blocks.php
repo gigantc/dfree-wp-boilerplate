@@ -129,3 +129,32 @@ function dfree_rebuild_block_manifest_on_activation() {
   $registry->rebuild_manifest();
 }
 add_action('after_switch_theme', 'dfree_rebuild_block_manifest_on_activation');
+
+//////////////////////////////////////
+// AUTO-ENQUEUE BLOCK JAVASCRIPT
+// Loads block JS files only when blocks are present on the page
+function dfree_enqueue_block_scripts() {
+  // Only run on frontend
+  if ( is_admin() ) {
+    return;
+  }
+
+  $registry = DFREE_Block_Registry::get_instance();
+  $all_blocks = $registry->get_blocks();
+
+  // Check each block to see if it's on the page and has JS
+  foreach ( $all_blocks as $block ) {
+    if ( $block['has_js'] && has_block( 'acf/' . $block['slug'] ) ) {
+      $js_file = get_template_directory_uri() . '/js/blocks/' . $block['slug'] . '.min.js';
+
+      wp_enqueue_script(
+        'block-' . $block['slug'],
+        $js_file,
+        array( 'jquery' ),
+        '1.0.0',
+        true
+      );
+    }
+  }
+}
+add_action( 'wp_enqueue_scripts', 'dfree_enqueue_block_scripts', 20 );

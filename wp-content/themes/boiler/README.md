@@ -125,10 +125,11 @@ if (get_field('is_example')) : ?>
 }
 ```
 
-**5. Add optional admin assets**:
+**5. Add optional files**:
 
 - `admin-icon.svg` - Custom icon for the block picker
 - `admin-image.jpg` - Preview image shown in the editor (requires `is_example` field)
+- `call-to-action.js` - Block-specific JavaScript (auto-loaded when block is used)
 
 **6. Run dev mode**:
 
@@ -178,6 +179,7 @@ text/
   Call To Action/              ← Folder name becomes block title
     call-to-action.php         ← Required: Block template
     _call-to-action.scss       ← Required: Block styles (underscore required!)
+    call-to-action.js          ← Optional: Block-specific JavaScript
     block.json                 ← Optional: Metadata (title, description, keywords)
     admin-icon.svg             ← Optional: Custom icon for block picker
     admin-image.jpg            ← Optional: Preview image for editor
@@ -217,6 +219,9 @@ npm run clean
 # Manually regenerate block SCSS imports
 npm run blocks:generate
 
+# Bundle block-specific JavaScript files
+npm run blocks:js
+
 # Individual builds (rarely needed)
 npm run css:build      # Compile CSS only
 npm run js:main        # Bundle main.js only
@@ -228,17 +233,22 @@ npm run js:libs        # Bundle libraries only
 When you run `npm run dev`, it:
 
 1. **Generates Block Imports** - Scans `/blocks` for all `_*.scss` files and creates `src/scss/_blocks.scss`
-2. **Compiles Sass** - Converts `src/scss/main.scss` → `css/main.css`
+2. **Compiles Sass** - Converts `src/scss/main.scss` → `css/main.css` (with source maps)
 3. **Adds Prefixes** - PostCSS adds vendor prefixes (`-webkit-`, `-moz-`, etc.)
-4. **Bundles JavaScript** - esbuild compiles `src/js/main.js` → `js/main.min.js`
-5. **Starts BrowserSync** - Watches for file changes and live reloads
+4. **Bundles JavaScript** - esbuild compiles `src/js/main.js` → `js/main.min.js` (with source maps)
+5. **Watches Files** - Monitors SCSS and JS for changes, recompiles automatically
+6. **Starts BrowserSync** - Live reloads browser on PHP, CSS, JS, and block changes
+
+**Note**: Block JavaScript files are bundled on-demand when you run `npm run build`, not during `npm run dev`.
 
 ### What Happens in Production Build
 
 Production builds are optimized for performance:
 
+- **Generates Block Imports** - Scans and creates `src/scss/_blocks.scss`
+- **Bundles Block JavaScript** - Each block's `.js` file → `js/blocks/{name}.min.js`
 - **Minified CSS** - Compressed output, no source maps
-- **Minified JS** - Bundled and compressed with esbuild
+- **Minified JS** - All JavaScript bundled and compressed with esbuild
 - **Vendor Prefixes** - Automatically added for browser compatibility
 - **No Watch Mode** - One-time build, perfect for deployment
 
@@ -276,7 +286,11 @@ npm run dev
 ### Adding New Blocks
 
 1. Create folder: `/blocks/{category}/{Block Name}/`
-2. Add files: `{block-name}.php`, `_{block-name}.scss`, `block.json`
+2. Add files:
+   - `{block-name}.php` (required)
+   - `_{block-name}.scss` (required)
+   - `{block-name}.js` (optional - auto-loads when block is used)
+   - `block.json` (optional metadata)
 3. Save files—build system auto-detects and compiles
 4. Go to WordPress admin → Custom Fields → Add field group
 5. Block appears in Gutenberg editor automatically
@@ -462,9 +476,57 @@ import YourLibrary from 'your-library';
 
 ### Block-Specific JavaScript
 
-If a block needs custom JS, you have two options:
+Each block can have its own JavaScript file that gets automatically bundled and loaded **only when the block is present on the page**.
 
-**Option 1: Inline in PHP template**
+**How It Works:**
+
+1. Add a `.js` file to your block folder with the same name as your block
+2. Run `npm run build` or `npm run dev`
+3. The JS gets bundled to `js/blocks/{block-name}.min.js`
+4. WordPress automatically loads it only on pages with that block
+
+**Example**: Creating a carousel block with JavaScript:
+
+**1. Create `blocks/carousels/Image Carousel/image-carousel.js`:**
+
+```javascript
+(function($) {
+  'use strict';
+
+  $(document).ready(function() {
+    $('.block-carousel').slick({
+      dots: true,
+      infinite: true,
+      speed: 300,
+      slidesToShow: 3,
+      responsive: [
+        {
+          breakpoint: 768,
+          settings: {
+            slidesToShow: 1
+          }
+        }
+      ]
+    });
+  });
+})(jQuery);
+```
+
+**2. Run the build:**
+
+```bash
+npm run build
+```
+
+**3. Done!** The JavaScript will:
+- Get bundled to `js/blocks/image-carousel.min.js`
+- Only load on pages that use the carousel block
+- Have access to jQuery by default
+- Run after DOM is ready
+
+**Alternative Options (if auto-loading doesn't fit your needs):**
+
+**Manual Inline Scripts:**
 
 ```php
 <script>
@@ -474,7 +536,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 ```
 
-**Option 2: Conditional enqueue in setup.php**
+**Manual Conditional Enqueue:**
 
 ```php
 function enqueue_block_scripts() {
@@ -520,11 +582,14 @@ boiler/
 │
 ├── js/                          # Compiled JavaScript (auto-generated)
 │   ├── main.min.js
+│   ├── blocks/                  # Block-specific JS (auto-generated)
+│   │   └── *.min.js             # Each block's bundled JS
 │   └── libs/
 │       └── libs.min.js
 │
 ├── scripts/                     # Build scripts
-│   └── generate-blocks-scss.js  # Auto-generates block imports
+│   ├── generate-blocks-scss.js  # Auto-generates block imports
+│   └── bundle-block-js.js       # Bundles block JavaScript files
 │
 ├── src/                         # Source files
 │   ├── scss/                    # Sass source files
