@@ -4,10 +4,10 @@
   "description": "Built for Someone Special",
   "scripts": {
     "blocks:generate": "node scripts/generate-blocks-scss.js",
-    "css:compile": "sass src/scss/main.scss:css/main.css --style=compressed --no-source-map",
+    "css:compile": "sass src/scss/main.scss:css/main.css --style=compressed --no-source-map --load-path=.",
     "css:prefix": "postcss css/main.css --replace",
     "css:build": "npm run css:compile && npm run css:prefix",
-    "css:watch": "sass src/scss/main.scss:css/main.css --watch --embed-source-map",
+    "css:watch": "sass src/scss/main.scss:css/main.css --watch --embed-source-map --load-path=.",
     "js:libs": "esbuild src/js/libs/modernizr.min.js --bundle --minify --outfile=js/libs/libs.min.js --sourcemap",
     "js:main": "esbuild src/js/main.js --bundle --minify --outfile=js/main.min.js --sourcemap --format=iife",
     "js:watch": "concurrently \"esbuild src/js/libs/modernizr.min.js --bundle --minify --outfile=js/libs/libs.min.js --sourcemap --watch\" \"esbuild src/js/main.js --bundle --minify --outfile=js/main.min.js --sourcemap --format=iife --watch\"",
