@@ -1,8 +1,21 @@
 //////////////////////////////////////
 // VARIBALES
 
-
+//REM
+//the base you want. 10 makes it easy to calculate
 $rem-base: 10px !default;
+//this is a browser default. No need to change.
+$browser-default-base: 16px;
+// Calculate the percentage: 10px / 16px = 0.625, converted to 62.5%
+//place this in html to set it
+$root-font-size-percentage: percentage($rem-base / $browser-default-base);
+
+
+//CONTAINER
+$container-max-width: 1.4rem;
+//$container-max-width: 1400px;
+
+
 
 
 // COLORS -----------------------

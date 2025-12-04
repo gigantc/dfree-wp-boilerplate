@@ -144,7 +144,7 @@ function dfree_enqueue_block_scripts() {
 
   // Check each block to see if it's on the page and has JS
   foreach ( $all_blocks as $block ) {
-    if ( $block['has_js'] && has_block( 'acf/' . $block['slug'] ) ) {
+    if ( !empty( $block['has_js'] ) && has_block( 'acf/' . $block['slug'] ) ) {
       $js_file = get_template_directory_uri() . '/js/blocks/' . $block['slug'] . '.min.js';
 
       wp_enqueue_script(

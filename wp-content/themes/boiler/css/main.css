@@ -1,1 +1,426 @@
-/*! modern-normalize v1.1.0 | MIT License | https://github.com/sindresorhus/modern-normalize */*,::before,::after{box-sizing:border-box}html{line-height:1.15;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4}body{margin:0;font-family:system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji"}hr{height:0;color:inherit}abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted}b,strong{font-weight:bolder}code,kbd,samp,pre{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-0.25em}sup{top:-0.5em}table{text-indent:0;border-color:inherit}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,select{text-transform:none}button,[type=button],[type=reset],[type=submit]{-webkit-appearance:button}::-moz-focus-inner{border-style:none;padding:0}:-moz-focusring{outline:1px dotted ButtonText}:-moz-ui-invalid{box-shadow:none}legend{padding:0}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}.bdhwk body{position:relative;width:100%;height:100%;background-color:#fff;color:#333;overflow-x:hidden;-webkit-overflow-scrolling:touch;animation:bodyFade .5s forwards}@keyframes bodyFade{0%{opacity:0}100%{opacity:1}}.bdhwk main{overflow:hidden}.bdhwk ::-moz-selection{background:#333;color:#fff}.bdhwk ::selection{background:#333;color:#fff}.bdhwk ::-moz-selection{background:#333;color:#fff}.bdhwk a{text-decoration:none;color:#333;webkit-tap-highlight-color:rgba(0,0,0,0)}.bdhwk h1{color:#333;font:700 40px/40px "Roboto",sans-serif;margin:0px}.bdhwk h2{color:#333;font:300 27px/27px "Roboto",sans-serif;margin:0px}.bdhwk h3{color:#333;font:700 18px/18px "Roboto",sans-serif;margin:0px}.bdhwk h4{color:#333;font:300 14px/14px "Roboto",sans-serif;margin:0px}.bdhwk h5{color:#333;font:700 14px/14px "Roboto",sans-serif;margin:0px}.bdhwk h6{color:#333;font:300 12px/12px "Roboto",sans-serif;margin:0px}.bdhwk p{color:#333;font:300 12px/12px "Roboto",sans-serif;margin:0px}.bdhwk hr{border-bottom:1px solid #333}.image-with-text{margin:40px auto 10px;display:flex}.image-with-text .image{width:50%}.image-with-text .text{width:50%;color:#6b6bff}.image-single{margin:40px auto 10px}.image-single .wrap{max-width:80%;margin:0px auto}.image-single .wrap img{width:100%}.image-with-text{margin:40px auto 10px;display:flex}.image-with-text .image{width:50%}.image-with-text .text{width:50%}.block-headline{margin:40px auto 10px}.block-headline h1,.block-headline h2,.block-headline h3,.block-headline h4,.block-headline h5,.block-headline h6{letter-spacing:1px;color:#333}.block-text{margin:10px auto 40px}.block-text p{margin:10px auto 20px;color:#333}.block-wysiwyg h1,.block-wysiwyg h2,.block-wysiwyg h3,.block-wysiwyg h4,.block-wysiwyg h5,.block-wysiwyg h6{letter-spacing:1px;color:#333}.block-wysiwyg a{color:#333;transition:all .2s ease-in-out}.block-wysiwyg a:hover{color:#6b6bff;transition:all .2s ease-in-out}.block-wysiwyg p{margin:10px auto 20px;color:#333}.block-wysiwyg ul{margin:30px 0px}.block-wysiwyg ul li{color:#333;font:400 16px/24px "Roboto",sans-serif;margin:0px}@media screen and (max-width: 768px){.block-wysiwyg ul li{font:400 14px/22px "Roboto",sans-serif}}.block-wysiwyg strong{font:700 16px/24px "Roboto",sans-serif;color:#333}@media screen and (max-width: 768px){.block-wysiwyg strong{font:700 14px/22px "Roboto",sans-serif}}
+/*
+
+  dFree Boilerplate - v3.0
+
+  Site Development by Badhawk Workshop
+  Developer: Daniel Freeman [@dFree]
+
+
+*/
+/*// IMPORTS ----------------------- */
+/*! modern-normalize v1.1.0 | MIT License | https://github.com/sindresorhus/modern-normalize */
+/*
+Document
+========
+*/
+/**
+Use a better box model (opinionated).
+*/
+*,
+::before,
+::after {
+  box-sizing: border-box;
+}
+
+/**
+1. Correct the line height in all browsers.
+2. Prevent adjustments of font size after orientation changes in iOS.
+3. Use a more readable tab size (opinionated).
+*/
+html {
+  line-height: 1.15; /* 1 */
+  -webkit-text-size-adjust: 100%; /* 2 */
+  -moz-tab-size: 4; /* 3 */
+  tab-size: 4; /* 3 */
+}
+
+/*
+Sections
+========
+*/
+/**
+1. Remove the margin in all browsers.
+2. Improve consistency of default fonts in all browsers. (https://github.com/sindresorhus/modern-normalize/issues/3)
+*/
+body {
+  margin: 0; /* 1 */
+  font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"; /* 2 */
+}
+
+/*
+Grouping content
+================
+*/
+/**
+1. Add the correct height in Firefox.
+2. Correct the inheritance of border color in Firefox. (https://bugzilla.mozilla.org/show_bug.cgi?id=190655)
+*/
+hr {
+  height: 0; /* 1 */
+  color: inherit; /* 2 */
+}
+
+/*
+Text-level semantics
+====================
+*/
+/**
+Add the correct text decoration in Chrome, Edge, and Safari.
+*/
+abbr[title] {
+  text-decoration: underline dotted;
+}
+
+/**
+Add the correct font weight in Edge and Safari.
+*/
+b,
+strong {
+  font-weight: bolder;
+}
+
+/**
+1. Improve consistency of default fonts in all browsers. (https://github.com/sindresorhus/modern-normalize/issues/3)
+2. Correct the odd 'em' font sizing in all browsers.
+*/
+code,
+kbd,
+samp,
+pre {
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; /* 1 */
+  font-size: 1em; /* 2 */
+}
+
+/**
+Add the correct font size in all browsers.
+*/
+small {
+  font-size: 80%;
+}
+
+/**
+Prevent 'sub' and 'sup' elements from affecting the line height in all browsers.
+*/
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+sup {
+  top: -0.5em;
+}
+
+/*
+Tabular data
+============
+*/
+/**
+1. Remove text indentation from table contents in Chrome and Safari. (https://bugs.chromium.org/p/chromium/issues/detail?id=999088, https://bugs.webkit.org/show_bug.cgi?id=201297)
+2. Correct table border color inheritance in Chrome and Safari. (https://bugs.chromium.org/p/chromium/issues/detail?id=935729, https://bugs.webkit.org/show_bug.cgi?id=195016)
+*/
+table {
+  text-indent: 0; /* 1 */
+  border-color: inherit; /* 2 */
+}
+
+/*
+Forms
+=====
+*/
+/**
+1. Change the font styles in all browsers.
+2. Remove the margin in Firefox and Safari.
+*/
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit; /* 1 */
+  font-size: 100%; /* 1 */
+  line-height: 1.15; /* 1 */
+  margin: 0; /* 2 */
+}
+
+/**
+Remove the inheritance of text transform in Edge and Firefox.
+*/
+button,
+select {
+  text-transform: none;
+}
+
+/**
+Correct the inability to style clickable types in iOS and Safari.
+*/
+button,
+[type=button],
+[type=reset],
+[type=submit] {
+  -webkit-appearance: button;
+}
+
+/**
+Remove the inner border and padding in Firefox.
+*/
+::-moz-focus-inner {
+  border-style: none;
+  padding: 0;
+}
+
+/**
+Restore the focus styles unset by the previous rule.
+*/
+:-moz-focusring {
+  outline: 1px dotted ButtonText;
+}
+
+/**
+Remove the additional ':invalid' styles in Firefox.
+See: https://github.com/mozilla/gecko-dev/blob/2f9eacd9d3d995c937b4251a5557d95d494c9be1/layout/style/res/forms.css#L728-L737
+*/
+:-moz-ui-invalid {
+  box-shadow: none;
+}
+
+/**
+Remove the padding so developers are not caught out when they zero out 'fieldset' elements in all browsers.
+*/
+legend {
+  padding: 0;
+}
+
+/**
+Add the correct vertical alignment in Chrome and Firefox.
+*/
+progress {
+  vertical-align: baseline;
+}
+
+/**
+Correct the cursor style of increment and decrement buttons in Safari.
+*/
+::-webkit-inner-spin-button,
+::-webkit-outer-spin-button {
+  height: auto;
+}
+
+/**
+1. Correct the odd appearance in Chrome and Safari.
+2. Correct the outline style in Safari.
+*/
+[type=search] {
+  -webkit-appearance: textfield; /* 1 */
+  outline-offset: -2px; /* 2 */
+}
+
+/**
+Remove the inner padding in Chrome and Safari on macOS.
+*/
+::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+/**
+1. Correct the inability to style clickable types in iOS and Safari.
+2. Change font properties to 'inherit' in Safari.
+*/
+::-webkit-file-upload-button {
+  -webkit-appearance: button; /* 1 */
+  font: inherit; /* 2 */
+}
+
+/*
+Interactive
+===========
+*/
+/*
+Add the correct display in Chrome and Safari.
+*/
+summary {
+  display: list-item;
+}
+
+.bdhwk, html {
+  font-size: 62.5%;
+}
+.bdhwk body, html body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  color: #333333;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  animation: bodyFade 0.5s forwards;
+}
+@keyframes bodyFade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+.bdhwk main, html main {
+  overflow: hidden;
+}
+.bdhwk .container, html .container {
+  max-width: 1.4rem;
+  margin: 0 auto;
+}
+.bdhwk ::selection, html ::selection {
+  background: #333333;
+  color: #ffffff;
+}
+.bdhwk ::-moz-selection, html ::-moz-selection {
+  background: #333333;
+  color: #ffffff;
+}
+.bdhwk a, html a {
+  text-decoration: none;
+  color: #333333;
+  webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+.bdhwk h1, html h1 {
+  color: #333333;
+  font: 700 4rem/4rem "Roboto", sans-serif;
+  margin: 0;
+}
+.bdhwk h2, html h2 {
+  color: #333333;
+  font: 300 2.7rem/2.7rem "Roboto", sans-serif;
+  margin: 0;
+}
+.bdhwk h3, html h3 {
+  color: #333333;
+  font: 700 1.8rem/1.8rem "Roboto", sans-serif;
+  margin: 0;
+}
+.bdhwk h4, html h4 {
+  color: #333333;
+  font: 300 1.4rem/1.4rem "Roboto", sans-serif;
+  margin: 0;
+}
+.bdhwk h5, html h5 {
+  color: #333333;
+  font: 700 1.4rem/1.4rem "Roboto", sans-serif;
+  margin: 0;
+}
+.bdhwk h6, html h6 {
+  color: #333333;
+  font: 300 1.2rem/1.2rem "Roboto", sans-serif;
+  margin: 0;
+}
+.bdhwk p, html p {
+  color: #333333;
+  font: 300 1.2rem/1.2rem "Roboto", sans-serif;
+  margin: 0;
+}
+.bdhwk hr, html hr {
+  border-bottom: 1px solid #333333;
+}
+
+.image-with-text {
+  margin: 40px auto 10px;
+  display: flex;
+}
+.image-with-text .image {
+  width: 50%;
+}
+.image-with-text .text {
+  width: 50%;
+  color: rgb(107, 107, 255);
+}
+
+.image-single {
+  margin: 40px auto 10px;
+}
+.image-single .wrap {
+  max-width: 80%;
+  margin: 0px auto;
+}
+.image-single .wrap img {
+  width: 100%;
+}
+
+.image-with-text {
+  margin: 40px auto 10px;
+  display: flex;
+}
+.image-with-text .image {
+  width: 50%;
+}
+.image-with-text .text {
+  width: 50%;
+}
+
+.block-headline {
+  margin: 40px auto 10px;
+}
+.block-headline h1, .block-headline h2, .block-headline h3, .block-headline h4, .block-headline h5, .block-headline h6 {
+  letter-spacing: 1px;
+  color: #333333;
+}
+
+.block-text {
+  margin: 10px auto 40px;
+}
+.block-text p {
+  margin: 10px auto 20px;
+  color: #333333;
+}
+
+.block-wysiwyg h1, .block-wysiwyg h2, .block-wysiwyg h3, .block-wysiwyg h4, .block-wysiwyg h5, .block-wysiwyg h6 {
+  letter-spacing: 1px;
+  color: #333333;
+}
+.block-wysiwyg a {
+  color: #333333;
+  -webkit-transition: all 0.2s ease-in-out;
+  -moz-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+.block-wysiwyg a:hover {
+  color: rgb(107, 107, 255);
+  -webkit-transition: all 0.2s ease-in-out;
+  -moz-transition: all 0.2s ease-in-out;
+  -o-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+.block-wysiwyg p {
+  margin: 10px auto 20px;
+  color: #333333;
+}
+.block-wysiwyg ul {
+  margin: 30px 0px;
+}
+.block-wysiwyg ul li {
+  color: #333333;
+  font: 400 16px/24px "Roboto", sans-serif;
+  margin: 0px;
+}
+@media screen and (max-width: 768px) {
+  .block-wysiwyg ul li {
+    font: 400 14px/22px "Roboto", sans-serif;
+  }
+}
+.block-wysiwyg strong {
+  font: 700 16px/24px "Roboto", sans-serif;
+  color: #333333;
+}
+@media screen and (max-width: 768px) {
+  .block-wysiwyg strong {
+    font: 700 14px/22px "Roboto", sans-serif;
+  }
+}
+
+/*# sourceMappingURL=data:application/json;charset=utf-8,%7B%22version%22:3,%22sourceRoot%22:%22%22,%22sources%22:%5B%22../src/scss/main.scss%22,%22../src/scss/_normalize.scss%22,%22../src/scss/_base.scss%22,%22../src/scss/_variables.scss%22,%22../blocks/heroes/Main%2520Hero/_main-hero.scss%22,%22../blocks/images/Image%2520Single/_image-single.scss%22,%22../blocks/images/Image%2520With%2520Text/_image-with-text.scss%22,%22../blocks/text/Headline/_headline.scss%22,%22../blocks/text/Text/_text.scss%22,%22../blocks/text/wysiwyg/_wysiwyg.scss%22%5D,%22names%22:%5B%5D,%22mappings%22:%22AAAA;;AAAA;;AAAA;AAAA;;;AAAA;AAWA;ACXA;AAEA;AAAA;AAAA;AAAA;AAKA;AAAA;AAAA;AAIA;AAAA;AAAA;EAGE;;;AAGF;AAAA;AAAA;AAAA;AAAA;AAMA;EACE;EACA;EACA;EACA;;;AAGF;AAAA;AAAA;AAAA;AAKA;AAAA;AAAA;AAAA;AAKA;EACE;EACA,aACE,oGAOkB;;;AAGtB;AAAA;AAAA;AAAA;AAKA;AAAA;AAAA;AAAA;AAKA;EACE;EACA;;;AAGF;AAAA;AAAA;AAAA;AAKA;AAAA;AAAA;AAIA;EACE;;;AAGF;AAAA;AAAA;AAIA;AAAA;EAEE;;;AAGF;AAAA;AAAA;AAAA;AAKA;AAAA;AAAA;AAAA;EAIE,aACE,6EAKW;EACb;;;AAGF;AAAA;AAAA;AAIA;EACE;;;AAGF;AAAA;AAAA;AAIA;AAAA;EAEE;EACA;EACA;EACA;;;AAGF;EACE;;;AAGF;EACE;;;AAGF;AAAA;AAAA;AAAA;AAKA;AAAA;AAAA;AAAA;AAKA;EACE;EACA;;;AAGF;AAAA;AAAA;AAAA;AAKA;AAAA;AAAA;AAAA;AAKA;AAAA;AAAA;AAAA;AAAA;EAKE;EACA;EACA;EACA;;;AAGF;AAAA;AAAA;AAIA;AAAA;EAEE;;;AAGF;AAAA;AAAA;AAIA;AAAA;AAAA;AAAA;EAIE;;;AAGF;AAAA;AAAA;AAIA;EACE;EACA;;;AAGF;AAAA;AAAA;AAIA;EACE;;;AAGF;AAAA;AAAA;AAAA;AAKA;EACE;;;AAGF;AAAA;AAAA;AAIA;EACE;;;AAGF;AAAA;AAAA;AAIA;EACE;;;AAGF;AAAA;AAAA;AAIA;AAAA;EAEE;;;AAGF;AAAA;AAAA;AAAA;AAKA;EACE;EACA;;;AAGF;AAAA;AAAA;AAIA;EACE;;;AAGF;AAAA;AAAA;AAAA;AAKA;EACE;EACA;;;AAGF;AAAA;AAAA;AAAA;AAKA;AAAA;AAAA;AAIA;EACE;;;ACjRF;EAEA,WCD4B;;ADI5B;EACE;EACA;EAAY;EACZ,kBCKM;EDJN,OCGM;EDFN;EACA;EACA;;AAID;EACG;IACE;;EAEF;IACE;;;AAIN;EACE;;AAGF;EACE,WCzBoB;ED0BpB;;AAKF;EACE,YCzBM;ED0BN,OCzBM;;AD2BR;EACE,YC7BM;ED8BN,OC7BM;;ADmCR;EACE;EACA,OCtCM;EDuCN;;AAGF;EACE,OC3CM;ED4CN;EACA;;AAGF;EACE,OCjDM;EDkDN;EACA;;AAGF;EACE,OCvDM;EDwDN;EACA;;AAGF;EACE,OC7DM;ED8DN;EACA;;AAGF;EACE,OCnEM;EDoEN;EACA;;AAGF;EACE,OCzEM;ED0EN;EACA;;AAGF;EACE,OC/EM;EDgFN;EACA;;AAMF;EACE;;;AErGF;EACE;EACA;;AACA;EACE;;AAEF;EACE;EACA,ODOG;;;AEfP;EACE;;AACA;EACE;EACA;;AACA;EACE;;;ACNN;EACE;EACA;;AACA;EACE;;AAEF;EACE;;;ACPJ;EACE;;AACA;EACE;EACA,OJSI;;;AKdR;EACE;;AACA;EACE;EACA,OLUI;;;AMZN;EACE;EACA,ONUI;;AMRN;EACE,ONOI;EAoBN;EACA;EACA;EACA;;AM5BE;EACE,ONMC;EAkBL;EACA;EACA;EACA;;AMvBA;EACE;EACA,ONFI;;AMIN;EACE;;AACA;EACE,ONPE;EMQF;EACA;;ANGL;EMNG;IAI+B;;;AAGjC;EACE;EACA,ONfI;;AAYP;EMCC;IAG+B%22,%22file%22:%22main.css%22%7D */

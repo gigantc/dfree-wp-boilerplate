@@ -7,7 +7,9 @@
 
 // all front-end base styles are wrapped in the bdhwk class
 // this is to explude these styles from the admin panel
-.bdhwk{
+.bdhwk, html{
+
+font-size: v.$root-font-size-percentage;
 
 
 body{
@@ -19,6 +21,7 @@ body{
   -webkit-overflow-scrolling: touch;
   animation: bodyFade 0.5s forwards;
 }
+
 // fade in effect on page load
  @keyframes bodyFade {
     0% {
@@ -32,6 +35,12 @@ body{
 main{
   overflow:hidden;
 }
+
+.container{
+  max-width:v.$container-max-width;
+  margin:0 auto;
+}
+
 
 //text selection styles
 ::selection {
@@ -54,44 +63,44 @@ a{
 
 h1{
   color:v.$black;
-  font:700 40px/40px v.$roboto;
-  margin:0px;
+  font:700 4rem/4rem v.$roboto;
+  margin:0;
 }
 
 h2{
   color:v.$black;
-  font:300 27px/27px v.$roboto;
-  margin:0px;
+  font:300 2.7rem/2.7rem v.$roboto;
+  margin:0;
 }
 
 h3{
   color:v.$black;
-  font:700 18px/18px v.$roboto;
-  margin:0px;
+  font:700 1.8rem/1.8rem v.$roboto;
+  margin:0;
 }
 
 h4{
   color:v.$black;
-  font:300 14px/14px v.$roboto;
-  margin:0px;
+  font:300 1.4rem/1.4rem v.$roboto;
+  margin:0;
 }
 
 h5{
   color:v.$black;
-  font:700 14px/14px v.$roboto;
-  margin:0px;
+  font:700 1.4rem/1.4rem v.$roboto;
+  margin:0;
 }
 
 h6{
   color:v.$black;
-  font:300 12px/12px v.$roboto;
-  margin:0px;
+  font:300 1.2rem/1.2rem v.$roboto;
+  margin:0;
 }
 
 p{
   color:v.$black;
-  font:300 12px/12px v.$roboto;
-  margin:0px;
+  font:300 1.2rem/1.2rem v.$roboto;
+  margin:0;
 }
 
 
@@ -103,7 +112,7 @@ hr{
 
 
 
-} // end of front-end styles .bdhwk
+} // end of front-end styles .bdhwk/html
 
 
 
