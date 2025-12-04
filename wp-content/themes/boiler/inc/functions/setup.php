@@ -100,27 +100,27 @@ function lawfirm_scripts() {
   }
 
   // Register GSAP scripts
-  wp_register_script( 'gsap', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js', array(), '3.11.1', true );
-  wp_register_script( 'scrolltrigger', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/ScrollTrigger.min.js', array('gsap'), '3.11.1', true );
+  wp_register_script( 'gsap', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js', array(), '3.13.0', true );
+  wp_register_script( 'scrolltrigger', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js', array('gsap'), '3.13.0', true );
 
   if ( $load_gsap ) {
     wp_enqueue_script('gsap');
     wp_enqueue_script('scrolltrigger');
   }
 
-  // Conditional loading: Slick Carousel
+  // Conditional loading: Swiper Carousel
   // Only load when carousel blocks are present
-  wp_register_script('slick', "https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js", array('jquery'), '1.8.1', true );
+  wp_register_script('swiper', "https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js", array('jquery'), '11.0.5', true );
 
   // Example: Load Slick if carousel block exists
   if ( has_block( 'acf/carousel' ) || has_block( 'acf/slider' ) ) {
-    wp_enqueue_script('slick');
+    wp_enqueue_script('swiper');
   }
 
   // Development only: GSAP ScrollTrigger indicators
   $current_host = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
   if ( 'dfreeboilerplate.local' === $current_host ) {
-    // wp_enqueue_script('add-indicators');
+    wp_enqueue_script('add-indicators');
   }
 
 }
@@ -141,7 +141,7 @@ function load_custom_wp_admin_style() {
   // wp_enqueue_style( 'custom-google-fonts', 'https://fonts.googleapis.com/css?family=Montserrat:200,400,500,700', false );
   //font awesome
 
-  wp_enqueue_style( 'font-awesome-admin', 'https://pro.fontawesome.com/releases/v5.7.2/css/all.css', false );
+  // wp_enqueue_style( 'font-awesome-admin', 'https://pro.fontawesome.com/releases/v5.7.2/css/all.css', false );
 }
 add_action( 'admin_enqueue_scripts', 'load_custom_wp_admin_style' );
 

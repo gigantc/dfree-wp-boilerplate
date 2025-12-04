@@ -6,8 +6,8 @@
 
 
 // all front-end base styles are wrapped in the bdhwk class
-// this is to explude these styles from the admin panel
-.bdhwk, html{
+// this is to remove these styles from the admin panel
+.bdhwk{
 
 font-size: v.$root-font-size-percentage;
 
