@@ -100,8 +100,8 @@ class DFREE_Block_Registry {
     $slug = sanitize_title(basename($folder));
     $category = 'block-' . sanitize_title(basename(dirname($folder)));
 
-    // Read block.json if exists
-    $meta_path = $folder . '/block.json';
+    // Read block.config.json if exists
+    $meta_path = $folder . '/block.config.json';
     $meta = array();
     if (file_exists($meta_path)) {
       $meta_content = file_get_contents($meta_path);
@@ -109,7 +109,7 @@ class DFREE_Block_Registry {
     }
 
     // Read SVG icon if exists
-    $icon_path = $folder . '/admin-icon.svg';
+    $icon_path = $folder . '/block.icon.svg';
     $icon = '';
     if (file_exists($icon_path)) {
       $icon = file_get_contents($icon_path);

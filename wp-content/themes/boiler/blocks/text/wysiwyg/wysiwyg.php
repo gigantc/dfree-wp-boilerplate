@@ -9,8 +9,8 @@
 if (get_field('is_example')) : ?>
 
 
-  <!-- This will dynamically use an image in the folder called 'admin-image.jpg' for the pop-up display -->
-  <img src="<?= get_template_directory_uri() . str_replace(get_theme_file_path(), '', __DIR__) ?>/admin-image.jpg" alt="Block Preview">
+  <!-- This will dynamically use an image in the folder called 'block.preview.jpg' for the pop-up display -->
+  <img src="<?= get_template_directory_uri() . str_replace(get_theme_file_path(), '', __DIR__) ?>/block.preview.jpg" alt="Block Preview">
 
 
 <?php 

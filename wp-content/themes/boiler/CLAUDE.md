@@ -78,9 +78,9 @@ The theme uses a **convention-based automatic block registration system** with *
 3. **Folder Structure Creates Categories**: Top-level folders in `/blocks` (e.g., `text/`, `images/`, `heroes/`) automatically become block categories in the WordPress editor
 4. **Block Metadata**: Each block folder should contain:
    - `{block-name}.php` - Block template file
-   - `block.json` - Optional metadata (title, description, keywords)
-   - `admin-icon.svg` - Optional custom icon for the block picker
-   - `admin-image.jpg` - Optional preview image shown in block editor
+   - `block.config.json` - Optional metadata (title, description, keywords)
+   - `block.icon.svg` - Optional custom icon for the block picker
+   - `block.preview.jpg` - Optional preview image shown in block editor
    - `_{block-name}.scss` - Block styles (must start with underscore)
 
 5. **Automatic SCSS Imports**: The Gulp task `generateBlocksScssTask` scans `/blocks` for all `_*.scss` files and auto-generates `@forward` statements in `src/scss/_blocks.scss`. This file is regenerated on every build/watch cycle.
@@ -156,7 +156,9 @@ All block styles in `/blocks/**/_*.scss` are automatically imported via the `_bl
    - `{block-name}.php` - Use lowercase-hyphenated name matching folder
    - `_{block-name}.scss` - Styles (must start with underscore)
    - `{block-name}.js` - Optional JavaScript (will be auto-loaded when block is used)
-   - `block.json` - Optional metadata
+   - `block.config.json` - Optional metadata
+   - `block.icon.svg` - Optional custom icon
+   - `block.preview.jpg` - Optional preview image
 3. The block template should check `get_field('is_example')` to show preview image in editor
 4. Run `npm run build` - The block will be auto-registered, styles auto-imported, and JS bundled
 5. Configure ACF fields in WordPress admin under Custom Fields
@@ -169,9 +171,9 @@ blocks/
       headline.php
       _headline.scss
       headline.js          ← Optional: Block-specific JavaScript
-      block.json
-      admin-icon.svg
-      admin-image.jpg
+      block.config.json
+      block.icon.svg
+      block.preview.jpg
 ```
 
 **Block JavaScript:**
