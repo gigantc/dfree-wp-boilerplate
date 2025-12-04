@@ -3,9 +3,9 @@ Contributors: msaari
 Donate link: https://www.relevanssi.com/buy-premium/
 Tags: search, relevance, better search, product search, woocommerce search
 Requires at least: 4.9
-Tested up to: 6.7
-Requires PHP: 7.0
-Stable tag: 4.24.3
+Tested up to: 6.8
+Requires PHP: 7.1
+Stable tag: 4.25.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -128,39 +128,12 @@ Each document database is full of useless words. All the little words that appea
 * John Calahan for extensive 4.0 beta testing.
 
 == Changelog ==
-= 4.24.3 =
-* New feature: New filter hook `relevanssi_cached_post_object` can be used to modify the cached post objects.
-* Minor fix: Relevanssi cache population now creates stdClass objects instead of WP_Post objects to avoid out of memory issues. If you need WP_Post objects, use the `relevanssi_cached_post_object` filter hook to create them.
-* Minor fix: Avoid problems with object custom field values.
 
-= 4.24.2 =
-* Minor fix: Fix broken excerpts.
-
-= 4.24.1 =
-* Minor fix: Prevent database errors.
-
-= 4.24.0 =
-* Minor fix: SEO Framework local search exclude option description now tells what the option actually does.
-* Minor fix: Relevanssi cache population now creates WP_Post objects instead of stdClass objects.
-* Minor fix: SEOPress compatibility mode is enabled again.
-* Minor fix: Avoid fatal errors in installation process with Polylang enabled.
-* Minor fix: Update counts link had the wrong tab query parameter.
-* Minor fix: Adjust post type parameter handling so that it doesn't change the `post_type` query var.
-
-= 4.23.1 =
-* Security fix: Prevent an XSS attack by a malicious contributor.
-
-= 4.23.0 =
-* New feature: New filter hook `relevanssi_forbidden_post_types` filters the list of post types excluded from Relevanssi indexing.
-* New feature: New filter hook `relevanssi_forbidden_taxonomies` filters the list of taxonomies excluded from Relevanssi indexing.
-* New feature: New filter hook `relevanssi_show_password_protected` controls whether password protected posts are shown in the search results.
-* New feature: Support for `post_mime_type` query parameter.
-* New feature: Relevanssi settings tabs have more CSS ids to help hide individual settings.
-* Changed behaviour: Password protected posts are excluded from the search results by default to protect their contents.
-* Minor fix: In rare cases, the search results would not be in relevance order if the throttle wasn't used.
-* Minor fix: The settings tab query parameter was renamed to avoid collisions with other plugins.
-* Minor fix: User searches page now uses `wp_print_inline_script_tag()`.
+= 4.25.0 =
+* New feature: New filter hook `relevanssi_index_excerpt` can be used to control which excerpts are indexed and which are not.
+* Minor fix: The `tribe_events` shortcode is now blocked in indexing, as it caused problems.
+* Minor fix: Foolproofing the meta_query sorting to avoid errors from non-array values.
 
 == Upgrade notice ==
-= 4.24.3 =
-* Remove out of memory errors.
+= 4.25.0 =
+* New filter hook and minor fixes.

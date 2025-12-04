@@ -184,7 +184,7 @@ function relevanssi_default_post_ok( $post_ok, $post_id ) {
 		$post_ok = false;
 	}
 
-	if ( post_password_required( $post_id ) ) {
+	if (relevanssi_post_password_required( $post_id ) ) {
 		/**
 		 * Filters whether password protected posts are shown in the search
 		 * results.
@@ -507,11 +507,11 @@ function relevanssi_prevent_default_request( $request, $query ) {
 			}
 		}
 
-		if ( isset( $_REQUEST['action'] ) && 'acf' === substr( $_REQUEST['action'], 0, 3 ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		if ( isset( $_REQUEST['action'] ) && is_string( $_REQUEST['action'] ) && 'acf' === substr( $_REQUEST['action'], 0, 3 ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			// ACF stuff, do not touch (eg. a relationship field search).
 			return $request;
 		}
-		if ( isset( $query->query_vars['action'] ) && 'acf' === substr( $query->query_vars['action'], 0, 3 ) ) {
+		if ( isset( $query->query_vars['action'] ) && is_string( $query->query_vars['action'] ) && 'acf' === substr( $query->query_vars['action'], 0, 3 ) ) {
 			// ACF stuff, do not touch (eg. a relationship field search).
 			return $request;
 		}
@@ -1416,13 +1416,13 @@ function relevanssi_remove_page_builder_shortcodes( $content ) {
 		'relevanssi_page_builder_shortcodes',
 		array(
 			// Remove content.
-			'/\[et_pb_code.*?\].*\[\/et_pb_code\]/im',
-			'/\[et_pb_sidebar.*?\].*\[\/et_pb_sidebar\]/im',
-			'/\[et_pb_fullwidth_slider.*?\].*\[\/et_pb_fullwidth_slider\]/im',
-			'/\[et_pb_fullwidth_code.*?\].*\[\/et_pb_fullwidth_code\]/im',
-			'/\[vc_raw_html.*?\].*\[\/vc_raw_html\]/im',
-			'/\[fusion_imageframe.*?\].*\[\/fusion_imageframe\]/im',
-			'/\[fusion_code.*?\].*\[\/fusion_code\]/im',
+			'/\[et_pb_code.*?\].*?\[\/et_pb_code\]/im',
+			'/\[et_pb_sidebar.*?\].*?\[\/et_pb_sidebar\]/im',
+			'/\[et_pb_fullwidth_slider.*?\].*?\[\/et_pb_fullwidth_slider\]/im',
+			'/\[et_pb_fullwidth_code.*?\].*?\[\/et_pb_fullwidth_code\]/im',
+			'/\[vc_raw_html.*?\].*?\[\/vc_raw_html\]/im',
+			'/\[fusion_imageframe.*?\].*?\[\/fusion_imageframe\]/im',
+			'/\[fusion_code.*?\].*?\[\/fusion_code\]/im',
 			// Remove only the tags.
 			'/\[\/?et_pb.*?\]/im',
 			'/\[\/?vc.*?\]/im',
@@ -1905,6 +1905,7 @@ function relevanssi_bot_block_list(): array {
 		'Exalead'              => 'Exabot',
 		'Majestic'             => 'MJ12Bot',
 		'Ahrefs'               => 'AhrefsBot',
+		'Apple'                => 'AppleBot',
 	);
 	return $bots;
 }
