@@ -1752,10 +1752,10 @@ function odb_confirm_delete() {
 			if (!$scheduler && ($action == 'analyze_detail' | $action == 'run_detail')) {
 	?>
 	<tr>
-	  <td align="right" valign="top"><?php echo ($i + 1); ?></td>
-	  <td align="left" valign="top"><?php echo $results[$i]['site']?></td>
-	  <td valign="top"><?php echo $results[$i]['meta_key']?></td>
-	  <td valign="top"><?php echo $results[$i]['meta_value']?></td>
+	  <td align="right" valign="top"><?php echo $i + 1; ?></td>
+	  <td align="left" valign="top"><?php echo esc_html( $results[$i]['site'] ); ?></td>
+	  <td valign="top"><?php echo esc_html( $results[$i]['meta_key'] ); ?></td>
+	  <td valign="top"><?php echo esc_html( $results[$i]['meta_value'] ); ?></td>
 	</tr>
 	<?php
 			} // if (!$scheduler && ($action == 'analyze_detail' | $action == 'run_detail'))

@@ -1,15 +1,11 @@
 <?php
-/**
- * @package Optimize Database after Deleting Revisions
- * @version 5.2.2
- */
 /*
 Plugin Name: Optimize Database after Deleting Revisions
-Description: One-click database optimization with precise revision cleanup and flexible scheduling. <a href="https://www.nerdpress.net/announcing-optimize-database/">Now managed by NerdPress!</a>
+Description: One-click database optimization with precise revision cleanup and flexible scheduling.
 Author: NerdPress
 Author URI: https://www.nerdpress.net
 Network: True
-Version: 5.2.2
+Version: 5.3.0
 */
 
 /********************************************************************************************
@@ -47,7 +43,7 @@ add_action( 'plugins_loaded', function() {
 
 	class OptimizeDatabase {
 		// VERSION
-		var $odb_version           = '5.2.2';
+		var $odb_version           = '5.3.0';
 
 		// PLUGIN OPTIONS
 		var $odb_rvg_options       = array();
@@ -198,7 +194,7 @@ add_action( 'plugins_loaded', function() {
 		 *******************************************************************************/
 		function odb_load_options() {
 			// GET OPTIONS
-			$this->odb_rvg_options = $this->odb_multisite_obj->odb_ms_get_option('odb_rvg_options');
+			$this->odb_rvg_options = $this->odb_multisite_obj->odb_ms_get_option('odb_rvg_options', array());
 
 			if(!isset($this->odb_rvg_options['version']))
 				// THIS VERSION IS FROM BEFORE 4.0: CONVERT OPTIONS
@@ -402,12 +398,6 @@ add_action( 'plugins_loaded', function() {
 		function odb_init_hooks() {
 			global $blog_id;
 
-			// ON DE-ACTIVATION
-			register_deactivation_hook(__FILE__, array('OptimizeDatabase', 'odb_deactivation_handler'));
-
-			// ON UN-INSTALLATION
-			register_uninstall_hook(__FILE__, array('OptimizeDatabase', 'odb_uninstallation_handler'));
-
 			// ADD ENTRY TO ADMIN TOOLS MENU
 			if (is_multisite()) {
 				if ($blog_id == 1) {
@@ -571,39 +561,6 @@ add_action( 'plugins_loaded', function() {
 			}
 			return false;
 		} // odb_is_relevant_page()
-
-
-		/*******************************************************************************
-		 *
-		 * 	PLUGIN DE-ACTIVATION
-		 *
-		 *******************************************************************************/
-		public static function odb_deactivation_handler() {
-			// STOP SCHEDULER
-			wp_clear_scheduled_hook('odb_scheduler');
-		} // odb_deactivation_handler()
-
-
-		/*******************************************************************************
-		 *
-		 * 	PLUGIN UN-INSTALLATION
-		 *
-		 *******************************************************************************/
-		function odb_uninstallation_handler() {
-			// STOP SCHEDULER
-			wp_clear_scheduled_hook('odb_scheduler');
-
-			// DELETE THE OPTIONS
-			delete_option('odb_rvg_options');
-			delete_option('odb_rvg_excluded_tabs');
-
-			delete_site_option('odb_rvg_options');
-			delete_site_option('odb_rvg_excluded_tabs');
-
-			// DROP THE LOG TABLE
-			global $wpdb;
-			$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}odb_logs");
-		} // odb_uninstallation_handler()
 
 
 		/*******************************************************************************
@@ -823,3 +780,42 @@ add_action( 'plugins_loaded', function() {
 	global $odb_class;
 	$odb_class = new OptimizeDatabase();
 } );
+
+/*******************************************************************************
+ *
+ * 	PLUGIN DE-ACTIVATION
+ *
+ *******************************************************************************/
+if ( ! function_exists( 'odb_deactivation_handler' ) ) {
+	function odb_deactivation_handler() {
+		// STOP SCHEDULER
+		wp_clear_scheduled_hook('odb_scheduler');
+	} // odb_deactivation_handler()
+}
+
+register_deactivation_hook(__FILE__, 'odb_deactivation_handler');
+
+/*******************************************************************************
+ *
+ * 	PLUGIN UN-INSTALLATION
+ *
+ *******************************************************************************/
+if ( ! function_exists( 'odb_uninstallation_handler' ) ) {
+	function odb_uninstallation_handler() {
+		// STOP SCHEDULER
+		wp_clear_scheduled_hook('odb_scheduler');
+
+		// DELETE THE OPTIONS
+		delete_option('odb_rvg_options');
+		delete_option('odb_rvg_excluded_tabs');
+
+		delete_site_option('odb_rvg_options');
+		delete_site_option('odb_rvg_excluded_tabs');
+
+		// DROP THE LOG TABLE
+		global $wpdb;
+		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}odb_logs");
+	} // odb_uninstallation_handler()
+}
+
+register_uninstall_hook(__FILE__, 'odb_uninstallation_handler');

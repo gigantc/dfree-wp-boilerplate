@@ -95,7 +95,9 @@ class ODB_Utilities {
 	 * @param string $key
 	 * @return string|string[]|null
 	 */
-	function odb_sanitize_key( string $key ) {
+	function odb_sanitize_key( $key ) {
+		$key = (string) $key;
+
 		return preg_replace( '/[^a-zA-Z0-9_\-]/', '', $key );
 	}
 } // ODB_Utilities

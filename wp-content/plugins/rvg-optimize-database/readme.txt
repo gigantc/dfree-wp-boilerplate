@@ -1,13 +1,13 @@
 === Optimize Database after Deleting Revisions ===
-Contributors: cageehv, nerdpressteam
-Tags: database cleanup, delete revisions, optimize database, database size, delete unused tags
+Contributors: cageehv, nerdpressteam, cdevroe, jchristopher
+Tags: database cleanup, delete revisions, optimize database, database size, database
 Author URI: https://www.nerdpress.net
 Author: NerdPress
 Requires at least: 2.8
 Requires PHP: 5.6
-Tested up to: 6.6
-Stable tag: 5.2.2
-Version: 5.2.2
+Tested up to: 6.8
+Stable tag: 5.3.0
+Version: 5.3.0
 License: GPLv2 or later
 One-click database optimization with precise revision cleanup and flexible scheduling. Speeding up sites since 2011!
 
@@ -97,6 +97,13 @@ NO WARRANTY, USE IT AT YOUR OWN RISK! MAKE BACKUPS FIRST!
 * If you run the plugin from any of the sites, it will cleanup ALL the sites in the network!
 
 == Changelog ==
+= 5.3.0 [07/21/2025] =
+* Fix issue where deactivation and uninstallation routines would not run as intended.
+* oEmbed caches are no longer fully embedded in detail reports, but instead show stored HTML to save resources and improve security.
+* Fix fatal error on very old PHP 5.x. (Note, future updates will require newer PHP versions!)
+* Fix deprecation warning on PHP 8.3.
+* Tested up to 6.8.
+
 = 5.2.2 [02/07/2024] =
 * Some links looked like buttons. They're now links.
 * Fix sanitization for databases and table prefixes with capital letters.
