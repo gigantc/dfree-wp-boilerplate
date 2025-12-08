@@ -1,0 +1,32 @@
+//////////////////////////////////////
+// HERO
+
+//imports
+@use 'src/scss/variables' as v;
+
+.hero {
+  background-color: #000000;
+  width: 100%;
+
+  .container{
+    display:flex;
+    align-items:center;
+    
+    h1{
+      color: v.$white;
+      margin: 0;
+      padding:114px 0px;
+      width:100%;
+    }
+  }
+  
+}
+
+//admin display overrides
+.wp-admin {
+  .hero {
+
+  }
+}
+
+

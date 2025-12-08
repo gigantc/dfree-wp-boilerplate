@@ -1,6 +1,6 @@
 <?php
 /**
- * Block Name: Image with Text
+ * Block Name: Hero
  *
  * 
  */
@@ -19,16 +19,18 @@ if (get_field('is_example')) : ?>
 // render the block in the browser
 else : 
 
+// Fields
+$headline = get_field('headline');
+
+
 ?>
 
-  <section class="image-with-text">
-      <div class="image">
-        <img src="https://placehold.co/600x400" />
-      </div>
-      <div class="text">
-        <h2>Is this an image?</h2>
-        <h4>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae.</h4>
-      </div>
+  <section class="hero">
+    <div class="container">
+      <?php if (get_field('headline')) : ?>
+        <h1><?= $headline ?></h1>
+      <?php endif; ?>
+    </div>
   </section>
 
 <?php endif; ?>
