@@ -1,0 +1,101 @@
+/******************************************************************
+Stylesheet: Login Stylesheet
+
+This stylesheet is loaded (if admin.php is setup in your
+functions file) on the login page. This way you can style
+the login page. It won't affect any other page, admin or front-end.
+
+For more info, check out the codex:
+http://codex.wordpress.org/Creating_Admin_Themes
+
+******************************************************************/
+body.login {
+  background-color: #000000;
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif !important;
+}
+
+/* the form box */
+/*
+This is the Wordpress logo in the admin area.
+You'll have to load your own images and mess
+with the width and height.
+*/
+.login h1 a {
+  background: url(https://upload.wikimedia.org/wikipedia/commons/8/87/Aperture_Science_Logo.svg) no-repeat top center;
+  margin:100px auto 50px;
+  width: 50px;
+  height: 50px;
+  text-indent: -9999px;
+  overflow: hidden;
+  padding-bottom: 15px;
+  display: block; 
+  background-size:contain;
+}
+
+.login form {
+  margin-left: 8px;
+  font-weight: normal;
+  background: #000000;
+  border: 1px solid #000000;
+  border-radius: 0px;
+  box-shadow: none; 
+  padding:0px;
+}
+
+body form .input {
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif !important;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 18px;
+  width: 97%;
+  padding: 20px 22px;
+  margin: 2px 6px 16px 0px;
+  background: #000000 !important;
+  outline: none;
+  border: 1px solid #dadada;
+  height: 43px;
+  color:#eeeeee;
+}
+
+
+.input:focus{
+  outline:none;
+  border: 1px solid #dadada !important;
+  box-shadow: none !important;
+  background: #151414 !important;
+  color:#eeeeee;
+}
+
+.login .message {
+  border-left: 5px solid #b8ddd7;
+  border-bottom: 1px solid #eeeeee;
+  border-top: 1px solid #eeeeee;
+  border-right: 1px solid #eeeeee;
+  box-shadow: none;
+}
+
+form label{
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif !important;
+  font-style: normal;
+  font-weight: 400;
+  text-transform: uppercase;
+  color:#929090;
+}
+
+/*
+You'll have to override some of the default styles
+but since we're referencing the id, it should be easy.
+*/
+.login #wp-submit {
+  background: #b8ddd7;
+  border-color: #b8ddd7;
+  color:#000000;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  cursor: pointer; 
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif !important;
+  text-transform: uppercase;
+  border-radius: 0px;
+  text-shadow: none;
+  padding: 0px 40px 0px 40px;
+}

@@ -43,7 +43,16 @@ class DFREE_Block_Registry {
    * Load manifest from file or rebuild if missing
    */
   private function load_manifest() {
-    // Try loading from manifest file
+    // Development mode: always rebuild manifest for local domains
+    $current_host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
+    $is_local = strpos($current_host, '.local') !== false || strpos($current_host, 'localhost') !== false;
+
+    if ($is_local) {
+      $this->rebuild_manifest();
+      return;
+    }
+
+    // Production: Try loading from manifest file
     if (file_exists($this->manifest_path)) {
       $manifest_content = file_get_contents($this->manifest_path);
       $manifest = json_decode($manifest_content, true);
@@ -129,6 +138,7 @@ class DFREE_Block_Registry {
       'icon'        => $icon,
       'has_js'      => $has_js,
       'js_path'     => $has_js ? str_replace($this->blocks_dir . '/', '', $js_path) : '',
+      'requires'    => $meta['requires'] ?? array(),
     );
   }
 

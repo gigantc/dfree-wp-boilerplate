@@ -1,0 +1,17 @@
+{
+    "generated": "2026-01-08 23:35:31",
+    "components": {
+        "button": {
+            "slug": "button",
+            "path": "Button\/button.php",
+            "name": "Button",
+            "description": "",
+            "has_scss": true,
+            "scss_path": "Button\/_button.scss",
+            "has_js": false,
+            "js_path": "",
+            "variants": [],
+            "requires": []
+        }
+    }
+}

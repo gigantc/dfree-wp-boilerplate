@@ -10,7 +10,8 @@ const fs = require('fs');
 const path = require('path');
 
 const blocksDir = path.join(__dirname, '../blocks');
-const outputDir = path.join(__dirname, '../js/blocks');
+const outputDir = path.join(__dirname, '../dist/js/blocks');
+const isProd = process.argv.includes('--prod');
 
 // Create output directory if it doesn't exist
 if (!fs.existsSync(outputDir)) {
@@ -62,8 +63,9 @@ for (const jsFile of jsFiles) {
 
   try {
     // Use esbuild to bundle the file
+    const sourcemapFlag = isProd ? '' : '--sourcemap';
     execSync(
-      `npx esbuild "${jsFile}" --bundle --minify --outfile="${outputFile}" --sourcemap --format=iife`,
+      `npx esbuild "${jsFile}" --bundle --minify --outfile="${outputFile}" ${sourcemapFlag} --format=iife`,
       { stdio: 'inherit' }
     );
     successCount++;
@@ -73,7 +75,7 @@ for (const jsFile of jsFiles) {
   }
 }
 
-console.log(`✅ Bundled ${successCount} block JS file(s) to js/blocks/`);
+console.log(`✅ Bundled ${successCount} block JS file(s) to dist/js/blocks/`);
 if (errorCount > 0) {
   console.log(`❌ Failed to bundle ${errorCount} file(s)`);
   process.exit(1);

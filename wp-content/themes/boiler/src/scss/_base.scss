@@ -39,6 +39,7 @@ main{
 .container{
   max-width:v.$container-max-width;
   margin:0 auto;
+  padding:0px 50px;
 }
 
 
@@ -63,43 +64,43 @@ a{
 
 h1{
   color:v.$black;
-  font:700 4rem/4rem v.$roboto;
+  font:700 56px/56px v.$roboto;
   margin:0;
 }
 
 h2{
   color:v.$black;
-  font:300 2.7rem/2.7rem v.$roboto;
+  font:300 27px/27px v.$roboto;
   margin:0;
 }
 
 h3{
   color:v.$black;
-  font:700 1.8rem/1.8rem v.$roboto;
+  font:700 18px/24px v.$roboto;
   margin:0;
 }
 
 h4{
   color:v.$black;
-  font:300 1.4rem/1.4rem v.$roboto;
+  font:300 18px/24px v.$roboto;
   margin:0;
 }
 
 h5{
   color:v.$black;
-  font:700 1.4rem/1.4rem v.$roboto;
+  font:700 14px/18px v.$roboto;
   margin:0;
 }
 
 h6{
   color:v.$black;
-  font:300 1.2rem/1.2rem v.$roboto;
+  font:300 12px/12px v.$roboto;
   margin:0;
 }
 
 p{
   color:v.$black;
-  font:300 1.2rem/1.2rem v.$roboto;
+  font:300 16px/20px v.$roboto;
   margin:0;
 }
 
@@ -110,7 +111,7 @@ hr{
   border-bottom:1px solid v.$black;
 }
 
-
+// Button styles moved to /components/Button/_button.scss
 
 } // end of front-end styles .bdhwk/html
 

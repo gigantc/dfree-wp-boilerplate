@@ -1,0 +1,72 @@
+Blocks
+--
+
+////////////////
+HEROES
+
+Hero
+	- Text
+	- Background Image
+
+Hero Carousel 
+	- Repeater
+		- Headline
+		- Background Image
+		- Repeater
+			- CTAs
+
+
+Hero Split
+	- Headline
+	- Subheadline
+	- Image
+	- direction (image left/right)
+
+
+
+////////////////
+FACILITY 
+
+Facility Header Detail
+	- Headline
+	- Address
+	- Copy
+	- Image
+	- CTA (Get Directions)
+	- CTA (Call)
+	- CTA (Request App)
+
+Facility Overview
+	- Copy (pulled from CPT)
+	- Emergency Services (pulled from CPT)
+	- Hours (pulled from CPT)
+
+Facility Contact Detail
+	- Hours (pulled from CPT)
+	- (pulled from CPT)
+
+Facility Visiting Detail
+
+
+
+
+
+////////////////
+TEXT
+
+Text Long Form
+	- WYSIWYG 
+
+
+
+
+
+////////////////
+GENERAL
+
+Half Half Content
+FAQ
+Accordion List
+Tabs
+CTA Callout
+Text Long Form

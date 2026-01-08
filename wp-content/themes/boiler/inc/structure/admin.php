@@ -210,9 +210,9 @@ function blockusers_init() {
 /**
  * Custom Login Page
  */
-// point to /css/login.css
+// point to /dist/css/login.css
 function lawfirm_login_css() {
-  wp_enqueue_style( 'lawfirm_login_css', get_template_directory_uri() . '/css/login.css', false );
+  wp_enqueue_style( 'lawfirm_login_css', get_template_directory_uri() . '/dist/css/login.css', false );
 }
 
 // changing the logo link from wordpress.org to your site

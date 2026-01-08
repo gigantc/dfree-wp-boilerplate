@@ -10,7 +10,8 @@ const fs = require('fs');
 const path = require('path');
 
 const srcDir = path.join(__dirname, '../src/js');
-const outputFile = path.join(__dirname, '../js/main.min.js');
+const outputFile = path.join(__dirname, '../dist/js/main.min.js');
+const isProd = process.argv.includes('--prod');
 
 /**
  * Find all .js files in src/js (excluding libs subdirectory)
@@ -65,11 +66,12 @@ fs.writeFileSync(tempEntry, imports);
 
 try {
   // Bundle the temporary entry file
+  const sourcemapFlag = isProd ? '' : '--sourcemap';
   execSync(
-    `npx esbuild "${tempEntry}" --bundle --minify --outfile="${outputFile}" --sourcemap --format=iife`,
+    `npx esbuild "${tempEntry}" --bundle --minify --outfile="${outputFile}" ${sourcemapFlag} --format=iife`,
     { stdio: 'inherit' }
   );
-  console.log(`✅ Bundled ${jsFiles.length} file(s) to js/main.min.js`);
+  console.log(`✅ Bundled ${jsFiles.length} file(s) to dist/js/main.min.js`);
 } catch (error) {
   console.error(`❌ Failed to bundle main.min.js`);
   process.exit(1);

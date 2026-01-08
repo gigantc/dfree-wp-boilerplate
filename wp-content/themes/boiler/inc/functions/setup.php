@@ -73,53 +73,52 @@ endif;
  */
 function lawfirm_scripts() {
 	wp_enqueue_style( 'lawfirm-style', get_stylesheet_uri() );
-	wp_enqueue_style( 'lawfirm-main-style', get_template_directory_uri() . '/css/main.css', '$deps', '1.0.0', 'screen' );
+	wp_enqueue_style( 'lawfirm-main-style', get_template_directory_uri() . '/dist/css/main.css', '$deps', '1.0.0', 'screen' );
 
 	// Google fonts
   wp_enqueue_style( 'custom-google-fonts', 'https://fonts.googleapis.com/css?family=Roboto:300,400,700', false );
 
   // Core scripts - always load
-  wp_register_script( 'lawfirm-js', get_template_directory_uri() . '/js/main.min.js', array('jquery'), '1.0.0', true );
-  wp_register_script( 'libs', get_template_directory_uri() . '/js/libs/libs.min.js', array('jquery'), '1.0.0', true );
+  wp_register_script( 'lawfirm-js', get_template_directory_uri() . '/dist/js/main.min.js', array('jquery'), '1.0.0', true );
+  wp_register_script( 'libs', get_template_directory_uri() . '/dist/js/libs/libs.min.js', array('jquery'), '1.0.0', true );
 
   wp_enqueue_script('libs');
   wp_enqueue_script( 'lawfirm-js' );
 
-  // Conditional loading: GSAP + ScrollTrigger
-  // Only load on pages that need animations
-  $load_gsap = false;
-
-  // Load GSAP on front page and specific pages
-  if ( is_front_page() || is_page( array( 'about', 'home' ) ) ) {
-    $load_gsap = true;
-  }
-
-  // Load GSAP if specific blocks are present
-  if ( has_block( 'acf/main-hero' ) ) {
-    $load_gsap = true;
-  }
-
-  // Register GSAP scripts
+  // Register GSAP scripts for auto-loading via block requirements
   wp_register_script( 'gsap', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js', array(), '3.13.0', true );
   wp_register_script( 'scrolltrigger', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js', array('gsap'), '3.13.0', true );
 
-  if ( $load_gsap ) {
-    wp_enqueue_script('gsap');
-    wp_enqueue_script('scrolltrigger');
+  // Conditional loading: Libraries based on block requirements
+  // Register common libraries
+  wp_register_script('swiper', "https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js", array('jquery'), '11.0.5', true );
+  wp_register_style('swiper', "https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.css", array(), '11.0.5' );
+
+  // Auto-load libraries based on blocks present on page
+  $registry = DFREE_Block_Registry::get_instance();
+  $all_blocks = $registry->get_blocks();
+  $required_libraries = array();
+
+  foreach ( $all_blocks as $block ) {
+    if ( has_block( 'acf/' . $block['slug'] ) && !empty( $block['requires'] ) ) {
+      $required_libraries = array_merge( $required_libraries, $block['requires'] );
+    }
   }
 
-  // Conditional loading: Swiper Carousel
-  // Only load when carousel blocks are present
-  wp_register_script('swiper', "https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js", array('jquery'), '11.0.5', true );
-
-  // Example: Load Slick if carousel block exists
-  if ( has_block( 'acf/carousel' ) || has_block( 'acf/slider' ) ) {
-    wp_enqueue_script('swiper');
+  // Remove duplicates and enqueue both scripts and styles
+  $required_libraries = array_unique( $required_libraries );
+  foreach ( $required_libraries as $library ) {
+    if ( wp_script_is( $library, 'registered' ) ) {
+      wp_enqueue_script( $library );
+    }
+    if ( wp_style_is( $library, 'registered' ) ) {
+      wp_enqueue_style( $library );
+    }
   }
 
   // Development only: GSAP ScrollTrigger indicators
   $current_host = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
-  if ( 'dfreeboilerplate.local' === $current_host ) {
+  if ( 'searhc-org-new.local' === $current_host ) {
     wp_enqueue_script('add-indicators');
   }
 
@@ -129,10 +128,15 @@ add_action( 'wp_enqueue_scripts', 'lawfirm_scripts' );
 
 
 
-// get main.css for the admin Gutenberg blocks along with any other needed styles
+// Load styles for the admin Gutenberg blocks
 function load_custom_wp_admin_style() {
-  wp_register_style( 'lawfirm-main-style-admin', get_template_directory_uri() . '/css/main.css', false, '1.1.0' );
+  // Load main.css for block styles consistency
+  wp_register_style( 'lawfirm-main-style-admin', get_template_directory_uri() . '/dist/css/main.css', false, '1.1.0' );
   wp_enqueue_style( 'lawfirm-main-style-admin' );
+
+  // Load admin.css for admin-specific overrides
+  wp_register_style( 'lawfirm-admin-style', get_template_directory_uri() . '/dist/css/admin.css', array('lawfirm-main-style-admin'), '1.1.0' );
+  wp_enqueue_style( 'lawfirm-admin-style' );
 
   //typekit
   //wp_enqueue_style( 'typekit-admin', 'https://use.typekit.net/icc0ban.css', false );

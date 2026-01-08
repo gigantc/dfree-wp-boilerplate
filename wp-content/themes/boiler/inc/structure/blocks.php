@@ -145,12 +145,20 @@ function dfree_enqueue_block_scripts() {
   // Check each block to see if it's on the page and has JS
   foreach ( $all_blocks as $block ) {
     if ( !empty( $block['has_js'] ) && has_block( 'acf/' . $block['slug'] ) ) {
-      $js_file = get_template_directory_uri() . '/js/blocks/' . $block['slug'] . '.min.js';
+      $js_file = get_template_directory_uri() . '/dist/js/blocks/' . $block['slug'] . '.min.js';
+
+      // Set dependencies - always include jQuery, plus any from block.config.json
+      $dependencies = array( 'jquery' );
+
+      // Add libraries from block's "requires" field
+      if ( !empty( $block['requires'] ) && is_array( $block['requires'] ) ) {
+        $dependencies = array_merge( $dependencies, $block['requires'] );
+      }
 
       wp_enqueue_script(
         'block-' . $block['slug'],
         $js_file,
-        array( 'jquery' ),
+        $dependencies,
         '1.0.0',
         true
       );

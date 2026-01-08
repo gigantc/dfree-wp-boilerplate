@@ -1,0 +1,53 @@
+//////////////////////////////////////
+// WORDPRESS ADMIN STYLES
+// Styles for the WordPress admin and Gutenberg block editor
+//////////////////////////////////////
+
+// Import variables and utilities
+@use 'variables' as v;
+
+// Editor-specific styles
+.editor-styles-wrapper {
+  
+}
+
+// Block preview adjustments for editor
+.block-editor-block-preview__content {
+  
+
+
+}
+
+// ACF Block Field Styling
+.wp-admin .acf-block-body .acf-fields .acf-field-message{
+  background-color:#eeeeee !important;
+  border-bottom:1px solid #adb2ad !important;
+}
+
+
+.wp-admin .block-editor-inserter__preview-container {
+    // Make preview popup larger for full image display
+    // width: 600px !important;
+    // max-width: 90vw;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+
+    img {
+      width: 100% !important;
+      height: 100% !important;
+      max-width: 100% !important;
+      max-height: 100% !important;
+      object-fit: contain !important;
+      object-position: center !important;
+      border-radius: 4px;
+    }
+  }
+
+.wp-admin .block-editor-block-preview__container {
+  min-height: 400px;
+  width: 100%;
+}
+
+
+

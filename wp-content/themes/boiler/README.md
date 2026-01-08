@@ -9,9 +9,11 @@ A lightning-fast WordPress theme boilerplate built for developers who want to cr
 This boilerplate gives you:
 
 - **Automatic ACF Block System** - Drop a folder in `/blocks`, and boom, it's registered
+- **Reusable Component System** - Create UI components once, use anywhere with simple `component()` function
 - **Blazing Fast Builds** - esbuild is 100x faster than webpack (seriously)
-- **Smart Block Registry** - Caches block metadata so your site doesn't scan files on every page load
+- **Smart Registries** - Caches block and component metadata so your site doesn't scan files on every page load
 - **Clean Sass Imports** - No more `../../../` nonsense
+- **Modern Asset Structure** - Source files in `/src`, compiled output in `/dist`
 - **Live Reload** - BrowserSync watches everything and refreshes instantly
 - **Convention Over Configuration** - Folder structure creates block categories automatically
 
@@ -213,44 +215,56 @@ npm run dev
 # Production build (minified, no source maps)
 npm run build
 
-# Clean all compiled files
+# Clean all compiled files from /dist
 npm run clean
 
-# Manually regenerate block SCSS imports
-npm run blocks:generate
-
-# Bundle block-specific JavaScript files
-npm run blocks:js
-
 # Individual builds (rarely needed)
-npm run css:build      # Compile CSS only
-npm run js:main        # Bundle main.js only
-npm run js:libs        # Bundle libraries only
+npm run blocks:generate        # Regenerate block/component SCSS imports
+npm run blocks:generate:watch  # Watch for new block SCSS files
+npm run blocks:js              # Bundle block JS (with source maps)
+npm run blocks:js:prod         # Bundle block JS (no source maps)
+npm run css:build              # Compile frontend CSS only
+npm run css:admin:build        # Compile admin CSS only
+npm run css:login:build        # Compile login CSS only
+npm run js:main                # Bundle main.js (with source maps)
+npm run js:main:prod           # Bundle main.js (no source maps)
+npm run js:libs                # Bundle libraries (with source maps)
+npm run js:libs:prod           # Bundle libraries (no source maps)
 ```
 
 ### What Happens in Dev Mode
 
 When you run `npm run dev`, it:
 
-1. **Generates Block Imports** - Scans `/blocks` for all `_*.scss` files and creates `src/scss/_blocks.scss`
-2. **Compiles Sass** - Converts `src/scss/main.scss` → `css/main.css` (with source maps)
+1. **Generates Block/Component Imports** - Scans `/blocks` and `/components` for all `_*.scss` files and creates `src/scss/_blocks.scss`
+2. **Compiles Sass** - Converts:
+   - `src/scss/main.scss` → `dist/css/main.css` (with source maps)
+   - `src/scss/admin.scss` → `dist/css/admin.css` (with source maps)
+   - `src/scss/login.scss` → `dist/css/login.css` (with source maps)
 3. **Adds Prefixes** - PostCSS adds vendor prefixes (`-webkit-`, `-moz-`, etc.)
-4. **Bundles JavaScript** - esbuild compiles `src/js/main.js` → `js/main.min.js` (with source maps)
-5. **Watches Files** - Monitors SCSS and JS for changes, recompiles automatically
-6. **Starts BrowserSync** - Live reloads browser on PHP, CSS, JS, and block changes
+4. **Bundles JavaScript** - esbuild compiles:
+   - `src/js/main.js` → `dist/js/main.min.js` (with source maps)
+   - `blocks/**/*.js` → `dist/js/blocks/*.min.js` (with source maps)
+   - `components/**/*.js` → `dist/js/components/*.min.js` (with source maps)
+5. **Watches Everything**:
+   - Monitors all SCSS for changes (main, admin, login, blocks, components)
+   - Watches `/blocks` and `/components` for new SCSS files (auto-regenerates imports)
+   - Watches all JS files for changes
+6. **Starts BrowserSync** - Live reloads browser on PHP, CSS, JS, block, and component changes
 
-**Note**: Block JavaScript files are bundled on-demand when you run `npm run build`, not during `npm run dev`.
+**New in this version**: Block and component SCSS files are now watched automatically—add a new block or component with SCSS and it's instantly imported without manual intervention!
 
 ### What Happens in Production Build
 
 Production builds are optimized for performance:
 
-- **Generates Block Imports** - Scans and creates `src/scss/_blocks.scss`
-- **Bundles Block JavaScript** - Each block's `.js` file → `js/blocks/{name}.min.js`
-- **Minified CSS** - Compressed output, no source maps
-- **Minified JS** - All JavaScript bundled and compressed with esbuild
+- **Generates Block/Component Imports** - Scans and creates `src/scss/_blocks.scss`
+- **Bundles All JavaScript** - Each block and component's `.js` file → `dist/js/blocks|components/{name}.min.js`
+- **Minified CSS** - Compressed output to `dist/css/`, **no source maps**
+- **Minified JS** - All JavaScript bundled and compressed to `dist/js/`, **no source maps**
 - **Vendor Prefixes** - Automatically added for browser compatibility
 - **No Watch Mode** - One-time build, perfect for deployment
+- **Smaller Assets** - Source maps excluded means 30-50% smaller file sizes
 
 ### The Sass Import Path Magic
 
@@ -313,19 +327,13 @@ Now all blocks inside `/blocks/forms/` will appear under "Forms" category in the
 
 ### Rebuilding the Block Manifest
 
-The manifest (`blocks/manifest.json`) is automatically rebuilt when:
+The manifest (`blocks/manifest.json`) is automatically rebuilt:
 
-- Theme is activated or switched
-- The manifest file is deleted (it regenerates on next page load)
+- **Development**: Auto-rebuilds on every page load for `.local` or `localhost` domains (new blocks appear immediately)
+- **Production**: Uses cached manifest for performance
+- **Manual rebuild**: Delete `manifest.json` or reactivate theme
 
-To manually rebuild:
-
-```bash
-# Delete manifest and reload any WordPress page
-rm blocks/manifest.json
-```
-
-Or activate/deactivate the theme in WordPress admin.
+No more manual rebuilds needed during local development!
 
 ---
 
@@ -424,6 +432,217 @@ Configured to support:
 - Browsers with >1% market share
 - Excludes dead browsers
 
+### WordPress Admin Styles
+
+Need to style elements in the WordPress admin or Gutenberg editor? Use `src/scss/admin.scss`:
+
+```scss
+@use 'variables' as v;
+
+// Gutenberg editor wrapper
+.editor-styles-wrapper {
+  font-family: v.$roboto;
+}
+
+// Block inserter preview popup
+.wp-admin .block-editor-inserter__preview-container {
+  width: 800px !important;
+
+  img {
+    object-fit: contain !important;
+  }
+}
+
+// ACF field styling
+.wp-admin .acf-block-body .acf-fields .acf-field-message {
+  background-color: #eeeeee !important;
+}
+```
+
+**How it works:**
+- `main.css` loads in both frontend and admin for consistency
+- `admin.css` loads after for admin-specific overrides
+- Auto-compiles in dev mode with watch
+- Keep block-specific admin styles in each block's SCSS using `.wp-admin {}` wrapper
+
+**Commands:**
+```bash
+npm run css:admin:compile  # Compile admin.scss
+npm run css:admin:build    # Full build with autoprefixer
+npm run css:admin:watch    # Watch mode (included in dev)
+```
+
+### Login Page Styles
+
+Need custom login page styling? Edit `src/scss/login.scss`:
+
+```scss
+body.login {
+  background-color: #000;
+
+  h1 a {
+    background: url('your-logo.svg') no-repeat center;
+    // Custom logo styles
+  }
+}
+```
+
+**How it works:**
+- Compiles from `src/scss/login.scss` to `dist/css/login.css`
+- Loaded only on `/wp-login.php`
+- Minified and auto-prefixed in production
+- Full SCSS features available (variables, nesting, etc.)
+
+**Commands:**
+```bash
+npm run css:login:compile  # Compile login.scss
+npm run css:login:build    # Full build with autoprefixer
+npm run css:login:watch    # Watch mode (included in dev)
+```
+
+---
+
+## Component System
+
+**NEW in v4.0**: Reusable UI components make it easy to share elements like buttons, cards, and modals across your blocks.
+
+### What Are Components?
+
+Components are reusable PHP templates with their own SCSS and optional JavaScript. Think of them as building blocks for your blocks.
+
+### Using Components
+
+**Simple function call in any block template:**
+
+```php
+// Render a button
+component('button', [
+  'url' => '#',
+  'title' => 'Click Me',
+  'variant' => 'primary'  // primary, secondary, text
+]);
+```
+
+**Real-world example in a block:**
+
+```php
+<?php if (have_rows('ctas')) : ?>
+  <div class="ctas">
+    <?php while (have_rows('ctas')) : the_row();
+      $cta = get_sub_field('cta');
+      component('button', [
+        'url' => $cta['url'],
+        'title' => $cta['title'],
+        'target' => $cta['target'] ?? '_self',
+        'variant' => 'primary'
+      ]);
+    endwhile; ?>
+  </div>
+<?php endif; ?>
+```
+
+### Creating Components
+
+**1. Create folder structure:**
+
+```bash
+components/
+  Card/
+    card.php           # Component template
+    _card.scss         # Component styles (underscore required!)
+    card.js            # Optional JavaScript
+```
+
+**2. Create the template** (`card.php`):
+
+```php
+<?php
+/**
+ * Card Component
+ *
+ * @param string $title Card title
+ * @param string $content Card content
+ * @param string $image Image URL
+ */
+
+// Defaults
+$title = $title ?? '';
+$content = $content ?? '';
+$image = $image ?? '';
+?>
+
+<div class="card">
+  <?php if ($image) : ?>
+    <img src="<?= esc_url($image) ?>" alt="<?= esc_attr($title) ?>">
+  <?php endif; ?>
+  <h3><?= esc_html($title) ?></h3>
+  <p><?= esc_html($content) ?></p>
+</div>
+```
+
+**3. Create the styles** (`_card.scss`):
+
+```scss
+@use 'src/scss/variables' as v;
+
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  img {
+    width: 100%;
+    border-radius: 4px;
+  }
+
+  h3 {
+    margin: 1rem 0 0.5rem;
+  }
+}
+```
+
+**4. Run build:**
+
+```bash
+npm run build
+```
+
+**5. Use it anywhere:**
+
+```php
+component('card', [
+  'title' => 'My Card',
+  'content' => 'Card description here',
+  'image' => get_field('card_image')
+]);
+```
+
+### Component Auto-Loading
+
+Components work just like blocks:
+
+- **Auto-discovered** - Drop folder in `/components`, it's registered
+- **SCSS Auto-imported** - Component styles automatically included in main stylesheet
+- **JS Auto-bundled** - Component JavaScript bundled to `dist/js/components/{name}.min.js`
+- **Cached Manifest** - Component registry cached in `/components/manifest.json`
+- **Zero Config** - Just create files and run build
+
+### Built-In Components
+
+This theme includes:
+
+- **Button** - Primary, secondary, and text variants
+  ```php
+  component('button', [
+    'url' => '#',
+    'title' => 'Learn More',
+    'variant' => 'secondary'
+  ]);
+  ```
+
+More components coming soon! Create your own following the patterns above.
+
 ---
 
 ## JavaScript Architecture
@@ -444,13 +663,30 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 ```
 
-### Included Libraries
+### Auto-Loading Libraries
 
-The theme includes these by default (enqueued in `inc/functions/setup.php`):
+Libraries are automatically loaded when blocks require them. Just add to your `block.config.json`:
 
+```json
+{
+  "title": "Hero Carousel",
+  "description": "Animated hero with carousel",
+  "requires": ["swiper"]
+}
+```
+
+The theme will automatically enqueue both JS and CSS for any registered library when the block is present on a page.
+
+**Registered Libraries:**
 - **GSAP** - Animation library
 - **ScrollTrigger** - Scroll-based animations
-- **Slick Carousel** - Image/content carousels
+- **Swiper** - Modern carousel/slider library
+
+**How it works:**
+1. Register libraries in `inc/functions/setup.php` using `wp_register_script()` and `wp_register_style()`
+2. Add library names to block's `requires` array in `block.config.json`
+3. System automatically enqueues when block is detected on page
+4. Zero manual conditional loading needed!
 
 ### Adding New Libraries
 
@@ -519,10 +755,11 @@ npm run build
 ```
 
 **3. Done!** The JavaScript will:
-- Get bundled to `js/blocks/image-carousel.min.js`
+- Get bundled to `dist/js/blocks/image-carousel.min.js`
 - Only load on pages that use the carousel block
 - Have access to jQuery by default
 - Run after DOM is ready
+- Include source maps in dev mode, excluded in production
 
 **Alternative Options (if auto-loading doesn't fit your needs):**
 
@@ -562,8 +799,25 @@ boiler/
 │   ├── videos/
 │   └── manifest.json            # Cached block registry (auto-generated)
 │
-├── css/                         # Compiled CSS (auto-generated)
-│   └── main.css
+├── components/                  # Reusable UI components (auto-registered)
+│   ├── Button/
+│   │   ├── button.php
+│   │   └── _button.scss
+│   └── manifest.json            # Cached component registry (auto-generated)
+│
+├── dist/                        # Compiled assets (auto-generated)
+│   ├── css/
+│   │   ├── main.css            # Frontend styles
+│   │   ├── admin.css           # Admin/editor styles
+│   │   └── login.css           # Login page styles
+│   └── js/
+│       ├── main.min.js
+│       ├── blocks/             # Block-specific JS
+│       │   └── *.min.js
+│       ├── components/         # Component-specific JS
+│       │   └── *.min.js
+│       └── libs/
+│           └── libs.min.js
 │
 ├── inc/                         # PHP functionality
 │   ├── functions/               # Theme functions
@@ -572,6 +826,8 @@ boiler/
 │   ├── structure/               # Core structure files
 │   │   ├── blocks.php           # ACF block registration
 │   │   ├── block-registry.php   # Block caching system
+│   │   ├── components.php       # Component rendering functions
+│   │   ├── component-registry.php # Component caching system
 │   │   ├── admin.php            # Admin customizations
 │   │   ├── core.php             # Core template functions
 │   │   ├── posts.php            # Post-related functions
@@ -580,26 +836,25 @@ boiler/
 │   │   └── acf.php              # ACF options pages
 │   └── init.php                 # Loads all functionality
 │
-├── js/                          # Compiled JavaScript (auto-generated)
-│   ├── main.min.js
-│   ├── blocks/                  # Block-specific JS (auto-generated)
-│   │   └── *.min.js             # Each block's bundled JS
-│   └── libs/
-│       └── libs.min.js
-│
 ├── scripts/                     # Build scripts
-│   ├── generate-blocks-scss.js  # Auto-generates block imports
-│   └── bundle-block-js.js       # Bundles block JavaScript files
+│   ├── generate-blocks-scss.js  # Auto-generates block/component imports
+│   ├── bundle-block-js.js       # Bundles block JavaScript files
+│   ├── bundle-main-js.js        # Bundles main JavaScript
+│   └── ensure-dist-dirs.js      # Creates /dist directory structure
 │
 ├── src/                         # Source files
 │   ├── scss/                    # Sass source files
-│   │   ├── main.scss            # Main entry point
-│   │   ├── _blocks.scss         # Auto-generated block imports
+│   │   ├── main.scss            # Main frontend entry point
+│   │   ├── admin.scss           # WordPress admin styles
+│   │   ├── login.scss           # Login page styles
+│   │   ├── _blocks.scss         # Auto-generated block/component imports
 │   │   ├── _normalize.scss      # CSS reset
 │   │   ├── _fonts.scss          # Font declarations
-│   │   └── _base.scss           # Base styles
+│   │   ├── _base.scss           # Base styles
+│   │   └── _variables.scss      # Shared variables, mixins, functions
 │   └── js/                      # JavaScript source files
 │       ├── main.js              # Main entry point
+│       ├── tag.js               # Additional JS files
 │       └── libs/
 │           └── modernizr.min.js
 │
@@ -635,8 +890,8 @@ git commit -m "Build for production"
 
 **Include**:
 - `/blocks` (PHP templates + manifest.json)
-- `/css` (compiled CSS)
-- `/js` (compiled JavaScript)
+- `/components` (PHP templates + manifest.json)
+- `/dist` (all compiled CSS and JavaScript)
 - `/inc` (all PHP functionality)
 - `/src` (source files, for future edits)
 - `functions.php`, `style.css`, theme template files
@@ -644,7 +899,7 @@ git commit -m "Build for production"
 **Exclude** (add to `.gitignore`):
 - `/node_modules`
 - `package-lock.json` (or include, depends on your deploy process)
-- Source maps (`*.map` files)
+- `dist/**/*.map` (source maps - dev only)
 
 ### Production Optimization Tips
 
@@ -656,13 +911,13 @@ git commit -m "Build for production"
 
 ### Regenerating Manifest on Production
 
-If blocks aren't showing up after deployment:
+If blocks or components aren't showing up after deployment:
 
 1. Activate a different theme in WordPress admin
 2. Reactivate this theme
-3. The manifest will rebuild automatically
+3. The manifests will rebuild automatically
 
-Or manually delete `/blocks/manifest.json` and load any page.
+Or manually delete `/blocks/manifest.json` and `/components/manifest.json` and load any page.
 
 ---
 
@@ -819,6 +1074,90 @@ Options:
 
 ---
 
+## Block HTML/CSS Philosophy
+
+**Keep markup simple and semantic.** Avoid unnecessary complexity in block templates.
+
+### Simplified HTML Rules
+
+1. **Only use BEM for the root block class**
+   ```html
+   <!-- ✅ Good -->
+   <section class="hero-carousel">
+
+   <!-- ❌ Bad -->
+   <section class="hero-carousel hero-carousel--main">
+   ```
+
+2. **Child elements use simple class names**
+   ```html
+   <!-- ✅ Good -->
+   <button class="prev">Previous</button>
+   <div class="dots"></div>
+   <div class="ctas">...</div>
+
+   <!-- ❌ Bad -->
+   <button class="hero-carousel__prev hero-carousel__button">Previous</button>
+   <div class="hero-carousel__dots hero-carousel__pagination"></div>
+   ```
+
+3. **Single semantic elements don't need classes**
+   ```html
+   <!-- ✅ Good - H1 is unique in the slide -->
+   <div class="swiper-slide">
+     <h1>Headline</h1>
+   </div>
+
+   <!-- ❌ Bad - Unnecessary class -->
+   <div class="swiper-slide">
+     <h1 class="hero-carousel__headline">Headline</h1>
+   </div>
+   ```
+   Style it with: `.hero-carousel h1 { ... }`
+
+4. **Eliminate wrapper divs that serve no purpose**
+   ```html
+   <!-- ✅ Good - Container combined with functional wrapper -->
+   <div class="swiper-wrapper container">
+     <div class="swiper-slide">...</div>
+   </div>
+
+   <!-- ❌ Bad - Extra nesting -->
+   <div class="swiper-wrapper">
+     <div class="hero-carousel__content">
+       <div class="container">
+         <div class="swiper-slide">...</div>
+       </div>
+     </div>
+   </div>
+   ```
+
+5. **Use CSS nesting instead of verbose class names**
+   ```scss
+   // ✅ Good - Clean SCSS nesting
+   .hero-carousel {
+     .prev { ... }
+     .next { ... }
+     .dots { ... }
+     h1 { ... }
+   }
+
+   // ❌ Bad - Unnecessary BEM repetition
+   .hero-carousel__prev { ... }
+   .hero-carousel__next { ... }
+   .hero-carousel__dots { ... }
+   .hero-carousel__headline { ... }
+   ```
+
+### When to Use Classes
+
+- **Third-party library requirements** (e.g., `swiper`, `swiper-slide`)
+- **Reusable components** (e.g., `btn`, `container`)
+- **Multiple instances of the same element** needing different styling
+- **JavaScript hooks** (when you need to target specific elements)
+
+---
+
 ## Tips & Best Practices
 
 ### Block Development
@@ -847,10 +1186,10 @@ Options:
 
 ### Version Control
 
-1. **Commit compiled assets** - Include `/css` and `/js` in git
+1. **Commit compiled assets** - Include `/dist` folder in git
 2. **Ignore node_modules** - Never commit dependencies
-3. **Include manifest.json** - Prevents rebuild on production
-4. **Use .gitignore** - Exclude source maps, editor configs
+3. **Include manifests** - Prevents rebuild on production (`blocks/manifest.json`, `components/manifest.json`)
+4. **Use .gitignore** - Exclude source maps (`dist/**/*.map`), node_modules, editor configs
 
 ---
 

@@ -1,0 +1,83 @@
+Structure
+--
+
+Custom Post Types
+
+
+- Provider (default dataset/people first)
+	- Name
+		- First
+		- Middle/Initial
+		- Last
+		- prefix (Dr. etc.)
+		- suffix (Jr., II, etc.)
+	- profile image
+	- specialities
+		- from Speciality Taxonomy
+	- title (MD, DO, CNS, Ph.D, etc)
+	- description
+	- "accepting new patients"
+	- "telehealth availabilty"
+	- location(s)
+		- select from Facilities
+	- Service(s)
+		- select from Services
+	- Community(s)
+		- pull from from Facilities
+	- bio
+	- phone
+	- education
+	- training
+	- certifications
+	- languages
+
+
+- Facilities/Locations
+	- Image
+	- Location Summery/Description
+	- Physical Address
+	- Mailing Address
+	- Phone Number
+	- SMS Number
+	- Fax Number
+	- Hours
+	- Contact Note
+	- Facility Type (select multiple)
+		- Clinic
+		- Hospital
+		- Itinerant
+		- Office
+		- Service Line
+		- Shared
+	- Service(s)
+		- select from Services
+	- Provider(s)
+		- pull from Providers
+	- Community(s)
+		- select from Communities
+
+
+
+- Services 
+	- Icon/Type
+	- Summary
+	- Description
+	- Image
+	- related services
+		- select from Services
+
+
+- Communities
+	- Name
+	- Description
+	- Image
+	- Lat/Long (for possible pin)
+
+
+
+
+Taxonomies
+
+- Care Specialties
+
+

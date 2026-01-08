@@ -1,0 +1,41 @@
+//////////////////////////////////////
+// BUTTON COMPONENT
+
+// imports
+@use 'src/scss/variables' as v;
+
+.btn {
+	background-color: v.$white;
+	padding: 12px 20px;
+	color: v.$black;
+	border-radius: 50px;
+	font: 700 16px/16px v.$roboto;
+	border: 1px solid v.$white;
+	display: inline-block;
+	text-decoration: none;
+	cursor: pointer;
+	transition: all 0.3s ease;
+
+	&:hover {
+		opacity: 0.8;
+	}
+
+	// Secondary variant (inverted colors)
+	&--secondary {
+		background-color: v.$black;
+		color: v.$white;
+		border-color: v.$black;
+	}
+
+	// Text-only variant (no background)
+	&--text {
+		background-color: transparent;
+		color: v.$black;
+		border-color: transparent;
+
+		&:hover {
+			text-decoration: underline;
+			opacity: 1;
+		}
+	}
+}
