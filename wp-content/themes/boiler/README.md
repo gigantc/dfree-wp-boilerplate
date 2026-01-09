@@ -441,7 +441,7 @@ Need to style elements in the WordPress admin or Gutenberg editor? Use `src/scss
 
 // Gutenberg editor wrapper
 .editor-styles-wrapper {
-  font-family: v.$roboto;
+  font-family: v.$dm-sans;
 }
 
 // Block inserter preview popup

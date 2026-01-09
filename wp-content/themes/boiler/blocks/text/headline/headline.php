@@ -48,6 +48,15 @@ $headline_type = get_field('block_headline_type');
     <h6><?= esc_html( $headline ) ?></h6>
   <?php } ?>
 
+  <?php
+  component('button', [
+      'url' => "#",
+      'title' => "Button Title",
+      'target' => '_self',
+      'variant' => 'primary',
+    ]); 
+  ?>
+
 </div>
 
 

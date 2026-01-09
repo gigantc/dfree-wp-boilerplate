@@ -105,7 +105,7 @@ The theme uses a **convention-based automatic block registration system** with *
    - **Manual rebuild**: Delete `manifest.json` or reactivate theme
 
 ### Block Registration Flow
-Located in `inc/structure/block-registry.php` and `inc/structure/blocks.php`:
+Located in `lib/block-registry.php` and `lib/blocks.php`:
 - `DFREE_Block_Registry` class - Manages cached block manifest in `/blocks/manifest.json`
   - `get_blocks()` - Returns cached block list
   - `rebuild_manifest()` - Scans `/blocks` and regenerates manifest file
@@ -145,20 +145,15 @@ JS   → esbuild (bundle + minify) → JS
 **No build tool abstraction** - Direct CLI commands in `package.json` for full control and transparency.
 
 ### PHP Initialization Chain
-1. `functions.php` - Requires `inc/init.php`
-2. `inc/init.php` - Loads all functionality files:
-   - `inc/functions/setup.php` - Theme setup, scripts/styles enqueuing, image sizes
-   - `inc/functions/extras.php` - Helper functions
-   - `inc/structure/admin.php` - Admin customizations
-   - `inc/structure/core.php` - Core template functions
-   - `inc/structure/posts.php` - Post-related functions
-   - `inc/structure/hooks.php` - Action/filter hooks
-   - `inc/structure/block-registry.php` - Block registry with caching
-   - `inc/structure/blocks.php` - ACF block registration system
-   - `inc/structure/component-registry.php` - Component registry with caching
-   - `inc/structure/components.php` - Component rendering functions
-   - `inc/structure/search.php` - Search functionality
-   - `inc/structure/acf.php` - ACF options pages
+1. `functions.php` - Requires `lib/init.php`
+2. `lib/init.php` - Loads all functionality files:
+   - `lib/setup.php` - Theme setup, scripts/styles enqueuing, image sizes
+   - `lib/admin.php` - Admin customizations
+   - `lib/block-registry.php` - Block registry with caching
+   - `lib/blocks.php` - ACF block registration system
+   - `lib/component-registry.php` - Component registry with caching
+   - `lib/components.php` - Component rendering functions
+   - `lib/acf.php` - ACF options pages
 
 ### SCSS Architecture
 Main entry point: `src/scss/main.scss`
@@ -170,6 +165,44 @@ Main entry point: `src/scss/main.scss`
 ```
 
 All block styles in `/blocks/**/_*.scss` are automatically imported via the `_blocks.scss` file.
+
+### Self-Hosted Fonts
+
+The theme uses **self-hosted fonts** for optimal performance:
+
+**Current Setup:**
+- **Font Family**: DM Sans
+- **Weights**: 300 (Light), 400 (Regular), 600 (Semi-bold)
+- **Format**: woff2 (modern, highly compressed)
+- **Location**: `/src/fonts/`
+
+**Performance Optimizations:**
+1. **Font Preloading** - Critical font weight (400) is preloaded in `<head>` for faster initial render
+2. **font-display: swap** - Text renders immediately with fallback font, then swaps when custom font loads
+3. **No External Requests** - Eliminates DNS lookup and connection to Google Fonts (200-500ms faster)
+4. **Minimal File Sizes** - Only loading 3 weights instead of full variable font range
+
+**File Structure:**
+```
+/src/fonts/
+  dm-sans-v17-latin-300.woff2     # Light
+  dm-sans-v17-latin-regular.woff2 # Regular (preloaded)
+  dm-sans-v17-latin-600.woff2     # Semi-bold
+
+/src/scss/_fonts.scss              # @font-face declarations
+```
+
+**How it works:**
+- Fonts are defined in `_fonts.scss` with `@font-face` rules
+- Regular weight (400) is preloaded via `lawfirm_preload_fonts()` in `lib/setup.php`
+- Compiled into `main.css` and loaded on all pages
+- No external font service requests = better privacy and performance
+
+**To add a new font weight:**
+1. Download woff2 file to `/src/fonts/`
+2. Add `@font-face` declaration in `_fonts.scss`
+3. Run `npm run build` to compile
+4. Optionally add preload link in `setup.php` if critical for initial render
 
 ### WordPress Admin Styles
 Admin-specific styles: `src/scss/admin.scss`
@@ -242,7 +275,7 @@ Components live in `/components` with auto-discovery and caching:
 ```
 
 ### Component Registry
-Located in `inc/structure/component-registry.php`:
+Located in `lib/component-registry.php`:
 - `DFREE_Component_Registry` class - Manages cached component manifest in `/components/manifest.json`
   - `get_instance()` - Singleton accessor
   - `get_components()` - Returns all cached components
@@ -518,7 +551,7 @@ The theme uses **automatic script and style loading** based on block requirement
 
 **Block-Specific JavaScript (Auto-Loaded):**
 The theme automatically enqueues block JavaScript files when blocks are present on the page:
-- Managed by `dfree_enqueue_block_scripts()` in `inc/structure/blocks.php`
+- Managed by `dfree_enqueue_block_scripts()` in `lib/blocks.php`
 - Checks each block in the registry for `has_js` flag
 - Uses `has_block()` to detect if block is on current page
 - Only enqueues the block's JS file if block is present
@@ -527,7 +560,7 @@ The theme automatically enqueues block JavaScript files when blocks are present 
 
 **Component-Specific JavaScript (Auto-Loaded):**
 Component JavaScript is automatically bundled and enqueued:
-- Managed by `dfree_enqueue_component_scripts()` in `inc/structure/components.php`
+- Managed by `dfree_enqueue_component_scripts()` in `lib/components.php`
 - Each component's JS is bundled separately to `dist/js/components/{component-name}.min.js`
 - Always loaded (configured for lightweight components)
 - Zero configuration required - just add a `.js` file to your component folder
@@ -551,14 +584,14 @@ The system automatically enqueues both JS and CSS when the block is present.
 - **Swiper** - Modern carousel/slider library
 
 **How it works:**
-1. Register libraries in `inc/functions/setup.php` using `wp_register_script()` and `wp_register_style()`
+1. Register libraries in `lib/setup.php` using `wp_register_script()` and `wp_register_style()`
 2. Add library names to block's `requires` array in `block.config.json`
-3. System automatically enqueues when block is detected on page (lines 116-136 in setup.php)
+3. System automatically enqueues when block is detected on page
 4. Both scripts AND styles are enqueued automatically
 
 **To add a new library:**
 ```php
-// In inc/functions/setup.php
+// In lib/setup.php
 wp_register_script('your-lib', 'https://cdn.example.com/lib.js', array(), '1.0', true);
 wp_register_style('your-lib', 'https://cdn.example.com/lib.css', array(), '1.0');
 ```
@@ -616,13 +649,15 @@ Then add `"requires": ["your-lib"]` to any block's `block.config.json`.
     _{component-name}.scss
     {component-name}.js
 
-/inc/                    ← PHP functionality
-  /functions/           ← Setup and helper functions
-  /structure/           ← Core architecture files
-    block-registry.php
-    blocks.php
-    component-registry.php
-    components.php
+/lib/                    ← Theme functionality (flat structure)
+  init.php              ← Loads all functionality files
+  setup.php             ← Theme setup, scripts/styles enqueuing
+  admin.php             ← Admin customizations
+  acf.php               ← ACF options pages
+  block-registry.php    ← Block manifest & caching
+  blocks.php            ← Block registration
+  component-registry.php ← Component manifest & caching
+  components.php        ← Component rendering
 ```
 
 ## Important Notes

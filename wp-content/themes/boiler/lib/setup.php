@@ -62,10 +62,23 @@ function lawfirm_setup() {
 	add_image_size( 'lawfirm_img_x_large', 1500, 9999, false );
 	add_image_size( 'lawfirm_img_full', 2000, 9999, false );
   add_image_size( 'lawfirm_img_square', 800, 800, true );
-	
-	
+
+
 }
 endif;
+add_action( 'after_setup_theme', 'lawfirm_setup' );
+
+
+/**
+ * Preload critical self-hosted fonts
+ * Preloading the regular (400) weight improves initial render performance
+ */
+function lawfirm_preload_fonts() {
+	// Preload the most critical font weight (regular 400)
+	echo '<link rel="preload" href="' . esc_url( get_template_directory_uri() . '/src/fonts/dm-sans-v17-latin-regular.woff2' ) . '" as="font" type="font/woff2" crossorigin="anonymous">' . "\n";
+}
+add_action( 'wp_head', 'lawfirm_preload_fonts', 1 );
+
 
 
 /**
@@ -74,9 +87,6 @@ endif;
 function lawfirm_scripts() {
 	wp_enqueue_style( 'lawfirm-style', get_stylesheet_uri() );
 	wp_enqueue_style( 'lawfirm-main-style', get_template_directory_uri() . '/dist/css/main.css', '$deps', '1.0.0', 'screen' );
-
-	// Google fonts
-  wp_enqueue_style( 'custom-google-fonts', 'https://fonts.googleapis.com/css?family=Roboto:300,400,700', false );
 
   // Core scripts - always load
   wp_register_script( 'lawfirm-js', get_template_directory_uri() . '/dist/js/main.min.js', array('jquery'), '1.0.0', true );
@@ -124,8 +134,6 @@ function lawfirm_scripts() {
 
 }
 add_action( 'wp_enqueue_scripts', 'lawfirm_scripts' );
-
-
 
 
 // Load styles for the admin Gutenberg blocks
