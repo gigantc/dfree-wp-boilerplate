@@ -13,113 +13,175 @@ font-size: v.$root-font-size-percentage;
 
 
 body{
-  position:relative;
-  width:100%; height:100%;
-  background-color:v.$white;
-  color:v.$black;
-  overflow-x:hidden;
-  -webkit-overflow-scrolling: touch;
-  animation: bodyFade 0.5s forwards;
+	position:relative;
+	width:100%; height:100%;
+	background-color:v.$white;
+	color:v.$black;
+	overflow-x:hidden;
+	-webkit-overflow-scrolling: touch;
+	animation: bodyFade 0.5s forwards;
 }
 
 // fade in effect on page load
- @keyframes bodyFade {
-    0% {
-      opacity:0;
-    }
-    100% {
-      opacity:1;
-    }
-  }
+@keyframes bodyFade {
+	0%   { opacity:0; }
+	100% { opacity:1; }
+}
 
 main{
-  overflow:hidden;
+	overflow:hidden;
+	z-index:1;
 }
 
 .container{
-  max-width:v.$container-max-width;
-  margin:0 auto;
-  padding:0px 50px;
+	max-width:v.$container-max-width;
+	width:calc(100% - 90px);
+	margin:0 auto;
+	@include v.breakpoint(v.$bp-md){
+		width:calc(100% - 68px);
+	}
+	@include v.breakpoint(v.$bp-sm){
+		width:calc(100% - 46px);
+	}
 }
 
 
-//text selection styles
+// first section on a page gets top padding to clear a fixed header
+// this allows any block to be first, not just a hero
+main > section:first-of-type {
+	padding-top:138px;
+	@include v.breakpoint(v.$bp-md){ padding-top:60px; }
+}
+
+
+// text selection styles
 ::selection {
-  background: v.$black;
-  color:v.$white;
+	background:v.$primary;
+	color:v.$white;
 }
 ::-moz-selection {
-  background: v.$black;
-  color:v.$white;
+	background:v.$primary;
+	color:v.$white;
 }
 
 
-// base font styles
-// will be overwrtten to match the creative in the individual page fiels
-a{
-  text-decoration:none;
-  color:v.$black;
-  webkit-tap-highlight-color: rgba(0,0,0,0);
+// base anchor style — overridden in blocks/components as needed
+a:not(.btn){
+	text-decoration:none;
+	color:v.$primary;
+	@include v.trans(0.2s);
+	&:hover{
+		color:v.$secondary;
+		@include v.trans(0.2s);
+	}
 }
 
+
+// HEADINGS — root font is 62.5% so 1rem = 10px
 h1{
-  color:v.$black;
-  font:700 56px/56px v.$roboto;
-  margin:0;
+	font:300 6.4rem/6.7rem v.$font-stack;
+	margin:0;
+	text-wrap:balance;
+	letter-spacing:-.015em;
+	@include v.breakpoint(v.$bp-lg){ font:300 5.5rem/5.8rem v.$font-stack; }
+	@include v.breakpoint(v.$bp-md){ font:300 4.6rem/4.9rem v.$font-stack; }
+	@include v.breakpoint(v.$bp-sm){ font:300 2.8rem/3.0rem v.$font-stack; }
 }
 
 h2{
-  color:v.$black;
-  font:300 27px/27px v.$roboto;
-  margin:0;
+	font:400 4.0rem/4.6rem v.$font-stack;
+	margin:0;
+	text-wrap:balance;
+	letter-spacing:-.015em;
+	@include v.breakpoint(v.$bp-md){ font:400 3.2rem/3.7rem v.$font-stack; }
+	@include v.breakpoint(v.$bp-sm){ font:400 2.4rem/2.7rem v.$font-stack; }
 }
 
 h3{
-  color:v.$black;
-  font:700 18px/24px v.$roboto;
-  margin:0;
+	font:400 3.0rem/3.5rem v.$font-stack;
+	margin:0;
+	text-wrap:balance;
+	@include v.breakpoint(v.$bp-md){ font:400 2.8rem/3.4rem v.$font-stack; }
+	@include v.breakpoint(v.$bp-sm){ font:400 2.4rem/2.6rem v.$font-stack; }
 }
 
 h4{
-  color:v.$black;
-  font:300 18px/24px v.$roboto;
-  margin:0;
+	font:400 2.0rem/3.0rem v.$font-stack;
+	margin:0;
+	@include v.breakpoint(v.$bp-md){ font:400 1.8rem/2.8rem v.$font-stack; }
+	@include v.breakpoint(v.$bp-sm){ font:400 1.6rem/2.5rem v.$font-stack; }
 }
 
 h5{
-  color:v.$black;
-  font:700 14px/18px v.$roboto;
-  margin:0;
+	font:600 1.6rem/2.2rem v.$font-stack;
+	margin:0;
+	@include v.breakpoint(v.$bp-md){ font:600 1.5rem/2.0rem v.$font-stack; }
+	@include v.breakpoint(v.$bp-sm){ font:600 1.4rem/1.8rem v.$font-stack; }
 }
 
 h6{
-  color:v.$black;
-  font:300 12px/12px v.$roboto;
-  margin:0;
+	font:400 1.8rem/2.4rem v.$font-stack;
+	margin:0;
+	@include v.breakpoint(v.$bp-md){ font:400 1.6rem/2.1rem v.$font-stack; }
+	@include v.breakpoint(v.$bp-sm){ font:400 1.4rem/1.8rem v.$font-stack; }
 }
 
 p{
-  color:v.$black;
-  font:300 16px/20px v.$roboto;
-  margin:0;
+	color:v.$black;
+	font:300 1.6rem/2.2rem v.$font-stack;
+	margin:0;
+	@include v.breakpoint(v.$bp-md){ font:300 1.5rem/2.0rem v.$font-stack; }
+	@include v.breakpoint(v.$bp-sm){ font:300 1.4rem/1.8rem v.$font-stack; }
 }
 
 
-
-// base for all line elements on the page
+// base hr style
 hr{
-  border-bottom:1px solid v.$black;
+	border-bottom:1px solid v.$border;
 }
 
-// Button styles moved to /components/Button/_button.scss
-
-} // end of front-end styles .bdhwk/html
+} // end of .bdhwk wrapper
 
 
+// WYSIWYG content (apply class="wysiwyg" to the_field/the_content wrappers)
+.wysiwyg{
+	a{
+		color:v.$primary;
+		text-decoration:underline;
+		@include v.trans(0.2s);
+		&:hover{
+			color:v.$secondary;
+			@include v.trans(0.2s);
+		}
+	}
+	h1, h2, h3, h4, h5, h6{
+		color:v.$primary;
+	}
+	strong, b{ font-weight:900; }
+	blockquote{
+		margin:30px 30px;
+		p{
+			color:v.$black;
+			font:700 2.4rem/2.8rem v.$font-stack;
+			margin:0px;
+		}
+	}
+	ul, ol{
+		li{
+			font:300 1.6rem/2.0rem v.$font-stack;
+			margin:0px 0px 6px 0px;
+		}
+	}
+}
 
 
-// wp-admin styles for block admin panel
-// all admin panel items should be wrapped in .wp-admin
+// generic fallback images render contained, not cropped
+img.is-generic-fallback{
+	object-fit:contain !important;
+}
+
+
+// wp-admin block panel scope
 .wp-admin{
-  
+
 }

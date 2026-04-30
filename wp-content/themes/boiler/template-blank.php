@@ -1,28 +1,23 @@
 <?php
 /**
-* The template for displaying all single posts.
-*
-* Template name: Blank
-*
-* @package lawfirm
-*/
+ * Blank Template
+ *
+ * Template name: Blank
+ *
+ * @package boiler
+ */
 
 get_header(); ?>
 
-	<div id="primary" class="content-area">
-		<main id="main" class="site-main" role="main">
+<main>
+	<div class="text-page-wrapper">
+		<?php
+		while ( have_posts() ) : the_post();
+			the_content();
+		endwhile;
+		wp_reset_postdata();
+		?>
+	</div>
+</main>
 
-		<div class="text-page-wrapper">
-      <?php
-      while ( have_posts() ) : the_post();
-      the_content();
-      endwhile;
-      wp_reset_postdata();
-      ?>
-    </div>
-		
-		</main><!-- #main -->
-		<?php get_footer(); ?>
-	</div><!-- #primary -->
-
-
+<?php get_footer(); ?>

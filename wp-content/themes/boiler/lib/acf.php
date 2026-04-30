@@ -3,26 +3,38 @@
  * Include Advanced Custom Fields within theme
  *
  * @link http://www.advancedcustomfields.com/resources/including-acf-in-a-plugin-theme/
- * @package lawfirm
+ * @package boiler
  */
 
 
 /**
- * Setup Options Pages
+ * Configure ACF after the plugin has initialized.
+ *
+ * Registering options pages here avoids early textdomain loading notices in
+ * newer WordPress versions, and disabling block preloading keeps large ACF
+ * block pages from exhausting memory in the block editor.
  */
-if( function_exists('acf_add_options_page') ) {
+add_action( 'acf/init', function() {
+	if ( ! function_exists( 'acf_add_options_page' ) ) {
+		return;
+	}
 
-  acf_add_options_page(array(
-    'page_title'  => 'Social Accounts',
-    'menu_title'  => 'Social Accounts',
-    'menu_slug'   => 'social-accounts',
-    'capability'  => 'edit_posts',
-    'redirect'    => false
-  ));
+	acf_update_setting( 'preload_blocks', false );
 
-  // acf_add_options_sub_page(array(
-  //  'page_title'  => 'Theme Header Settings',
-  //  'menu_title'  => 'Header',
-  //  'parent_slug' => 'theme-general-settings',
-  // ));
-}
+	acf_add_options_page( array(
+		'page_title' => 'Global Blocks',
+		'menu_title' => 'Global Blocks',
+		'menu_slug'  => 'global-blocks',
+		'capability' => 'edit_posts',
+		'redirect'   => false,
+	) );
+
+	// Add additional options pages here as needed:
+	// acf_add_options_page( array(
+	//   'page_title' => 'Navigation',
+	//   'menu_title' => 'Navigation',
+	//   'menu_slug'  => 'navigation',
+	//   'capability' => 'edit_posts',
+	//   'redirect'   => false,
+	// ) );
+} );

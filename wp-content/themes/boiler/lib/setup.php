@@ -1,47 +1,29 @@
 <?php
-if ( ! function_exists( 'lawfirm_setup' ) ) :
+if ( ! function_exists( 'dfree_setup' ) ) :
 /**
  * Sets up theme defaults and registers support for various WordPress features.
- *
- * Note that this function is hooked into the after_setup_theme hook, which
- * runs before the init hook. The init hook is too late for some features, such
- * as indicating support for post thumbnails.
  */
-function lawfirm_setup() {
+function dfree_setup() {
 
 	add_editor_style( get_template_directory() . '/css/editor-style.css' );
-
 
 	// Add default posts and comments RSS feed links to head.
 	add_theme_support( 'automatic-feed-links' );
 
-	/*
-	 * Let WordPress manage the document title.
-	 * By adding theme support, we declare that this theme does not use a
-	 * hard-coded <title> tag in the document head, and expect WordPress to
-	 * provide it for us.
-	 */
+	// Let WordPress manage the document title.
 	add_theme_support( 'title-tag' );
 
-	/*
-	 * Enable support for Post Thumbnails on posts and pages.
-	 *
-	 * @link https://developer.wordpress.org/themes/functionality/featured-images-post-thumbnails/
-	 */
+	// Enable Post Thumbnails support.
 	add_theme_support( 'post-thumbnails' );
 
-
-	// This theme uses wp_nav_menu() in one location.
+	// Register nav menus.
 	register_nav_menus( array(
-		'primary' => esc_html__( 'Primary Menu', 'lawfirm' ),
-		'secondary' => esc_html__( 'Header SubMenu', 'lawfirm' ),
-		'footer' => esc_html__( 'Footer Menu', 'lawfirm' )
+		'primary'   => esc_html__( 'Primary Menu', 'boiler' ),
+		'secondary' => esc_html__( 'Header SubMenu', 'boiler' ),
+		'footer'    => esc_html__( 'Footer Menu', 'boiler' )
 	) );
 
-	/*
-	 * Switch default markup for search form, comment form, and comments
-	 * to output valid HTML5.
-	 */
+	// HTML5 markup support.
 	add_theme_support( 'html5', array(
 		'search-form',
 		'comment-form',
@@ -50,197 +32,122 @@ function lawfirm_setup() {
 		'caption',
 	) );
 
-
-
 	/**
-	 * Setup custom image sizes
+	 * Custom image sizes
+	 * Used by dfree_image() helper for responsive output
 	 */
-  //thumb size is 300 x 300
-  add_image_size( 'lawfirm_img_small', 640, 9999, false );
-  add_image_size( 'lawfirm_img_medium', 800, 9999, false );
-  add_image_size( 'lawfirm_img_large', 1000, 9999, false );
-	add_image_size( 'lawfirm_img_x_large', 1500, 9999, false );
-	add_image_size( 'lawfirm_img_full', 2000, 9999, false );
-  add_image_size( 'lawfirm_img_square', 800, 800, true );
-
-
+	add_image_size( 'dfree_card',   800, 9999, false );
+	add_image_size( 'dfree_hero',   2000, 9999, false );
+	add_image_size( 'dfree_square', 800, 800, true );
 }
 endif;
-add_action( 'after_setup_theme', 'lawfirm_setup' );
+add_action( 'after_setup_theme', 'dfree_setup' );
 
 
 /**
- * Preload critical self-hosted fonts
- * Preloading the regular (400) weight improves initial render performance
+ * Generate WebP versions of JPEG sub-sizes for smaller file sizes
+ * Original uploads remain JPEG; all resized versions become WebP
  */
-function lawfirm_preload_fonts() {
-	// Preload the most critical font weight (regular 400)
-	echo '<link rel="preload" href="' . esc_url( get_template_directory_uri() . '/src/fonts/dm-sans-v17-latin-regular.woff2' ) . '" as="font" type="font/woff2" crossorigin="anonymous">' . "\n";
-}
-add_action( 'wp_head', 'lawfirm_preload_fonts', 1 );
+add_filter( 'image_editor_output_format', function( $formats ) {
+	$formats['image/jpeg'] = 'image/webp';
+	return $formats;
+} );
 
+
+/**
+ * Disable WordPress emoji scripts and styles (not needed)
+ */
+function dfree_disable_emojis() {
+	remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+	remove_action( 'wp_print_styles', 'print_emoji_styles' );
+	remove_filter( 'the_content_feed', 'wp_staticize_emoji' );
+	remove_filter( 'comment_text_rss', 'wp_staticize_emoji' );
+	remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
+}
+add_action( 'init', 'dfree_disable_emojis' );
 
 
 /**
  * Enqueue scripts and styles.
  */
-function lawfirm_scripts() {
-	wp_enqueue_style( 'lawfirm-style', get_stylesheet_uri() );
-	wp_enqueue_style( 'lawfirm-main-style', get_template_directory_uri() . '/dist/css/main.css', '$deps', '1.0.0', 'screen' );
+function dfree_scripts() {
+	wp_enqueue_style( 'dfree-style', get_stylesheet_uri() );
+	wp_enqueue_style( 'dfree-main-style', get_template_directory_uri() . '/dist/css/main.css', array(), dfree_get_version(), 'screen' );
 
-  // Core scripts - always load
-  wp_register_script( 'lawfirm-js', get_template_directory_uri() . '/dist/js/main.min.js', array('jquery'), '1.0.0', true );
-  wp_register_script( 'libs', get_template_directory_uri() . '/dist/js/libs/libs.min.js', array('jquery'), '1.0.0', true );
+	wp_enqueue_script( 'dfree-js', get_template_directory_uri() . '/dist/js/main.min.js', array( 'jquery' ), dfree_get_version(), true );
 
-  wp_enqueue_script('libs');
-  wp_enqueue_script( 'lawfirm-js' );
+	// Libs (Modernizr)
+	wp_register_script( 'libs', get_template_directory_uri() . '/dist/js/libs/libs.min.js', array( 'jquery' ), dfree_get_version(), true );
+	wp_enqueue_script( 'libs' );
 
-  // Register GSAP scripts for auto-loading via block requirements
-  wp_register_script( 'gsap', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js', array(), '3.13.0', true );
-  wp_register_script( 'scrolltrigger', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js', array('gsap'), '3.13.0', true );
+	// Register GSAP for auto-loading via block requirements
+	wp_register_script( 'gsap', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js', array(), '3.13.0', true );
+	wp_register_script( 'scrolltrigger', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js', array( 'gsap' ), '3.13.0', true );
 
-  // Conditional loading: Libraries based on block requirements
-  // Register common libraries
-  wp_register_script('swiper', "https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js", array('jquery'), '11.0.5', true );
-  wp_register_style('swiper', "https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.css", array(), '11.0.5' );
+	// Register Swiper for conditional loading
+	wp_register_script( 'swiper', 'https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.js', array( 'jquery' ), '11.0.5', true );
+	wp_register_style(  'swiper', 'https://cdnjs.cloudflare.com/ajax/libs/Swiper/11.0.5/swiper-bundle.min.css', array(), '11.0.5' );
 
-  // Auto-load libraries based on blocks present on page
-  $registry = DFREE_Block_Registry::get_instance();
-  $all_blocks = $registry->get_blocks();
-  $required_libraries = array();
+	// Auto-load libraries based on blocks present on page
+	$registry           = DFREE_Block_Registry::get_instance();
+	$all_blocks         = $registry->get_blocks();
+	$required_libraries = array();
 
-  foreach ( $all_blocks as $block ) {
-    if ( has_block( 'acf/' . $block['slug'] ) && !empty( $block['requires'] ) ) {
-      $required_libraries = array_merge( $required_libraries, $block['requires'] );
-    }
-  }
+	$blocks_with_requirements = array_filter( $all_blocks, function( $block ) {
+		return ! empty( $block['requires'] );
+	} );
 
-  // Remove duplicates and enqueue both scripts and styles
-  $required_libraries = array_unique( $required_libraries );
-  foreach ( $required_libraries as $library ) {
-    if ( wp_script_is( $library, 'registered' ) ) {
-      wp_enqueue_script( $library );
-    }
-    if ( wp_style_is( $library, 'registered' ) ) {
-      wp_enqueue_style( $library );
-    }
-  }
-
-  // Development only: GSAP ScrollTrigger indicators
-  $current_host = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : '';
-  if ( 'searhc-org-new.local' === $current_host ) {
-    wp_enqueue_script('add-indicators');
-  }
-
-}
-add_action( 'wp_enqueue_scripts', 'lawfirm_scripts' );
-
-
-// Load styles for the admin Gutenberg blocks
-function load_custom_wp_admin_style() {
-  // Load main.css for block styles consistency
-  wp_register_style( 'lawfirm-main-style-admin', get_template_directory_uri() . '/dist/css/main.css', false, '1.1.0' );
-  wp_enqueue_style( 'lawfirm-main-style-admin' );
-
-  // Load admin.css for admin-specific overrides
-  wp_register_style( 'lawfirm-admin-style', get_template_directory_uri() . '/dist/css/admin.css', array('lawfirm-main-style-admin'), '1.1.0' );
-  wp_enqueue_style( 'lawfirm-admin-style' );
-
-  //typekit
-  //wp_enqueue_style( 'typekit-admin', 'https://use.typekit.net/icc0ban.css', false );
-
-  //google fonts
-  // wp_enqueue_style( 'custom-google-fonts', 'https://fonts.googleapis.com/css?family=Montserrat:200,400,500,700', false );
-  //font awesome
-
-  // wp_enqueue_style( 'font-awesome-admin', 'https://pro.fontawesome.com/releases/v5.7.2/css/all.css', false );
-}
-add_action( 'admin_enqueue_scripts', 'load_custom_wp_admin_style' );
-
-
-
-//setup ajax using ajaxflow
-add_action( 'ajaxflow_nopriv_function_name', 'lawfirm_function_name' );
-add_action( 'ajaxflow_function_name', 'lawfirm_load_archive_posts' );
-
-//setup ajax through admin-ajax
-add_action( 'wp_ajax_nopriv_function_name', 'lawfirm_function_name' );
-add_action( 'wp_ajax_function_name', 'lawfirm_load_archive_posts' );
-
-
-
-
-/**
-* Allow .svg uploads to media
-* 
-*/
-function cc_mime_types($mimes) {
-  $mimes['svg'] = 'image/svg+xml';
-  return $mimes;
-}
-add_filter('upload_mimes', 'cc_mime_types');
-
-
-
-/**
-* This function removes anonymous functions set by a plugin
-*/
-function remove_anonymous_object_filter( $tag, $class, $method ) {
-	$filters = false;
-
-	if ( isset( $GLOBALS['wp_filter'][$tag] ) ) {
-		$filters = $GLOBALS['wp_filter'][$tag];
+	foreach ( $blocks_with_requirements as $block ) {
+		if ( has_block( 'acf/' . $block['slug'] ) ) {
+			$required_libraries = array_merge( $required_libraries, $block['requires'] );
+		}
 	}
 
-	if ( $filters ) {
-		foreach ( $filters as $priority => $filter ) {
-			foreach ( $filter as $identifier => $function ) {
-				if ( ! is_array( $function ) ) {
-					continue;
-				}
-
-				if ( ! $function['function'][0] instanceof $class ) {
-					continue;
-				}
-
-				if ( $method == $function['function'][1] ) {
-					remove_filter( $tag, array( $function['function'][0], $method ), $priority );
-				}
-			}
+	foreach ( array_unique( $required_libraries ) as $library ) {
+		if ( wp_script_is( $library, 'registered' ) ) {
+			wp_enqueue_script( $library );
+		}
+		if ( wp_style_is( $library, 'registered' ) ) {
+			wp_enqueue_style( $library );
 		}
 	}
 }
-// remove_anonymous_object_filter('woocommerce_before_add_to_cart_button', 'woocommerce_gravityforms', 'woocommerce_gravityform');
+add_action( 'wp_enqueue_scripts', 'dfree_scripts' );
 
 
 /**
-* This is how to activate an hourly WP Cron job whenever the site is loaded
-* Once it's created it won't do it again unless deleted in WP CRON SCHEDULER
-*/
-//hook to activate the hourly event
-function lawfirm_projects_cron_activation() {
-  if ( !wp_next_scheduled( 'lawfirm_get_project_data' ) ) {
-    wp_schedule_event( current_time( 'timestamp' ), 'hourly', 'lawfirm_get_project_data');
-  }
+ * Load styles for the admin Gutenberg blocks
+ */
+function dfree_load_admin_styles() {
+	// Load main.css for block styles consistency
+	wp_register_style( 'dfree-main-style-admin', get_template_directory_uri() . '/dist/css/main.css', array(), dfree_get_version() );
+	wp_enqueue_style( 'dfree-main-style-admin' );
 
-  if ( !wp_next_scheduled( 'lawfirm_create_projects' ) ) {
-    wp_schedule_event( current_time( 'timestamp' ), 'hourly', 'lawfirm_create_projects');
-  }
+	// Load admin.css for admin-specific overrides
+	wp_register_style( 'dfree-admin-style', get_template_directory_uri() . '/dist/css/admin.css', array( 'dfree-main-style-admin' ), dfree_get_version() );
+	wp_enqueue_style( 'dfree-admin-style' );
 }
-//add_action('wp', 'lawfirm_projects_cron_activation');
-// run these scripts once an hour 
-function lawfirm_get_project_data(){
-  
-}
+add_action( 'admin_enqueue_scripts', 'dfree_load_admin_styles' );
 
 
-// Add Page Slug to Body Class
-// creates a page-[slug] body class
-function add_slug_body_class( $classes ) {
-  global $post;
-  if ( isset( $post ) ) {
-  $classes[] = $post->post_type . '-' . $post->post_name;
-  }
-  return $classes;
+/**
+ * Allow .svg uploads to media
+ */
+function dfree_mime_types( $mimes ) {
+	$mimes['svg'] = 'image/svg+xml';
+	return $mimes;
 }
-add_filter( 'body_class', 'add_slug_body_class' );
+add_filter( 'upload_mimes', 'dfree_mime_types' );
+
+
+/**
+ * Add post slug to body class — creates a {post_type}-{slug} body class
+ */
+function dfree_add_slug_body_class( $classes ) {
+	global $post;
+	if ( isset( $post ) ) {
+		$classes[] = $post->post_type . '-' . $post->post_name;
+	}
+	return $classes;
+}
+add_filter( 'body_class', 'dfree_add_slug_body_class' );

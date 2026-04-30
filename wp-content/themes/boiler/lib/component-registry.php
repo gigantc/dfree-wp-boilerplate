@@ -13,6 +13,10 @@ if (!class_exists('DFREE_Component_Registry')) {
 		private $manifest_path;
 		private $components_dir;
 
+		// Transient cache settings
+		private $transient_key = 'dfree_component_registry';
+		private $transient_ttl = 5; // seconds (short TTL for development)
+
 		/**
 		 * Get singleton instance
 		 */
@@ -36,14 +40,26 @@ if (!class_exists('DFREE_Component_Registry')) {
 		 * Load manifest from cache or rebuild
 		 */
 		private function load_manifest() {
-			// Auto-rebuild in development
-			$is_dev = (strpos($_SERVER['HTTP_HOST'], '.local') !== false ||
-			           strpos($_SERVER['HTTP_HOST'], 'localhost') !== false);
+			// Development mode: use transient cache to reduce filesystem scans
+			if (dfree_is_development()) {
+				$cached = get_transient($this->transient_key);
 
-			if ($is_dev || !file_exists($this->manifest_path)) {
+				if ($cached !== false) {
+					$this->components = $cached;
+					return;
+				}
+
+				// Cache miss - rebuild and cache
 				$this->rebuild_manifest();
-			} else {
+				set_transient($this->transient_key, $this->components, $this->transient_ttl);
+				return;
+			}
+
+			// Production: load from manifest file
+			if (file_exists($this->manifest_path)) {
 				$this->components = $this->read_manifest();
+			} else {
+				$this->rebuild_manifest();
 			}
 		}
 
@@ -76,6 +92,11 @@ if (!class_exists('DFREE_Component_Registry')) {
 
 			// Save to manifest file
 			$this->save_manifest();
+
+			// Clear transient cache when rebuilding
+			if (dfree_is_development()) {
+				delete_transient($this->transient_key);
+			}
 		}
 
 		/**
@@ -97,7 +118,7 @@ if (!class_exists('DFREE_Component_Registry')) {
 				}
 
 				// Check for component PHP file
-				$component_slug = strtolower(str_replace(' ', '-', $item));
+				$component_slug = sanitize_title($item);
 				$php_file = $path . '/' . $component_slug . '.php';
 
 				if (file_exists($php_file)) {

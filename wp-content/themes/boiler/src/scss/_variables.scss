@@ -1,77 +1,88 @@
 //////////////////////////////////////
-// VARIBALES
+// VARIABLES
 
-//REM
-//the base you want. 10 makes it easy to calculate
+@use 'sass:math';
+
+// REM
+// the base you want. 10 makes it easy to calculate
 $rem-base: 10px !default;
-//this is a browser default. No need to change.
+// browser default
 $browser-default-base: 16px;
-// Calculate the percentage: 10px / 16px = 0.625, converted to 62.5%
-//place this in html to set it
-$root-font-size-percentage: percentage($rem-base / $browser-default-base);
+// 10px / 16px = 0.625 → 62.5%; place this on html
+$root-font-size-percentage: math.percentage(math.div($rem-base, $browser-default-base));
 
 
-//CONTAINER
+// CONTAINER
 $container-max-width: 140rem;
-//$container-max-width: 1400px;
 
 
+// COLORS — wireframe palette ----------
+// brand
+$primary:    #000000; // black
+$secondary:  #666666; // mid-gray
+$accent:     #999999; // light-mid gray
+
+// neutrals
+$black:        #000000;
+$white:        #ffffff;
+$dark-gray:    #333333;
+$gray:         #888888;
+$light-gray:   #e5e5e5;
+$lighter-gray: #f5f5f5;
+
+// utility
+$border: rgba(0, 0, 0, 0.16);
 
 
-// COLORS -----------------------
-$black: #000000;
-$white: #ffffff;
+// BREAKPOINTS -------------------------
+/*
+  ┌──────────┬────────┬──────────────────────────┐
+  │ Variable │ Value  │           Role           │
+  ├──────────┼────────┼──────────────────────────┤
+  │ $bp-lg   │ 1024px │ large tablet / 3→2 col   │
+  │ $bp-md   │ 960px  │ tablet / layout stacking │
+  │ $bp-sm   │ 600px  │ mobile                   │
+  │ $bp-xs   │ 400px  │ small mobile             │
+  └──────────┴────────┴──────────────────────────┘
+*/
+$bp-lg:  1024px;
+$bp-md:  960px;
+$bp-sm:  600px;
+$bp-xs:  400px;
+$bp-xxs: 375px;
 
 
-// FONTS -----------------------
-$roboto: 'Roboto', sans-serif;
+// FONTS -------------------------------
+// System font stack — replace with custom @font-face in _fonts.scss when needed
+$font-stack: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
 
-
-// MIXINS -----------------------
-@mixin breakpoint($size) { 
- @media screen and (max-width: $size) { @content; } 
+// MIXINS ------------------------------
+@mixin breakpoint($size) {
+	@media screen and (max-width: $size) { @content; }
 }
 
 @mixin breakpoint-min($size) {
-  @media screen and (min-width: $size) { @content; } 
+	@media screen and (min-width: $size) { @content; }
 }
 
-@mixin trans($sec){
-  -webkit-transition: all ($sec) ease-in-out;
-  -moz-transition: all ($sec) ease-in-out;
-  -o-transition: all ($sec) ease-in-out;
-  transition: all ($sec) ease-in-out;
+@mixin trans($sec) {
+	-webkit-transition: all ($sec) ease-in-out;
+	-moz-transition:    all ($sec) ease-in-out;
+	-o-transition:      all ($sec) ease-in-out;
+	transition:         all ($sec) ease-in-out;
 }
 
 @mixin placeholder {
-  ::-webkit-input-placeholder {@content}
-  :-moz-placeholder           {@content}
-  ::-moz-placeholder          {@content}
-  :-ms-input-placeholder      {@content}  
+	::-webkit-input-placeholder { @content }
+	:-moz-placeholder           { @content }
+	::-moz-placeholder          { @content }
+	:-ms-input-placeholder      { @content }
 }
 
-@mixin gradient($color1, $color2){
-  background: $color1;
-  background: -moz-linear-gradient(-45deg, $color1 0%, $color2 100%);
-  background: -webkit-linear-gradient(-45deg, $color1 0%,$color2 100%);
-  background: linear-gradient(160deg, $color1 0%,$color2 100%);
-}
-
-
-// FUNCTIONS -----------------------
-// It strips the unit of measure and returns it
-@function strip-unit($num) {
-  @return $num / ($num * 0 + 1);
-}
-
-// Converts px to rem
-@function calculateRem($size) {
-  $remSize: $size / $rem-base;
-  @return #{$remSize}rem;
-}
-
-@mixin fontSize($size) {
-  font-size: $size; //Fallback in px
-  font-size: calculateRem($size);
+@mixin gradient($color1, $color2) {
+	background: $color1;
+	background: -moz-linear-gradient(-45deg, $color1 0%, $color2 100%);
+	background: -webkit-linear-gradient(-45deg, $color1 0%, $color2 100%);
+	background: linear-gradient(160deg, $color1 0%, $color2 100%);
 }

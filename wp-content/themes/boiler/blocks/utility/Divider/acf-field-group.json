@@ -1,0 +1,45 @@
+[
+  {
+    "key": "group_divider",
+    "title": "Block: Divider",
+    "fields": [
+      {
+        "key": "field_divider_message",
+        "label": "Block Type",
+        "name": "",
+        "type": "message",
+        "message": "<strong style=\"font-size:24px;\">Divider</strong>\r\n\r\nA full-width horizontal rule.",
+        "new_lines": "wpautop",
+        "esc_html": 0,
+        "instructions": "",
+        "required": 0,
+        "wrapper": {
+          "width": "",
+          "class": "",
+          "id": ""
+        }
+      }
+    ],
+    "location": [
+      [
+        {
+          "param": "block",
+          "operator": "==",
+          "value": "acf/divider"
+        }
+      ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "show_in_rest": 0,
+    "show_in_graphql": 1,
+    "graphql_field_name": "block:Divider",
+    "map_graphql_types_from_location_rules": 0,
+    "graphql_types": ""
+  }
+]

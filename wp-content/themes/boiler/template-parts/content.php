@@ -4,21 +4,16 @@
  *
  * @link https://codex.wordpress.org/Template_Hierarchy
  *
- * @package lawfirm
+ * @package boiler
  */
-
 ?>
 
-<article id="post-<?php the_ID(); ?>" <?php post_class(); ?> itemscope="" itemtype="http://schema.org/BlogPosting">
+<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
+	<header class="entry-header">
+		<?php the_title( '<h2 class="entry-title"><a href="' . esc_url( get_permalink() ) . '" rel="bookmark">', '</a></h2>' ); ?>
+	</header>
 
-	<?php
-	/**
- 	 * @hooked lawfirm_post_header() - 10
- 	 * @hooked lawfirm_post_content() - 20
- 	 * 
-	 */
-	do_action( 'lawfirm_loop_post' );
-
-	?>
-
-</article><!-- #post-## -->
+	<div class="entry-content">
+		<?php the_excerpt(); ?>
+	</div>
+</article>

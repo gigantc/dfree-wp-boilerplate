@@ -6,36 +6,110 @@
 
 .btn {
 	background-color: v.$white;
-	padding: 12px 20px;
-	color: v.$black;
+	padding: 22px 40px;
+	color: v.$primary;
 	border-radius: 50px;
-	font: 700 16px/16px v.$roboto;
+	font: 700 16px/16px v.$font-stack;
 	border: 1px solid v.$white;
-	display: inline-block;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 	text-decoration: none;
 	cursor: pointer;
 	transition: all 0.3s ease;
-
+	text-align: center;
+	text-transform: uppercase;
+  @include v.breakpoint(v.$bp-md){padding: 22px 20px;}
 	&:hover {
 		opacity: 0.8;
 	}
 
-	// Secondary variant (inverted colors)
-	&--secondary {
-		background-color: v.$black;
+	// Button with icon
+	&--has-icon {
+		gap: 8px;
+	}
+
+  //icons
+  svg{
+    height:25px; width:25px;
+    display: block;
+    transform:translateY(-1px);
+  }
+  .icon-line{
+    svg{
+      path,
+      circle,
+      rect,
+      line{
+        stroke-width:2;
+        stroke:v.$primary;
+      }
+    }
+  }
+
+	// Text wrapper
+	.btn-text {
+		display: inline-block;
+	}
+
+	// Primary dark variant
+	// green background, white text
+	&--primary-dark {
+		background-color: v.$primary;
 		color: v.$white;
-		border-color: v.$black;
+		border-color: v.$primary;
+    .icon-line svg{
+      path, circle, rect, line{
+        stroke:v.$white;
+        stroke-width:2;
+      }
+    }
+	}
+
+	// Secondary variant
+	// transparent background
+	&--secondary {
+		background-color: transparent;
+		color: v.$white;
+		border-color: rgba(v.$white, 0.25);
+    .icon-line svg{
+      path, circle, rect, line{
+        stroke:v.$white;
+        stroke-width:2;
+      }
+    }
+	}
+  //transparent background, green lines
+  &--secondary-dark {
+		background-color: transparent;
+		color: v.$primary;
+		border-color: rgba(v.$black, 0.25);
+    .icon-line svg{
+      path, circle, rect, line{
+        stroke:v.$primary;
+        stroke-width:2;
+      }
+    }
 	}
 
 	// Text-only variant (no background)
 	&--text {
 		background-color: transparent;
-		color: v.$black;
+		color: v.$white;
 		border-color: transparent;
-
-		&:hover {
-			text-decoration: underline;
-			opacity: 1;
-		}
+		padding: 5px 20px;
+		text-decoration: underline;
+		text-underline-offset: 6px;
+		text-decoration-thickness: 1px;
+	}
+  //green text
+  &--text-dark {
+		background-color: transparent;
+		color: v.$primary;
+		border-color: transparent;
+		padding: 5px 20px;
+		text-decoration: underline;
+		text-underline-offset: 6px;
+		text-decoration-thickness: 1px;
 	}
 }

@@ -1,0 +1,71 @@
+//////////////////////////////////////
+// HERO TEXT ONLY
+
+//imports
+@use 'src/scss/variables' as v;
+
+.hero-text-only{
+  position:relative;
+  width:100%;
+  padding:32px 0px;
+  @include v.breakpoint(v.$bp-md){padding:0px 0px 24px 0px;}
+
+  .container{
+    background-color:v.$light-gray;
+    border-radius:32px 0px 32px 0px;
+    overflow:hidden;
+    padding:40px 48px 64px 48px;
+    @include v.breakpoint(v.$bp-md){
+      border-radius:0px 24px 0px 24px;
+      padding:24px;
+    }
+
+    .crackers{
+      padding:0px 0px 48px 0px;
+      @include v.breakpoint(v.$bp-md){padding:0px 0px 24px 0px;}
+    }
+
+    .content{
+      display:flex;
+      flex-direction:column;
+      gap:32px;
+      @include v.breakpoint(v.$bp-md){gap:16px;}
+      h1{
+        color:v.$primary;
+        margin:0px;
+      }
+
+      .description{
+        display:flex;
+        flex-direction:column;
+        gap:20px;
+        h4{
+          color:v.$gray;
+          margin:0px;
+          font-weight:300;
+        }
+      }
+
+      .ctas{
+        display:flex;
+        gap:32px;
+        align-items:center;
+        margin:16px 0px 0px 0px;
+        @include v.breakpoint(v.$bp-md){
+          flex-direction:column;
+          gap:24px;
+          align-items:stretch;
+          margin:24px 0px 0px 0px;
+          a{width:100%; text-align:center; justify-content:center;}
+        }
+      }
+    }
+  }
+}
+
+//admin display overrides
+.wp-admin{
+  .hero-text-only{
+
+  }
+}

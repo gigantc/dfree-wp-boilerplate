@@ -1,0 +1,33 @@
+//////////////////////////////////////
+// Anchor Block
+
+//imports
+@use 'src/scss/variables' as v;
+
+.anchor{
+  display:block;
+  scroll-margin-top:var(--header-height, 120px);
+}
+
+//admin display overrides
+.wp-admin{
+  .anchor-block{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:6px 12px;
+    background-color:v.$light-gray;
+    border:1px dashed v.$border;
+    border-radius:4px;
+    color:v.$primary;
+    .label{
+      font:600 12px/1 v.$font-stack;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+    }
+    .id{
+      font:400 13px/1 monospace;
+      opacity:0.75;
+    }
+  }
+}

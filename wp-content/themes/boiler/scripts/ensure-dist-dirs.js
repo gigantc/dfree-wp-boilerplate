@@ -14,7 +14,8 @@ const dirs = [
   '../dist/js',
   '../dist/js/libs',
   '../dist/js/blocks',
-  '../dist/js/components'
+  '../dist/js/components',
+  '../dist/js/singles'
 ];
 
 dirs.forEach(dir => {

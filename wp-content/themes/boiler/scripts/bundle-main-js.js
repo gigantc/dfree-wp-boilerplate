@@ -33,7 +33,8 @@ function findJsFiles(dir) {
     } else if (
       entry.isFile() &&
       entry.name.endsWith('.js') &&
-      !entry.name.startsWith('_') // Skip files starting with _
+      !entry.name.startsWith('_') && // Skip files starting with _
+      !['navigation.js'].includes(entry.name) // Skip files with separate bundle entries
     ) {
       jsFiles.push(entryPath);
     }

@@ -14,6 +14,10 @@ class DFREE_Block_Registry {
   private $blocks_dir;
   private $blocks = array();
 
+  // Transient cache settings
+  private $transient_key = 'dfree_block_registry';
+  private $transient_ttl = 5; // seconds (short TTL for development)
+
   private function __construct() {
     $this->manifest_path = get_theme_file_path('/blocks/manifest.json');
     $this->blocks_dir = get_theme_file_path('/blocks');
@@ -43,12 +47,18 @@ class DFREE_Block_Registry {
    * Load manifest from file or rebuild if missing
    */
   private function load_manifest() {
-    // Development mode: always rebuild manifest for local domains
-    $current_host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
-    $is_local = strpos($current_host, '.local') !== false || strpos($current_host, 'localhost') !== false;
+    // Development mode: use transient cache to reduce filesystem scans
+    if (dfree_is_development()) {
+      $cached = get_transient($this->transient_key);
 
-    if ($is_local) {
+      if ($cached !== false) {
+        $this->blocks = $cached;
+        return;
+      }
+
+      // Cache miss - rebuild and cache
       $this->rebuild_manifest();
+      set_transient($this->transient_key, $this->blocks, $this->transient_ttl);
       return;
     }
 
@@ -99,6 +109,11 @@ class DFREE_Block_Registry {
     );
 
     $this->blocks = $blocks;
+
+    // Clear transient cache when rebuilding
+    if (dfree_is_development()) {
+      delete_transient($this->transient_key);
+    }
   }
 
   /**
@@ -139,6 +154,7 @@ class DFREE_Block_Registry {
       'has_js'      => $has_js,
       'js_path'     => $has_js ? str_replace($this->blocks_dir . '/', '', $js_path) : '',
       'requires'    => $meta['requires'] ?? array(),
+      'requires_js_in_low_data' => !empty($meta['requires_js_in_low_data']),
     );
   }
 
@@ -172,6 +188,28 @@ class DFREE_Block_Registry {
         );
       }
     }
+
+    $order = [
+      'block-hero',
+      'block-split',
+      'block-stack',
+      'block-grid',
+      'block-callout',
+      'block-carousel',
+      'block-accordion',
+      'block-feature',
+      'block-utility',
+      'block-misc',
+    ];
+
+    uksort($categories, function($a, $b) use ($order) {
+      $ai = array_search($a, $order, true);
+      $bi = array_search($b, $order, true);
+      if ($ai === false && $bi === false) return strcmp($a, $b);
+      if ($ai === false) return 1;
+      if ($bi === false) return -1;
+      return $ai - $bi;
+    });
 
     return array_values($categories);
   }

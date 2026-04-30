@@ -1,0 +1,142 @@
+//////////////////////////////////////
+// HERO
+
+//imports
+@use 'src/scss/variables' as v;
+
+.hero{
+  position:relative;
+  width: 100%;
+  padding:32px 0px;
+  z-index:1;
+  @include v.breakpoint(v.$bp-md){
+    background: linear-gradient(to bottom, v.$white 0%, v.$light-gray 100%);
+    margin:0px 0px 32px 0px;
+  }
+
+  //text selection styles
+  ::selection {
+    background: v.$light-gray;
+    color:v.$primary;
+  }
+  ::-moz-selection {
+    background: v.$light-gray;
+    color:v.$primary;
+  }
+
+  .container{
+    background-color: v.$primary;
+    border-radius: 32px 0 32px 0;
+    overflow:hidden;
+    @include v.breakpoint(v.$bp-md){
+      border-radius:32px 0 32px 0;
+      overflow:visible;
+    }
+    .image{
+      position:relative;
+      width:100%;
+      aspect-ratio:21/9;
+      max-height:500px;
+      overflow:hidden;
+      z-index:1;
+      @include v.breakpoint(v.$bp-md){
+        height:100%; width:100%;
+        aspect-ratio:auto;
+        max-height:300px;
+        border-radius:32px 0 0 0;
+      }
+      @include v.breakpoint(v.$bp-sm){
+        max-height:188px;
+      }
+      span{
+          position:absolute;
+          top:0; left:0;
+          width:100%; height:100%;
+          display:block;
+          z-index:2;
+          background: linear-gradient(
+            to top,
+            v.$primary 0%,
+            v.$primary 10%,
+            rgba(255, 255, 255, 0) 50%,
+            rgba(255, 255, 255, 0) 100%
+          );
+      }
+      img{
+        position:relative;
+        width:100%; height:100%;
+        z-index:1;
+        object-fit:cover;
+      }
+    }
+
+
+    .content{
+      position:relative;
+      display:flex;
+      padding:0px 45px 40px 45px;
+      overflow:visible;
+      z-index:2;
+      margin:-40px 0px 0px 0px;
+      gap:64px;
+      @include v.breakpoint(v.$bp-md){
+        flex-direction:column;
+        padding:0px 23px 0px 23px;
+        margin:0px;
+        gap:24px;
+      }
+      h1{
+        color:v.$white;
+        width:65%;
+        letter-spacing: -1.92px;
+        text-wrap: balance;
+        @include v.breakpoint(v.$bp-md){
+          width:100%;
+          letter-spacing:-0.84px;
+          padding:0px 0px 0px 0px;
+        }
+      }
+
+      .ctas{
+        width:35%;
+        a{
+          width:100%;
+          margin:0px 0px 25px 0px;
+        }
+        .desktop{display:inline-flex; visibility:visible;}
+        .mobile{display:none; visibility:hidden;}
+
+        //very special edge case for the search white logo
+        .btn--secondary.btn--has-icon{
+          .icon-custom svg path{
+            fill:v.$white;
+          }
+        }
+
+        @include v.breakpoint(v.$bp-md){
+          width:calc(100% + 46px);
+          margin:0px -23px 0px -23px;
+          padding:24px 23px 0px 23px;
+          background-color:v.$light-gray;
+          display:flex;
+          flex-direction:column;
+          gap:24px;
+          a{margin:0px;}
+          .desktop{display:none; visibility:hidden;}
+          .mobile{display:inline-flex; visibility:visible;}
+        }
+      }
+    }
+
+  }
+
+}
+
+//admin display overrides
+.wp-admin {
+  .hero {
+    padding:120px 25px;
+  }
+}
+
+

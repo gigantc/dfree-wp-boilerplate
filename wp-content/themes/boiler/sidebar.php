@@ -1,17 +1,13 @@
 <?php
 /**
-* The sidebar containing the main widget area.
-*
-* @link https://developer.wordpress.org/themes/basics/template-files/#template-partials
-*
-* @package lawfirm
-*/
-
+ * The sidebar containing the main widget area.
+ *
+ * @link https://developer.wordpress.org/themes/basics/template-files/#template-partials
+ *
+ * @package boiler
+ */
 ?>
 
-
 <aside class="sidebar">
-   
 
 </aside>
-

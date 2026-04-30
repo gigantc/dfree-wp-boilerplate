@@ -1,0 +1,23 @@
+//////////////////////////////////////
+// FOOTER
+
+//imports
+@use 'src/scss/variables' as v;
+
+
+.global-footer{
+	background-color:v.$primary;
+	padding:40px 0px;
+
+	.container{
+		display:flex;
+		align-items:center;
+		justify-content:center;
+	}
+
+	p{
+		color:v.$white;
+		font:300 1.4rem/1.6 v.$font-stack;
+		margin:0px;
+	}
+}

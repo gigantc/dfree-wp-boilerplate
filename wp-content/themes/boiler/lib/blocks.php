@@ -1,13 +1,12 @@
 <?php
 /**
- * Include Advanced Custom Fields within theme
+ * ACF Block Registration
  *
- * @link http://www.advancedcustomfields.com/resources/including-acf-in-a-plugin-theme/
- * @package lawfirm
+ * Uses the cached block registry to register blocks, render templates,
+ * create categories, and auto-enqueue per-block JavaScript.
+ *
+ * @package boiler
  */
-
-
-
 
 
 //////////////////////////////////////
@@ -15,154 +14,134 @@
 // Uses cached block registry to avoid filesystem scans
 function my_acf_block_render_callback( $block ) {
 
-  // convert name ("acf/block-name") into path friendly slug ("block-name")
-  $slug = sanitize_title(str_replace('acf/', '', $block['name']));
+	// convert name ("acf/block-name") into path friendly slug ("block-name")
+	$slug = sanitize_title( str_replace( 'acf/', '', $block['name'] ) );
 
-  // Get block file from registry
-  $registry = DFREE_Block_Registry::get_instance();
-  $file = $registry->get_block_file($slug);
+	// Get block file from registry
+	$registry = DFREE_Block_Registry::get_instance();
+	$file = $registry->get_block_file( $slug );
 
-  if ($file && file_exists($file)) {
-    include $file;
-  }
-
+	if ( $file && file_exists( $file ) ) {
+		include $file;
+	}
 }
-
-
 
 
 //////////////////////////////////////
 // CREATE ALL CUSTOM BLOCK CATEGORIES
 // Uses cached registry to get categories
 function my_plugin_block_categories( $categories, $post ) {
-  $registry = DFREE_Block_Registry::get_instance();
-  $block_categories = $registry->get_categories();
+	$registry = DFREE_Block_Registry::get_instance();
+	$block_categories = $registry->get_categories();
 
-  return array_merge($categories, $block_categories);
+	return array_merge( $categories, $block_categories );
 }
 add_filter( 'block_categories_all', 'my_plugin_block_categories', 10, 2 );
-
-
-
 
 
 //////////////////////////////////////
 // DISPLAY BLOCKS IN THE ADMIN
 // Add only blocks that are needed
 function acf_allowed_block_types( $allowed_blocks, $block_editor_context ) {
-  global $post;
+	global $post;
 
-  // Get all blocks from registry (cached)
-  $registry = DFREE_Block_Registry::get_instance();
-  $all_blocks = $registry->get_blocks();
+	// Get all blocks from registry (cached)
+	$registry = DFREE_Block_Registry::get_instance();
+	$all_blocks = $registry->get_blocks();
 
-  $blocks = array();
-  foreach ($all_blocks as $block) {
-    $blocks[] = 'acf/' . $block['slug'];
-  }
+	$blocks = array();
+	foreach ( $all_blocks as $block ) {
+		$blocks[] = 'acf/' . $block['slug'];
+	}
 
-  // use these functions to manually set pages or post to only get specific block
+	// Restrict blocks for specific post types or pages here if needed
+	// if ( $post->post_type == 'documents' ) {
+	//   $blocks = array( 'acf/document-download' );
+	// }
 
-  // If the post type is 'documents', restrict blocks
-  // if( $post->post_type == 'documents' ) {
-  //     $blocks = array(
-  //         'acf/document-download',
-  //         'acf/document-download-cat'
-  //     );
-  // }
-
-  // Restrict blocks for specific pages by ID, slug, or title
-  //replace XXIDXX with your page ID
-  // if( is_page( XXIDXX ) || is_page( 'example-page' ) ) {
-  //     $blocks = array(
-  //         'acf/page-specific-block',
-  //         'acf/page-specific-hero',
-  //     );
-  // }
-
-  return $blocks;
-
+	return $blocks;
 }
 add_filter( 'allowed_block_types_all', 'acf_allowed_block_types', 10, 2 );
 
 
-
-
-
 //////////////////////////////////////
 // BLOCK REGISTRATION
-add_action('acf/init', 'my_acf_init');
+add_action( 'acf/init', 'my_acf_init' );
 function my_acf_init() {
 
-  // check function exists
-  if( function_exists('acf_register_block') ) {
+	if ( ! function_exists( 'acf_register_block' ) ) {
+		return;
+	}
 
-    // Get blocks from registry (cached)
-    $registry = DFREE_Block_Registry::get_instance();
-    $blocks = $registry->get_blocks();
+	$registry = DFREE_Block_Registry::get_instance();
+	$blocks   = $registry->get_blocks();
 
-    foreach ($blocks as $block) {
-      acf_register_block(array(
-        'name'            => $block['slug'],
-        'title'           => __($block['title'], 'block-' . $block['slug']),
-        'description'     => $block['description'],
-        'render_callback' => 'my_acf_block_render_callback',
-        'category'        => $block['category'],
-        'icon'            => $block['icon'],
-        'keywords'        => $block['keywords'],
-        'mode'            => 'preview',
-        'example'         => [
-          'attributes' => [
-            'mode' => 'preview',
-            'data' => ['is_example' => true],
-          ]
-        ]
-      ));
-    }
-  }
+	foreach ( $blocks as $block ) {
+		acf_register_block( array(
+			'name'            => $block['slug'],
+			'title'           => __( $block['title'], 'block-' . $block['slug'] ),
+			'description'     => $block['description'],
+			'render_callback' => 'my_acf_block_render_callback',
+			'category'        => $block['category'],
+			'icon'            => $block['icon'],
+			'keywords'        => $block['keywords'],
+			'mode'            => 'edit',
+			'example'         => array(
+				'attributes' => array(
+					'mode' => 'preview',
+					'data' => array( 'is_example' => true ),
+				),
+			),
+		) );
+	}
 }
+
 
 //////////////////////////////////////
 // REBUILD MANIFEST ON THEME ACTIVATION
 function dfree_rebuild_block_manifest_on_activation() {
-  $registry = DFREE_Block_Registry::get_instance();
-  $registry->rebuild_manifest();
+	$registry = DFREE_Block_Registry::get_instance();
+	$registry->rebuild_manifest();
 }
-add_action('after_switch_theme', 'dfree_rebuild_block_manifest_on_activation');
+add_action( 'after_switch_theme', 'dfree_rebuild_block_manifest_on_activation' );
+
 
 //////////////////////////////////////
 // AUTO-ENQUEUE BLOCK JAVASCRIPT
 // Loads block JS files only when blocks are present on the page
 function dfree_enqueue_block_scripts() {
-  // Only run on frontend
-  if ( is_admin() ) {
-    return;
-  }
+	if ( is_admin() ) {
+		return;
+	}
 
-  $registry = DFREE_Block_Registry::get_instance();
-  $all_blocks = $registry->get_blocks();
+	$registry   = DFREE_Block_Registry::get_instance();
+	$all_blocks = $registry->get_blocks();
 
-  // Check each block to see if it's on the page and has JS
-  foreach ( $all_blocks as $block ) {
-    if ( !empty( $block['has_js'] ) && has_block( 'acf/' . $block['slug'] ) ) {
-      $js_file = get_template_directory_uri() . '/dist/js/blocks/' . $block['slug'] . '.min.js';
+	foreach ( $all_blocks as $block ) {
+		if ( empty( $block['has_js'] ) || ! has_block( 'acf/' . $block['slug'] ) ) {
+			continue;
+		}
 
-      // Set dependencies - always include jQuery, plus any from block.config.json
-      $dependencies = array( 'jquery' );
+		$js_file      = get_template_directory_uri() . '/dist/js/blocks/' . $block['slug'] . '.min.js';
+		$dependencies = array( 'jquery' );
 
-      // Add libraries from block's "requires" field
-      if ( !empty( $block['requires'] ) && is_array( $block['requires'] ) ) {
-        $dependencies = array_merge( $dependencies, $block['requires'] );
-      }
+		if ( ! empty( $block['requires'] ) && is_array( $block['requires'] ) ) {
+			$dependencies = array_merge( $dependencies, $block['requires'] );
 
-      wp_enqueue_script(
-        'block-' . $block['slug'],
-        $js_file,
-        $dependencies,
-        '1.0.0',
-        true
-      );
-    }
-  }
+			foreach ( $block['requires'] as $lib ) {
+				if ( wp_style_is( $lib, 'registered' ) ) {
+					wp_enqueue_style( $lib );
+				}
+			}
+		}
+
+		wp_enqueue_script(
+			'block-' . $block['slug'],
+			$js_file,
+			$dependencies,
+			dfree_get_version(),
+			true
+		);
+	}
 }
 add_action( 'wp_enqueue_scripts', 'dfree_enqueue_block_scripts', 20 );

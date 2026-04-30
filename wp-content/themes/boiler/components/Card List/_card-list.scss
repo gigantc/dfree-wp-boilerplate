@@ -1,0 +1,109 @@
+//////////////////////////////////////
+// Card List
+
+//imports
+@use 'src/scss/variables' as v;
+
+.card-list{
+  background-color:v.$white;
+  border-radius:32px;
+  padding:40px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  height:100%;
+  box-sizing:border-box;
+
+  &.card-list--border{
+    border:1px solid v.$border;
+  }
+
+  .card-content{
+
+    .icon{
+      width:44px; height:44px;
+      margin:0px 0px 16px 0px;
+      flex-shrink:0;
+      display:block;
+      overflow:hidden;
+
+      svg{
+        height:40px; width:40px;
+        margin:0px 0px 16px 0px;
+      }
+      &.icon-line{
+        svg{
+          path,
+          circle,
+          rect,
+          line{
+            stroke:v.$accent;
+            stroke-width:1;
+          }
+        }
+      }
+    }
+
+    h3{
+      color:v.$primary;
+      margin:0px 0px 8px 0px;
+    }
+
+    p{
+      color:v.$black;
+      margin:0px;
+    }
+
+    .icon-list{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin:16px 0px 0px 0px;
+      padding:0px;
+
+      li{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        font:400 1.6rem/2.1rem v.$font-stack;
+
+        .icon{
+          width:24px; height:24px;
+          margin:0px;
+          flex-shrink:0;
+          overflow:hidden;
+
+          svg{
+            width:24px; height:24px;
+          }
+          &.icon-line{
+            svg{
+              path,
+              circle,
+              rect,
+              line{
+                stroke:v.$accent;
+                stroke-width:2;
+              }
+            }
+          }
+        }
+
+        a{
+          color:v.$gray;
+          text-decoration:none;
+          @include v.trans(0.2s);
+          &:hover{
+            color:v.$primary;
+            @include v.trans(0.2s);
+          }
+        }
+      }
+    }
+  }
+
+  .link-arrow{
+    margin-top:auto;
+    padding-top:32px;
+  }
+}
