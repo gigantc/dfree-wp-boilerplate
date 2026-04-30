@@ -1,9 +1,9 @@
 === Force Regenerate Thumbnails ===
 Contributors: pedro-elsner, nosilver4u
-Requires at least: 6.5
-Tested up to: 6.8
+Requires at least: 6.6
+Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 2.2.2
+Stable tag: 2.3.0
 License: GPLv2
 Tags: force, regenerate thumbnails, thumbnail, thumbnails
 
@@ -33,6 +33,12 @@ You may report security issues through our Patchstack Vulnerability Disclosure P
 2. You can resize specific multiples images using the checkboxes and the "Bulk Actions" dropdown
 
 == ChangeLog ==
+
+= 2.3.0 =
+*Release Date - February 17, 2026*
+
+* added: WP_CLI command: force-regenerate-thumbnails props @realmranshuman
+* fixed: PHP 8.5 compatibility
 
 = 2.2.2 =
 *Release Date - June 3, 2025*

@@ -26,7 +26,8 @@ add_action( 'admin_init', 'dfree_remove_dashboard_meta' );
 function dfree_remove_menu() {
 	// Usernames that can edit anything
 	$superadmins = array(
-		// 'superadmin'
+		'superadmin',
+		'admin',
 	);
 
 	// Email addresses that can edit anything
@@ -44,7 +45,10 @@ function dfree_remove_menu() {
 	$email_parts = explode( '@', $current_user->user_email );
 	$user_domain = isset( $email_parts[1] ) ? strtolower( $email_parts[1] ) : '';
 
-	$is_superadmin = in_array( $current_user->user_login, $superadmins )
+	// Administrators (manage_options cap) always pass through.
+	// Non-admins still pass if matched in the explicit lists above.
+	$is_superadmin = current_user_can( 'manage_options' )
+				  || in_array( $current_user->user_login, $superadmins )
 				  || in_array( $current_user->user_email, $superadmin_emails )
 				  || in_array( $user_domain, $superadmin_domains );
 
