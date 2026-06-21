@@ -1,0 +1,68 @@
+//////////////////////////////////////
+// Text Block
+
+//imports
+@use 'src/scss/variables' as v;
+
+
+
+.text-block{
+  position:relative;
+  background-color:v.$white;
+  width:100%;
+  padding:64px 0px;
+
+  .container{
+    max-width:932px;
+
+    h2{
+      color:v.$primary;
+      margin:0px 0px 20px 0px;
+    }
+
+    .body.wysiwyg{
+      color:v.$black;
+      p{
+        font:300 1.8rem/2.8rem v.$font-stack;
+        @include v.breakpoint(v.$bp-md){
+          font:300 1.6rem/2.6rem v.$font-stack;
+        }
+        @include v.breakpoint(v.$bp-sm){
+          font:300 1.4rem/2.4rem v.$font-stack;
+        }
+      }
+    }
+  }
+
+  &.align-center{
+    .container{
+      h2{
+        text-align:center;
+      }
+      .body{
+        text-align:center;
+      }
+    }
+  }
+
+  &.align-left{
+    .container{
+      h2{
+        text-align:left;
+      }
+      .body{
+        text-align:left;
+      }
+    }
+  }
+}
+
+
+
+//admin display overrides
+.wp-admin{
+  .text-block{
+
+  }
+}
+

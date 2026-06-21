@@ -1,32 +1,31 @@
 <?php
 /**
-* The template for displaying archive pages.
-*
-* @link https://codex.wordpress.org/Template_Hierarchy
-*
-* @package lawfirm
-*/
+ * The template for displaying archive pages.
+ *
+ * @link https://codex.wordpress.org/Template_Hierarchy
+ *
+ * @package boiler
+ */
 
-get_header(); 
+get_header();
 ?>
-
 
 <main>
-<header class="news-header">
-	<?php
-	$archive_title = get_the_archive_title();
-	$archive_title_remove_month = str_replace("Month: ", "", $archive_title);
-	$archive_title_remove_category = str_replace("Category: ", "", $archive_title_remove_month);
-	$archive_title_remove_tag = str_replace("Tag: ", "", $archive_title_remove_category);
-	$archive_title_display = strtoupper($archive_title_remove_tag);
-	?>
-	<h2 style="text-align:center;">RESULTS FOR <?php echo "'".$archive_title_display."'";?></h2>
-</header>
+	<header class="archive-header">
+		<?php
+		$archive_title = get_the_archive_title();
+		$archive_title = str_replace( 'Month: ', '', $archive_title );
+		$archive_title = str_replace( 'Category: ', '', $archive_title );
+		$archive_title = str_replace( 'Tag: ', '', $archive_title );
+		?>
+		<h2><?= esc_html( strtoupper( $archive_title ) ) ?></h2>
+	</header>
+
+	<?php if ( have_posts() ) : ?>
+		<?php get_template_part( 'loop' ); ?>
+	<?php else : ?>
+		<?php get_template_part( 'template-parts/content', 'none' ); ?>
+	<?php endif; ?>
 </main>
 
-
-
-<?php 
-endif;
-get_footer(); 
-?>
+<?php get_footer(); ?>

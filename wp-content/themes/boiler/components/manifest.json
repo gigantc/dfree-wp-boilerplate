@@ -1,0 +1,91 @@
+{
+    "generated": "2026-04-30 16:17:12",
+    "components": {
+        "accordion": {
+            "slug": "accordion",
+            "path": "Accordion\/accordion.php",
+            "name": "Accordion",
+            "description": "Expandable accordion component with smooth GSAP animations",
+            "has_scss": true,
+            "scss_path": "Accordion\/_accordion.scss",
+            "has_js": true,
+            "js_path": "Accordion\/accordion.js",
+            "variants": [],
+            "requires": [
+                "gsap"
+            ]
+        },
+        "breadcrumbs": {
+            "slug": "breadcrumbs",
+            "path": "Breadcrumbs\/breadcrumbs.php",
+            "name": "Breadcrumbs",
+            "description": "",
+            "has_scss": true,
+            "scss_path": "Breadcrumbs\/_breadcrumbs.scss",
+            "has_js": false,
+            "js_path": "",
+            "variants": [],
+            "requires": []
+        },
+        "button": {
+            "slug": "button",
+            "path": "Button\/button.php",
+            "name": "Button",
+            "description": "",
+            "has_scss": true,
+            "scss_path": "Button\/_button.scss",
+            "has_js": false,
+            "js_path": "",
+            "variants": [],
+            "requires": []
+        },
+        "card": {
+            "slug": "card",
+            "path": "Card\/card.php",
+            "name": "Card",
+            "description": "",
+            "has_scss": true,
+            "scss_path": "Card\/_card.scss",
+            "has_js": false,
+            "js_path": "",
+            "variants": [],
+            "requires": []
+        },
+        "card-list": {
+            "slug": "card-list",
+            "path": "Card List\/card-list.php",
+            "name": "Card List",
+            "description": "",
+            "has_scss": true,
+            "scss_path": "Card List\/_card-list.scss",
+            "has_js": false,
+            "js_path": "",
+            "variants": [],
+            "requires": []
+        },
+        "linkarrow": {
+            "slug": "linkarrow",
+            "path": "LinkArrow\/linkarrow.php",
+            "name": "LinkArrow",
+            "description": "",
+            "has_scss": true,
+            "scss_path": "LinkArrow\/_linkarrow.scss",
+            "has_js": false,
+            "js_path": "",
+            "variants": [],
+            "requires": []
+        },
+        "toggleswitch": {
+            "slug": "toggleswitch",
+            "path": "ToggleSwitch\/toggleswitch.php",
+            "name": "Toggle Switch",
+            "description": "Toggle switch component for binary options",
+            "has_scss": true,
+            "scss_path": "ToggleSwitch\/_toggleswitch.scss",
+            "has_js": true,
+            "js_path": "ToggleSwitch\/toggleswitch.js",
+            "variants": [],
+            "requires": []
+        }
+    }
+}

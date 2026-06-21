@@ -1,0 +1,5 @@
+{
+  "title": "Anchor",
+  "description": "An invisible jump-link target. Give it a name, and then link to it with #name.",
+  "keywords": ["anchor", "jump", "link", "id", "hash", "target"]
+}

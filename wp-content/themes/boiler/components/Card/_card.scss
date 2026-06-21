@@ -1,0 +1,87 @@
+//////////////////////////////////////
+// CARD COMPONENT
+
+@use 'src/scss/variables' as v;
+
+
+// default style is for:
+// 'full_card_link' => false
+// just a basic link card
+.card{
+  position:relative;
+  width:100%; height:100%;
+  border-radius:32px;
+  background-color:v.$white;
+  padding:40px;
+  display:flex;
+  flex-direction:column;
+  @include v.trans(0.2s);
+  @include v.breakpoint(v.$bp-md){padding:30px;}
+  @include v.breakpoint(v.$bp-sm){padding:20px;}
+  //icons
+  svg{
+    height:40px; width:40px;
+    margin:0px 0px 16px 0px;
+    @include v.breakpoint(v.$bp-sm){
+      height:32px; width:32px;
+    }
+  }
+  .icon-line{
+    svg{
+      path,
+      circle,
+      rect,
+      line{
+        stroke:v.$accent;
+        stroke-width:1;
+      }
+    }
+  }
+
+  h3{
+    color:v.$primary;
+    margin:0px 0px 7px 0px;
+  }
+  p{
+    color:v.$black;
+  }
+
+  .link-arrow{
+    margin-top:auto;
+    padding-top:40px;
+    @include v.breakpoint(v.$bp-sm){padding-top:16px;}
+    svg{
+      height:11px; width:11px;
+      margin:0px 0px 0px 5px;
+    }
+  }
+
+  // Border modifier
+  &--border{
+    border:1px solid v.$border;
+  }
+
+
+}
+
+
+// Full Card Link styles
+// 'full_card_link' => true
+.card-outer-link{
+  display:flex;
+  .card{
+    &:hover{
+      transform:translate(-1px, -1px);
+      box-shadow: 0 8px 24px 0 rgba(106, 106, 106, 0.24);
+
+      .link-arrow{
+        svg path{
+          stroke: v.$accent;
+        }
+      }
+    }
+    &--border:hover{
+      border:1px solid v.$white;
+    }
+  }
+} 

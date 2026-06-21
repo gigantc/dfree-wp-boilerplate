@@ -1,32 +1,34 @@
 <?php
 /**
-* The template for displaying 404 pages (not found).
-*
-* @link https://codex.wordpress.org/Creating_an_Error_404_Page
-*
-* @package lawfirm
-*/
+ * The template for displaying 404 pages (not found).
+ *
+ * @link https://codex.wordpress.org/Creating_an_Error_404_Page
+ *
+ * @package boiler
+ */
 
-get_header(); ?>
+get_header();
+?>
 
-	<div id="primary" class="content-area">
-		<main id="main" class="site-main" role="main">
+<main>
 
-			<section class="error-404 not-found">
-				<div class="container">
-					<header class="page-header">
-						<h1>Page Not Found</h1>
-					</header><!-- .page-header -->
-					
-					<div class="page-content">
-						<p>This page was deleted or may have never existed.  Don't worry, just contact us and we'll point you back to the light.  Or have you tried looking over there?</p>
-						<a href="/contact"><div class="btn">Contact Us</div></a>
-					</div><!-- .page-content -->
-				</div>
-			</section><!-- .error-404 -->
+	<section class="error-404">
+		<div class="container">
 
-		</main><!-- #main -->
-	</div><!-- #primary -->
+			<span class="error-code">404</span>
 
-<?php
-get_footer();
+			<h1>Page Not Found</h1>
+
+			<p class="message">You've reached a page that doesn't exist. Try searching for what you need below.</p>
+
+			<form role="search" method="get" class="search-form" action="<?= esc_url( home_url( '/' ) ) ?>">
+				<input type="search" name="s" placeholder="Search..." />
+				<button type="submit">Search</button>
+			</form>
+
+		</div>
+	</section>
+
+</main>
+
+<?php get_footer(); ?>

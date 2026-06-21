@@ -1,0 +1,37 @@
+//////////////////////////////////////
+// LINK COMPONENT
+
+// imports
+@use 'src/scss/variables' as v;
+
+
+.link-arrow{
+  color:v.$black;
+  font: 600 1.4rem/1.6rem v.$font-stack;
+  letter-spacing: 0.56px;
+  text-transform: uppercase;
+  @include v.trans(0.2s);
+  @include v.breakpoint(v.$bp-sm){
+    font: 600 1.2rem/1.6rem v.$font-stack;
+    letter-spacing: 0.24px;
+  }
+
+  svg{
+    margin:0px 0px 0px 5px;
+    height:11px; width:11px; 
+    @include v.breakpoint(v.$bp-sm){display:none;}
+    path{
+      stroke: v.$primary; 
+      @include v.trans(0.2s);
+    }
+  }
+
+  &:hover{
+    color:v.$primary;
+    @include v.trans(0.2s);
+    svg path{ 
+      stroke: v.$accent; 
+      @include v.trans(0.2s);
+    }
+  }
+}

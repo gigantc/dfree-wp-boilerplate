@@ -1,20 +1,27 @@
 /*
 
-  dFree Boilerplate - v3.0
+  dFree's WP Boilerplate - v 4.2.0
 
   Site Development by Badhawk Workshop
   Developer: Daniel Freeman [@dFree]
-
 
 */
 
 
 /*// IMPORTS ----------------------- */
-// css reset        
+// css reset
 @use 'normalize';
-// fonts       
+
+// fonts
 @use 'fonts';
-// base styles          
+
+// base styles
 @use 'base';
-// combined block scss        
+
+// global chrome
+@use 'header';
+@use 'footer';
+@use 'error-404';
+
+// combined block / component / single scss (auto-generated)
 @use 'blocks';

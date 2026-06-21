@@ -1,4 +1,13 @@
 <?php
+/**
+ * @package ACF
+ * @author  WP Engine
+ *
+ * © 2026 Advanced Custom Fields (ACF®). All rights reserved.
+ * "ACF" is a trademark of WP Engine.
+ * Licensed under the GNU General Public License v2 or later.
+ * https://www.gnu.org/licenses/gpl-2.0.html
+ */
 
 if ( ! class_exists( 'acf_pro' ) ) :
 
@@ -20,9 +29,6 @@ if ( ! class_exists( 'acf_pro' ) ) :
 			acf_update_setting( 'pro', true );
 			acf_update_setting( 'name', 'Advanced Custom Fields PRO' );
 
-			// Initialize autoloaded classes.
-			acf_new_instance( 'ACF\Pro\Meta\Option' );
-
 			// includes
 			acf_include( 'pro/blocks.php' );
 			acf_include( 'pro/options-page.php' );
@@ -32,6 +38,11 @@ if ( ! class_exists( 'acf_pro' ) ) :
 			if ( is_admin() ) {
 				acf_include( 'pro/admin/admin-options-page.php' );
 				acf_include( 'pro/admin/admin-updates.php' );
+			}
+
+			// Initialize GEO Blocks output (PRO only).
+			if ( class_exists( 'ACF\Pro\AI\GEO\Outputs\Blocks' ) ) {
+				new \ACF\Pro\AI\GEO\Outputs\Blocks();
 			}
 
 			// actions

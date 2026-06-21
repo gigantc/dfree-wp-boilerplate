@@ -1,0 +1,99 @@
+//////////////////////////////////////
+// ACCORDION
+
+//imports
+@use 'src/scss/variables' as v;
+
+
+.accordion{
+  position: relative;
+  border-radius: 32px;
+  border: 1px solid v.$border;
+  background-color: v.$white;
+  margin: 0px 0px 20px 0px;
+  @include v.trans(0.2s);
+
+  &:hover,
+  &.is-open{
+    border: 1px solid v.$white;
+    transform: translate(-1px, -1px);
+    box-shadow: 0 8px 24px 0 rgba(106, 106, 106, 0.24);
+    @include v.trans(0.2s);
+  }
+
+  button{
+    width: 100%;
+    padding: 30px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    @include v.breakpoint(v.$bp-md){padding: 15px 25px;}
+    &:focus{
+      outline: none;
+    }
+
+    h4{
+      color: v.$primary;
+      margin: 0px;
+      flex: 1;
+    }
+
+    .icon{
+      flex-shrink: 0;
+      margin-left: 24px;
+
+      svg{
+        height: 14px;
+        width: 20px;
+        display: block;
+        path{
+          stroke:v.$primary;
+          stroke-width:1.5px;
+        }
+      }
+    }
+  }
+
+  .content{
+    height: 0;
+    overflow: hidden;
+
+    .inner{
+      padding: 0px 40px 40px 40px;
+      @include v.breakpoint(v.$bp-md){
+        padding: 0px 25px 40px 25px;
+      }
+      p{
+        color: v.$black;
+        margin: 0px 0px 16px 0px;
+        font: 300 1.8rem/2.7rem v.$font-stack;
+        @include v.breakpoint(v.$bp-md){
+          font: 300 1.6rem/2.5rem v.$font-stack;
+          margin: 0px;
+        }
+        &:last-child{
+          margin: 0px;
+        }
+      }
+    }
+  }
+
+  &.is-open{
+    // Fallback for when GSAP isn't loaded (Low Data Mode)
+    .content{
+      height: auto;
+    }
+  }
+}
+
+
+//admin display overrides
+.wp-admin{
+  .accordion{
+
+  }
+}

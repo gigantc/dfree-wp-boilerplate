@@ -1,0 +1,68 @@
+[
+  {
+    "key": "group_anchor",
+    "title": "Block: Anchor",
+    "fields": [
+      {
+        "key": "field_anchor_message",
+        "label": "Block Type",
+        "name": "",
+        "type": "message",
+        "message": "<strong style=\"font-size:24px;\">Anchor</strong>\r\n\r\nInvisible jump-link target. Enter a name, then link to this spot using #your-name in any URL.",
+        "new_lines": "wpautop",
+        "esc_html": 0,
+        "instructions": "",
+        "required": 0,
+        "wrapper": {
+          "width": "",
+          "class": "",
+          "id": ""
+        }
+      },
+      {
+        "key": "field_anchor_id",
+        "label": "Anchor Name",
+        "name": "anchor_id",
+        "type": "text",
+        "instructions": "Spaces and capitals become hyphens and lowercase. Example: \"Community Map\" becomes community-map, used as /page#community-map.",
+        "required": 1,
+        "default_value": "",
+        "placeholder": "community-map",
+        "prepend": "#",
+        "append": "",
+        "maxlength": "",
+        "allow_in_bindings": 0,
+        "show_in_graphql": 1,
+        "graphql_description": "",
+        "graphql_field_name": "anchorId",
+        "graphql_non_null": 0,
+        "wrapper": {
+          "width": "",
+          "class": "",
+          "id": ""
+        }
+      }
+    ],
+    "location": [
+      [
+        {
+          "param": "block",
+          "operator": "==",
+          "value": "acf/anchor"
+        }
+      ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "show_in_rest": 0,
+    "show_in_graphql": 1,
+    "graphql_field_name": "block:Anchor",
+    "map_graphql_types_from_location_rules": 0,
+    "graphql_types": ""
+  }
+]

@@ -1,0 +1,219 @@
+/* Enforce hidden attribute within icon tiles */
+.acf-icon-item [hidden] {
+    display: none !important;
+}
+
+/* === Icon Library Grid === */
+.acf-icon-library__grid-section {
+    margin-top: 24px;
+}
+
+.acf-icon-library__grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 16px 0;
+}
+
+.acf-icon-item {
+    width: 160px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f6f7f7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px;
+    box-sizing: border-box;
+}
+
+.acf-icon-item__inner {
+    background: #fff;
+    border-radius: 6px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 10px 14px;
+    box-sizing: border-box;
+}
+
+.acf-icon-item__preview {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.acf-icon-item__preview svg,
+.acf-icon-item__preview img {
+    width: 56px;
+    height: 56px;
+    display: block;
+    /* Force monochrome for line icons so they look uniform in the library grid */
+    filter: brightness(0);
+}
+/* Custom icons show in full color */
+.acf-icon-item[data-icon-style="custom"] .acf-icon-item__preview svg,
+.acf-icon-item[data-icon-style="custom"] .acf-icon-item__preview img {
+    filter: none;
+}
+
+.acf-icon-item__name {
+    font-size: 13px;
+    color: #1d2327;
+    width: 100%;
+    text-align: center;
+    margin-top: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.acf-icon-item__actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.icon-delete-form {
+    display: inline-flex;
+    margin: 0;
+    padding: 0;
+}
+
+/* Icon action buttons */
+.icon-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 3px;
+    color: #787c82;
+    transition: color 0.1s, background 0.1s;
+}
+
+.icon-action-btn:hover {
+    color: #1d2327;
+    background: #f0f0f1;
+}
+.icon-action-btn:focus {
+    color: #1d2327;
+    background: #f0f0f1;
+    outline: none;
+    box-shadow: 0 0 0 2px #0073aa;
+}
+
+.icon-action-btn .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+.icon-action-btn--delete {
+    color: #d63638;
+}
+
+.icon-action-btn--delete:hover,
+.icon-action-btn--delete:focus {
+    color: #b32d2e;
+    background: #fce8e8;
+}
+
+.icon-action-btn--save {
+    color: #007017;
+}
+
+.icon-action-btn--save:hover,
+.icon-action-btn--save:focus {
+    color: #005c12;
+    background: #e6f4e6;
+}
+
+/* Rename form */
+.acf-icon-item__rename {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.acf-icon-item__rename input[type="text"] {
+    width: 100%;
+    font-size: 11px;
+    padding: 2px 4px;
+    box-sizing: border-box;
+    margin-bottom: 4px;
+    border: 1px solid #8c8f94;
+    border-radius: 3px;
+}
+
+.rename-actions {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Upload section */
+.acf-icon-library__upload-section {
+    max-width: 500px;
+}
+
+/* Drag handle */
+.acf-icon-item__drag-handle {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    cursor: grab;
+    color: #c3c4c7;
+    margin-bottom: 4px;
+    padding: 2px 0;
+    border-radius: 4px;
+    transition: color 0.1s, background 0.1s;
+}
+
+.acf-icon-item__drag-handle:hover {
+    color: #787c82;
+    background: #ebebec;
+}
+
+.acf-icon-item__drag-handle:active {
+    cursor: grabbing;
+}
+
+.acf-icon-item__drag-handle .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+/* Drag placeholder */
+.acf-icon-placeholder {
+    width: 160px;
+    border: 2px dashed #c3c4c7;
+    border-radius: 8px;
+    background: #f0f6fc;
+    visibility: visible !important;
+}
+
+/* Dragging state */
+.acf-icon-item.ui-sortable-helper {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    opacity: 0.9;
+}
+
+/* Order saved confirmation */
+#acf-icon-order-saved {
+    display: none;
+    margin-left: 12px;
+    color: #007017;
+    font-size: 13px;
+    font-weight: 500;
+    vertical-align: middle;
+}

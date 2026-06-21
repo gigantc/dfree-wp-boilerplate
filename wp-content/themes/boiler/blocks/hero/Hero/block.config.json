@@ -1,0 +1,6 @@
+{
+  "title": "Hero",
+  "description": "The main hero for the site.",
+  "keywords": ["hero", "header", "image"],
+  "requires": ["gsap", "scrolltrigger"]
+}

@@ -8,6 +8,8 @@ js/*.min.js
 js/*.map
 js/libs/*.min.js
 js/libs/*.map
+js/blocks/*.min.js
+js/blocks/*.map
 
 # Generated files
 blocks/manifest.json

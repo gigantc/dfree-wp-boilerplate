@@ -1,0 +1,26 @@
+//////////////////////////////////////
+// Divider Block
+
+//imports
+@use 'src/scss/variables' as v;
+
+.divider-block{
+  position:relative;
+  background-color:v.$white;
+  width:100%;
+  padding:32px 0px;
+  .container{
+    hr{
+      border:none;
+      border-top:1px solid v.$border;
+      margin:0px;
+    }
+  }
+  
+}
+
+//admin display overrides
+.wp-admin{
+  .divider-block{
+  }
+}

@@ -577,7 +577,7 @@ function relevanssi_index_doc( $index_post, $remove_first = false, $custom_field
 		&& ( 'on' === get_option( 'relevanssi_index_excerpt' ) || 'attachment' === $post->post_type )
 		) {
 		// Attachment caption is stored in the excerpt.
-		$n += relevanssi_index_excerpt( $insert_data, $post->post_excerpt, $min_word_length, $debug );
+		$n += relevanssi_index_excerpt( $insert_data, $post->post_excerpt, $min_word_length, $debug, $post );
 	}
 
 	// Premium can index arbitrary MySQL columns.
@@ -621,21 +621,21 @@ function relevanssi_index_doc( $index_post, $remove_first = false, $custom_field
 	 *
 	 * Added for potential TranslatePress support.
 	 *
-  	 * @param string|int $n                  Number of insert queries run, or
+	 * @param string|int $n                  Number of insert queries run, or
 	 * -1 if the indexing fails, or 'hide' in case the post is hidden or
 	 * 'donotindex' if a filter blocks this.
- 	 * @param object|int $index_post         The post to index, either post
+	 * @param object|int $index_post         The post to index, either post
 	 * object or post ID.
- 	 * @param boolean    $remove_first       If true, remove the post from the
+	 * @param boolean    $remove_first       If true, remove the post from the
 	 * index before indexing. Default false.
- 	 * @param array      $custom_fields      The custom fields that are indexed
+	 * @param array      $custom_fields      The custom fields that are indexed
 	 * for the post. Default an empty string.
- 	 * @param boolean    $bypass_global_post If true, do not use the global
+	 * @param boolean    $bypass_global_post If true, do not use the global
 	 * $post object. Default false.
- 	 * @param boolean    $debug              If true, echo out debugging
+	 * @param boolean    $debug              If true, echo out debugging
 	 * information. Default false.
-  	 *
-  	 * @return string|int Number of insert queries run, or -1 if the indexing
+	 *
+	 * @return string|int Number of insert queries run, or -1 if the indexing
 	 * fails, or 'hide' in case the post is hidden or 'donotindex' if a filter
 	 * blocks this.
 	 */
@@ -1397,11 +1397,23 @@ function relevanssi_index_custom_fields( &$insert_data, $post_id, $custom_fields
  * @param string  $excerpt         The post excerpt to index.
  * @param int     $min_word_length The minimum word length.
  * @param boolean $debug           If true, print out debug notices.
+ * @param object  $post_object     The post object.
  *
  * @return int The number of tokens added to the data.
  */
-function relevanssi_index_excerpt( &$insert_data, $excerpt, $min_word_length, $debug ) {
+function relevanssi_index_excerpt( &$insert_data, $excerpt, $min_word_length, $debug, $post_object ) {
 	$n = 0;
+
+	/**
+	 * If this filter returns false, post excerpt is not indexed at all.
+	 *
+	 * @param boolean Return false to prevent post excerpt from being indexed.
+	 * Default true.
+	 * @param object  $post_object The post object.
+	 */
+	if ( ! apply_filters( 'relevanssi_index_excerpt', true, $post_object ) ) {
+		return $n;
+	}
 
 	// Include excerpt for attachments which use post_excerpt for captions - modified by renaissancehack.
 	if ( $debug ) {
@@ -1678,6 +1690,7 @@ function relevanssi_disable_shortcodes() {
 		'sdm_latest_downloads', // SDM Simple Download Monitor.
 		'slimstat', // Slimstat Analytics.
 		'ninja_tables', // Ninja Tables.
+		'tribe_events', // The Events Calendar.
 	);
 
 	$disable_shortcodes = get_option( 'relevanssi_disable_shortcodes' );

@@ -1,30 +1,22 @@
 <?php
 /**
-* The template for displaying the footer.
-*
-* Contains the closing of the #content div and all content after.
-*
-* @link https://developer.wordpress.org/themes/basics/template-files/#template-partials
-*
-* @package lawfirm
-*/
-
+ * The template for displaying the footer.
+ *
+ * Closes the #page wrapper and outputs the global footer.
+ *
+ * @link https://developer.wordpress.org/themes/basics/template-files/#template-partials
+ *
+ * @package boiler
+ */
 ?>
-    <footer class="global-footer" data-ajaxurl="<?php echo admin_url('admin-ajax.php'); ?>">
-    
-    </footer>
+	<footer class="global-footer">
+		<div class="container">
+			<p>&copy; dFree's Boilerplate. All Rights Reserved.</p>
+		</div>
+	</footer>
 
-    </div><!-- #page -->
-    <?php wp_footer(); 
+</div><!-- #page -->
+<?php wp_footer(); ?>
 
-    // add Google Anlaytics if we are on the production site
-    if ($_SERVER['HTTP_HOST']==="XXXXXXX.com" || $_SERVER['HTTP_HOST']==="www.XXXXXXX.com") { 
-        echo "<script>
-                window.ga=function(){ga.q.push(arguments)};ga.q=[];ga.l=+new Date;
-                ga('create','UA-XXXXXXX-1','auto');ga('send','pageview')
-              </script>
-              <script src='https://www.google-analytics.com/analytics.js' async defer></script>";
-    } ?>
-
-  </body>
+</body>
 </html>

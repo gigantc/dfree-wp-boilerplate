@@ -1,0 +1,134 @@
+[
+  {
+    "key": "group_headline",
+    "title": "Block: Headline",
+    "fields": [
+      {
+        "key": "field_headline_message",
+        "label": "Block Type",
+        "name": "",
+        "type": "message",
+        "message": "<strong style=\"font-size:24px;\">Headline</strong>\r\n\r\nSimple H2 headline that can be used above any block.",
+        "new_lines": "wpautop",
+        "esc_html": 0,
+        "instructions": "",
+        "required": 0,
+        "wrapper": {
+          "width": "",
+          "class": "",
+          "id": ""
+        }
+      },
+      {
+        "key": "field_headline_tab_content",
+        "label": "Content",
+        "name": "",
+        "type": "tab",
+        "placement": "top",
+        "endpoint": 0,
+        "selected": 0,
+        "instructions": "",
+        "required": 0,
+        "wrapper": {
+          "width": "",
+          "class": "",
+          "id": ""
+        }
+      },
+      {
+        "key": "field_headline_text",
+        "label": "Headline",
+        "name": "headline_text",
+        "type": "text",
+        "instructions": "",
+        "required": 1,
+        "default_value": "",
+        "placeholder": "",
+        "maxlength": "",
+        "wrapper": {
+          "width": "",
+          "class": "",
+          "id": ""
+        },
+        "show_in_graphql": 1,
+        "graphql_field_name": "headlineText",
+        "graphql_description": "",
+        "graphql_non_null": 0,
+        "allow_in_bindings": 0
+      },
+      {
+        "key": "field_headline_alignment",
+        "label": "Alignment",
+        "name": "headline_alignment",
+        "type": "button_group",
+        "instructions": "",
+        "required": 0,
+        "choices": {
+          "left": "Left",
+          "center": "Center"
+        },
+        "default_value": "left",
+        "allow_null": 0,
+        "return_format": "value",
+        "layout": "horizontal",
+        "wrapper": {
+          "width": "50",
+          "class": "",
+          "id": ""
+        },
+        "show_in_graphql": 1,
+        "graphql_field_name": "headlineAlignment",
+        "graphql_description": "",
+        "graphql_non_null": 0,
+        "allow_in_bindings": 0
+      },
+      {
+        "key": "field_headline_background",
+        "label": "Background Color",
+        "name": "headline_background",
+        "type": "button_group",
+        "instructions": "",
+        "required": 0,
+        "choices": {
+          "white": "White",
+          "light-gray": "Light Gray"
+        },
+        "default_value": "white",
+        "allow_null": 0,
+        "return_format": "value",
+        "layout": "horizontal",
+        "wrapper": {
+          "width": "50",
+          "class": "",
+          "id": ""
+        },
+        "show_in_graphql": 1,
+        "graphql_field_name": "headlineBackground",
+        "graphql_description": "",
+        "graphql_non_null": 0,
+        "allow_in_bindings": 0
+      }
+    ],
+    "location": [
+      [
+        {
+          "param": "block",
+          "operator": "==",
+          "value": "acf/headline"
+        }
+      ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "show_in_rest": 0,
+    "show_in_graphql": 1,
+    "graphql_field_name": "block:Headline",
+    "map_graphql_types_from_location_rules": 0,
+    "graphql_types": ""
+  }
+]

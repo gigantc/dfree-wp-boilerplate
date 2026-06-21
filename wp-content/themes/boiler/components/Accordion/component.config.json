@@ -1,0 +1,5 @@
+{
+  "name": "Accordion",
+  "description": "Expandable accordion component with smooth GSAP animations",
+  "requires": ["gsap"]
+}

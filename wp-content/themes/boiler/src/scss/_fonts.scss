@@ -1,12 +1,15 @@
 //////////////////////////////////////
 // FONTS
 
-//imports
-
+// Boilerplate uses the system font stack defined in $font-stack (_variables.scss).
+// To add a custom self-hosted font, drop the woff2 file into /src/fonts/ and add a
+// declaration here, then update $font-stack in _variables.scss to use the family.
+//
+// Example:
 // @font-face {
-//   font-family: 'CircularStd';
-//   src: url('../src/fonts/CircularStd-Black.eot');
-//   src: url('../src/fonts/CircularStd-Black.eot?#iefix') format('embedded-opentype'), url('../src/fonts/CircularStd-Black.woff') format('woff'), url('../src/fonts/CircularStd-Black.ttf') format('truetype'), url('../src/fonts/CircularStd-Black.svg') format('svg');
-//   font-weight: 800;
+//   font-display: swap;
+//   font-family: 'YourFont';
 //   font-style: normal;
+//   font-weight: 400;
+//   src: url('../../src/fonts/yourfont-regular.woff2') format('woff2');
 // }
