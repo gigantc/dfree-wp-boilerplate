@@ -26,10 +26,8 @@
 
   .container{
     background-color: v.$primary;
-    border-radius: 32px 0 32px 0;
     overflow:hidden;
     @include v.breakpoint(v.$bp-md){
-      border-radius:32px 0 32px 0;
       overflow:visible;
     }
     .image{
@@ -43,7 +41,6 @@
         height:100%; width:100%;
         aspect-ratio:auto;
         max-height:300px;
-        border-radius:32px 0 0 0;
       }
       @include v.breakpoint(v.$bp-sm){
         max-height:188px;
