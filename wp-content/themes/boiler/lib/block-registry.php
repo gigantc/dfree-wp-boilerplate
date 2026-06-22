@@ -155,6 +155,10 @@ class DFREE_Block_Registry {
       'js_path'     => $has_js ? str_replace($this->blocks_dir . '/', '', $js_path) : '',
       'requires'    => $meta['requires'] ?? array(),
       'requires_js_in_low_data' => !empty($meta['requires_js_in_low_data']),
+      // When true, the block shows its block.preview.jpg (with a notice) in the
+      // editor canvas instead of rendering live — for blocks that can't display
+      // in the editor (carousels, maps, data-driven lists).
+      'editor_static_preview' => !empty($meta['editor_static_preview']),
     );
   }
 
@@ -169,6 +173,14 @@ class DFREE_Block_Registry {
     }
 
     return null;
+  }
+
+  /**
+   * Get the full cached data array for a single block by slug.
+   */
+  public function get_block($slug) {
+    $blocks = $this->get_blocks();
+    return $blocks[$slug] ?? null;
   }
 
   /**

@@ -139,10 +139,19 @@ Located in `lib/block-registry.php` and `lib/blocks.php`:
   - `get_blocks()` - Returns cached block list
   - `rebuild_manifest()` - Scans `/blocks` and regenerates manifest file
   - `get_block_file($slug)` - Returns file path for a block from cache
-- `my_acf_init()` - Registers blocks with ACF using cached manifest
-- `my_acf_block_render_callback()` - Includes the correct block template using registry lookup
+  - `get_block($slug)` - Returns the full cached data array for one block (includes the `editor_static_preview` flag)
+- `my_acf_init()` - Registers blocks with ACF using cached manifest (all blocks are ACF v3 — see Block Editor section)
+- `my_acf_block_render_callback()` - Includes the correct block template using registry lookup; receives `$is_preview` and renders a static preview for flagged blocks
 - `my_plugin_block_categories()` - Creates categories from registry cache
 - `acf_allowed_block_types()` - Controls which blocks appear in the editor using registry
+
+### Block Editor (WP 7.0 / ACF v3)
+WordPress 7.0 iframes the post editor; all ACF blocks are registered as **version 3**. Key points:
+
+- **Editing model**: fields are edited in the **expanded editor** (not in-canvas — ACF removed in-canvas edit mode under the iframe). The canvas shows a styled, **non-interactive** preview. Inspector fields are hidden via `hide_fields_in_sidebar`.
+- **Registration** (`lib/blocks.php`): `add_filter('acf/blocks/default_block_version', fn() => 3)`; per-block `hide_fields_in_sidebar => true`, `expanded_editor_button_text => 'Edit ' . $title`, `supports => ['align' => false, 'html' => false]`.
+- **Editor styling**: `main.css` + `admin.css` load into the iframe via `enqueue_block_assets`. Base styles are scoped to `.bdhwk, .editor-styles-wrapper` so previews match the front end. **`main.css` must NOT load in the admin chrome** (only `admin.css` does) — its resets break WP's chrome animations. The iframe rem base is set via `.block-editor-iframe__html{ font-size:62.5% }`.
+- **Static editor preview**: blocks that can't render in the editor (carousels, maps, data-driven lists) opt in with `"editor_static_preview": true` in `block.config.json`. The render callback then shows the block's `block.preview.jpg` with a notice instead of the live template (`dfree_block_static_preview()`). Requires a `block.preview.jpg`.
 
 ### Asset Compilation (Modern Build)
 Modern npm scripts using esbuild, Dart Sass, and PostCSS:
@@ -502,9 +511,10 @@ The system automatically enqueues both JS and CSS for required libraries when th
    - `block.config.json` - Optional metadata
    - `block.icon.svg` - Optional custom icon
    - `block.preview.jpg` - Optional preview image
-3. The block template should check `get_field('is_example')` to show preview image in editor
+3. The block template should check `get_field('is_example')` to show preview image in the block inserter popup
 4. Run `npm run build` - The block will be auto-registered, styles auto-imported, and JS bundled
 5. Configure ACF fields in WordPress admin under Custom Fields
+6. If the block can't render in the editor (JS-dependent carousel/map, or data-driven and empty without page context), add `"editor_static_preview": true` to `block.config.json` so the canvas shows `block.preview.jpg` instead of a broken render (see Block Editor section)
 
 **Block JavaScript:**
 - Each block can have its own JS file (e.g., `carousel.js`)
@@ -854,9 +864,10 @@ add_filter( 'register_post_type_args', 'dfree_cpt_block_templates', 20, 2 );
 ## Important Notes
 
 - ACF Pro must be installed
+- Targets WordPress 7.0 (iframed editor; all blocks registered as ACF v3 — see Block Editor section)
 - Theme text domain is `boiler`
 - Custom image sizes registered: `dfree_card` (800w), `dfree_hero` (2000w), `dfree_square` (800x800 cropped)
-- Main compiled CSS is loaded in both frontend and Gutenberg editor for block styling consistency
+- `main.css` is loaded on the frontend and into the editor **iframe** (via `enqueue_block_assets`); the admin chrome loads only `admin.css`
 - All compiled assets output to `/dist` folder (source files in `/src`)
 - Source maps generated only in dev mode, excluded from production builds
 - Component and block SCSS auto-imported into main stylesheet

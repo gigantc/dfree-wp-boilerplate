@@ -5,8 +5,6 @@ if ( ! function_exists( 'dfree_setup' ) ) :
  */
 function dfree_setup() {
 
-	add_editor_style( get_template_directory() . '/css/editor-style.css' );
-
 	// Add default posts and comments RSS feed links to head.
 	add_theme_support( 'automatic-feed-links' );
 
@@ -116,18 +114,36 @@ add_action( 'wp_enqueue_scripts', 'dfree_scripts' );
 
 
 /**
- * Load styles for the admin Gutenberg blocks
+ * Load admin-chrome styles.
+ * Only admin.css (admin-chrome overrides) loads in the wp-admin chrome.
+ * main.css is the FRONT-END stylesheet (modern-normalize + unscoped resets);
+ * loading it in the chrome interferes with WP's admin UI (e.g. it breaks the
+ * Meta Boxes drawer / Edit Block slide-out animations in WP 7.0). Block
+ * previews get main.css inside the editor iframe via enqueue_block_assets.
  */
 function dfree_load_admin_styles() {
-	// Load main.css for block styles consistency
-	wp_register_style( 'dfree-main-style-admin', get_template_directory_uri() . '/dist/css/main.css', array(), dfree_get_version() );
-	wp_enqueue_style( 'dfree-main-style-admin' );
-
-	// Load admin.css for admin-specific overrides
-	wp_register_style( 'dfree-admin-style', get_template_directory_uri() . '/dist/css/admin.css', array( 'dfree-main-style-admin' ), dfree_get_version() );
+	wp_register_style( 'dfree-admin-style', get_template_directory_uri() . '/dist/css/admin.css', array(), dfree_get_version() );
 	wp_enqueue_style( 'dfree-admin-style' );
 }
 add_action( 'admin_enqueue_scripts', 'dfree_load_admin_styles' );
+
+
+/**
+ * Load theme styles INTO the block editor iframe.
+ * WP 7.0 iframes the editor for classic themes, so styles enqueued via
+ * admin_enqueue_scripts no longer reach block previews. enqueue_block_assets
+ * fires inside the iframe context when in the editor. main.css carries base +
+ * block styles (base typography is scoped to .editor-styles-wrapper so it
+ * applies in the canvas); admin.css carries editor-only overrides.
+ */
+function dfree_enqueue_editor_iframe_styles() {
+	if ( ! is_admin() ) {
+		return;
+	}
+	wp_enqueue_style( 'dfree-editor-iframe-main', get_template_directory_uri() . '/dist/css/main.css', array(), dfree_get_version() );
+	wp_enqueue_style( 'dfree-editor-iframe-style', get_template_directory_uri() . '/dist/css/admin.css', array( 'dfree-editor-iframe-main' ), dfree_get_version() );
+}
+add_action( 'enqueue_block_assets', 'dfree_enqueue_editor_iframe_styles' );
 
 
 /**

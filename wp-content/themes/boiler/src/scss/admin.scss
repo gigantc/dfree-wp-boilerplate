@@ -6,48 +6,123 @@
 // Import variables and utilities
 @use 'variables' as v;
 
-// Editor-specific styles
+// rem units resolve against the iframe's own <html>, not .editor-styles-wrapper.
+// Set the theme's 10px rem base (62.5%) on the iframe root so rem-based type
+// renders at the correct size — mirrors `.bdhwk` (on <html>) on the front end.
+// This class exists only inside the editor iframe, so it never touches the
+// admin chrome even though admin.css also loads there.
+.block-editor-iframe__html{
+  font-size:v.$root-font-size-percentage;
+}
+
+// Editor canvas (WP 7.0 iframe)
 .editor-styles-wrapper {
-  
-}
 
-// Block preview adjustments for editor
-.block-editor-block-preview__content {
-  
+  // Full-width canvas. Theme blocks are full-bleed (width:100%) with an inner
+  // .container handling max-width — same as the front end. Without this, the
+  // editor constrains every block to the default ~840px content width.
+  .wp-block{
+    max-width:none !important;
+  }
 
+  // Canvas goes edge-to-edge like the front end — full-bleed block backgrounds
+  // reach the iframe edge, and the inner .container handles content inset.
+  .is-root-container{
+    padding-left:0px !important;
+    padding-right:0px !important;
+  }
 
-}
+  // Block previews are not interactive. Disable pointer events on ALL rendered
+  // block content (links, buttons, inputs, etc.) so a click selects the block
+  // instead of activating anything. Scoped to the ACF content wrapper
+  // (.acf-block-preview) — the block wrapper itself keeps pointer events (so
+  // selection works) and the editor's canvas UI (block appender) is untouched.
+  .acf-block-preview *{
+    pointer-events:none !important;
+  }
 
-// ACF Block Field Styling
-.wp-admin .acf-block-body .acf-fields .acf-field-message{
-  background-color:#eeeeee !important;
-  border-bottom:1px solid #adb2ad !important;
-}
+  // Static editor preview — shown for blocks flagged "editor_static_preview" in
+  // block.config.json (carousels, maps, data-driven lists that can't render
+  // live). A full-width light-gray band (so the block's editor footprint is
+  // visible) with a centered card holding the notice + preview image.
+  .acf-static-preview{
+    background:#f0f0f1;
+    padding:32px 24px;
 
+    .acf-static-preview__card{
+      max-width:446px;
+      margin:0px auto;
+      border:1px solid #dcdcde;
+      border-radius:8px;
+      overflow:hidden;
+      background:#ffffff;
+      box-shadow:0px 1px 3px rgba(0,0,0,0.08);
+    }
 
-.wp-admin .block-editor-inserter__preview-container {
-    // Make preview popup larger for full image display
-    // width: 600px !important;
-    // max-width: 90vw;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    .acf-static-preview__notice{
+      margin:0px;
+      padding:10px 14px;
+      background:v.$primary;
+      color:#ffffff;
+      font:400 12px/1.45 system-ui,-apple-system,sans-serif;
+      strong{font-weight:700;}
+      em{font-style:normal;font-weight:600;}
+    }
 
-    img {
-      width: 100% !important;
-      height: 100% !important;
-      max-width: 100% !important;
-      max-height: 100% !important;
-      object-fit: contain !important;
-      object-position: center !important;
-      border-radius: 4px;
+    .acf-static-preview__image{
+      display:block;
+      width:100%;
+      height:auto;
     }
   }
+}
+
+// The post title sits outside .container, so mirror the container's centered
+// max-width here to line the title up with the block content. Its <h1> also
+// inherits the theme's large base h1, so cap it to a compact editor size
+// (line-height reset too — the base set it via the `font` shorthand).
+.editor-visual-editor__post-title-wrapper{
+  max-width:v.$container-max-width;
+  width:calc(100% - 90px);
+  margin:0px auto;
+  @include v.breakpoint(v.$bp-md){ width:calc(100% - 68px); }
+  @include v.breakpoint(v.$bp-sm){ width:calc(100% - 46px); }
+
+  h1{
+    font-size:30px;
+    line-height:1.3;
+  }
+}
+
+// ACF "Expanded Editor" slide-out panel (v3 blocks).
+// ACF ships this at `.acf-block-form-modal{width:50% !important}`. That's a
+// single-class !important rule, so a matching selector only ties and loses on
+// load order — we add `body` to raise specificity and win outright. max-width
+// defeats any cap on the underlying .components-modal__frame.
+body .acf-block-form-modal{
+  width:85% !important;
+  min-width:900px !important;
+  max-width:none !important;
+}
+
+// Block inserter preview popup
+.wp-admin .block-editor-inserter__preview-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+
+  img {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    border-radius: 4px;
+  }
+}
 
 .wp-admin .block-editor-block-preview__container {
   min-height: 400px;
   width: 100%;
 }
-
-
-

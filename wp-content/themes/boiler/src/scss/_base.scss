@@ -5,9 +5,13 @@
 @use 'variables' as v;
 
 
-// all front-end base styles are wrapped in the bdhwk class
-// this is to remove these styles from the admin panel
-.bdhwk{
+// All front-end base styles are wrapped in the bdhwk class to keep them out of
+// the general admin UI. .editor-styles-wrapper is the block editor canvas root
+// (WP 7.0 iframe), so scoping here too gives block previews the same base
+// typography, links, container, and root font-size as the front end. The front
+// end never has .editor-styles-wrapper, so its output is unchanged.
+.bdhwk,
+.editor-styles-wrapper{
 
 font-size: v.$root-font-size-percentage;
 

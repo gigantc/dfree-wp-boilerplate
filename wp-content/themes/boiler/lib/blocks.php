@@ -10,9 +10,19 @@
 
 
 //////////////////////////////////////
+// OPT ALL BLOCKS INTO ACF BLOCK VERSION 3
+// WP 7.0 iframes the editor; v3 blocks edit fields in the sidebar / expanded
+// editor and render a preview in the canvas (in-canvas edit mode is not
+// supported in the iframe).
+add_filter( 'acf/blocks/default_block_version', function () {
+	return 3;
+} );
+
+//////////////////////////////////////
 // RENDER BLOCK USING REGISTRY
-// Uses cached block registry to avoid filesystem scans
-function my_acf_block_render_callback( $block ) {
+// Uses cached block registry to avoid filesystem scans.
+// $is_preview is true when rendering inside the block editor canvas.
+function my_acf_block_render_callback( $block, $content = '', $is_preview = false, $post_id = 0, $wp_block = null, $context = false ) {
 
 	// convert name ("acf/block-name") into path friendly slug ("block-name")
 	$slug = sanitize_title( str_replace( 'acf/', '', $block['name'] ) );
@@ -21,9 +31,45 @@ function my_acf_block_render_callback( $block ) {
 	$registry = DFREE_Block_Registry::get_instance();
 	$file = $registry->get_block_file( $slug );
 
+	// In the editor canvas, blocks opted into "editor_static_preview" (via
+	// block.config.json) show a static preview image + notice instead of their
+	// live markup — for blocks that can't render in the editor (carousels
+	// needing a JS library, maps, data-driven lists that come up empty).
+	if ( $is_preview && $file ) {
+		$data = $registry->get_block( $slug );
+		if ( ! empty( $data['editor_static_preview'] ) ) {
+			dfree_block_static_preview( $file, $block );
+			return;
+		}
+	}
+
 	if ( $file && file_exists( $file ) ) {
 		include $file;
 	}
+}
+
+//////////////////////////////////////
+// STATIC EDITOR PREVIEW
+// Renders a block's block.preview.jpg with a notice in the editor canvas, for
+// blocks flagged "editor_static_preview" that can't render live in the iframe.
+function dfree_block_static_preview( $file, $block ) {
+	$dir   = dirname( $file );
+	$title = $block['title'] ?? '';
+	$img   = $dir . '/block.preview.jpg';
+
+	echo '<div class="acf-static-preview">';            // full-width gray band
+	echo   '<div class="acf-static-preview__card">';    // centered card
+	echo     '<p class="acf-static-preview__notice">';
+	echo       '<strong>Image Preview</strong> — this block can not dynamically render in the editor.';
+	echo     '</p>';
+
+	if ( file_exists( $img ) ) {
+		$img_uri = str_replace( get_template_directory(), get_template_directory_uri(), $img );
+		echo   '<img class="acf-static-preview__image" src="' . esc_url( $img_uri ) . '" alt="' . esc_attr( $title ) . ' preview" />';
+	}
+
+	echo   '</div>';
+	echo '</div>';
 }
 
 
@@ -85,7 +131,14 @@ function my_acf_init() {
 			'category'        => $block['category'],
 			'icon'            => $block['icon'],
 			'keywords'        => $block['keywords'],
-			'mode'            => 'edit',
+			// Hide the fields form in the inspector sidebar (unusable at ~280px);
+			// editors use the expanded editor. (ACF v3 / WP 7.0 iframe editor.)
+			'hide_fields_in_sidebar'      => true,
+			// The expanded editor is the way in — label its button per block.
+			'expanded_editor_button_text' => 'Edit ' . $block['title'],
+			// Full-bleed blocks: disable the alignment control at the source.
+			// 'html' => false also drops "Edit as HTML" from the ⋮ menu.
+			'supports'                    => array( 'align' => false, 'html' => false ),
 			'example'         => array(
 				'attributes' => array(
 					'mode' => 'preview',
