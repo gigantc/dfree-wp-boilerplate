@@ -45,7 +45,7 @@ Runs modern build tools with watch mode and BrowserSync:
 - Watches and bundles JS with esbuild (100x faster than webpack)
 - Live reloads on PHP, CSS, JS, and block SCSS changes
 
-**Important**: Update the BrowserSync proxy in `package.json` scripts to match your local domain (currently set to `dfreeboilerplate.local`).
+**Important**: Update the BrowserSync proxy in `package.json` scripts to match your local domain (currently set to `https://dfreeboilerplate.local`). Local serves sites over https, so keep the `https://` prefix and the `--https` flag, then open `https://localhost:3000` (accept the self-signed certificate once).
 
 ### Production Build
 ```bash

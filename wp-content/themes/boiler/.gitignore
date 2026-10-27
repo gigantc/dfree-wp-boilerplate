@@ -13,6 +13,8 @@ js/blocks/*.map
 
 # Generated files
 blocks/manifest.json
+components/manifest.json
+singles/manifest.json
 src/scss/_blocks.scss
 
 # OS files
