@@ -126,3 +126,10 @@ body .acf-block-form-modal{
   min-height: 400px;
   width: 100%;
 }
+
+// Lucide block icons are stroke icons; the editor's default SVG fill turns them solid
+.wp-admin [class*="editor-block-list-item-acf"] svg,
+.wp-admin .block-editor-block-icon svg{
+  fill: none !important;
+  stroke: currentColor;
+}
